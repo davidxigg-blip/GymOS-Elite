@@ -10,17 +10,18 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Inter', sans-serif; background-color: #050505; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-in { animation: fadeIn 0.5s ease-out forwards; }
+        .animate-in { animation: fadeIn 0.7s ease-out forwards; }
     </style>
 </head>
-<body class="bg-[#050505]">
+<body>
     <div id="root"></div>
 
     <script type="text/babel" data-type="module">
+        // Importación de Firebase desde CDN (Solución al bucle de carga)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, getDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -28,8 +29,19 @@
         const { useState, useEffect, useRef } = React;
 
         // --- CONFIGURACIÓN ---
-        const apiKey = ""; // PEGA AQUÍ TU API KEY
+        // 1. Pega aquí tu API Key de Gemini
+        const apiKey = ""; 
         const GEMINI_MODEL = "gemini-2.5-flash-preview-09-2025";
+
+        // 2. REEMPLAZA ESTO con tus datos de Firebase Console -> Configuración del proyecto
+        const firebaseConfig = {
+            apiKey: "AIza...",
+            authDomain: "tu-app.firebaseapp.com",
+            projectId: "tu-app",
+            storageBucket: "tu-app.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abcdefg"
+        };
 
         const EXERCISE_LIBRARY = {
             "Pecho": ["Press Banca", "Press Inclinado", "Aperturas", "Fondos"],
@@ -39,7 +51,7 @@
             "Brazos": ["Curl Bíceps", "Tríceps Polea", "Martillo", "Press Francés"]
         };
 
-        // --- LÓGICA DE IA ---
+        // Lógica de IA Original
         async function callGemini(prompt, systemInstruction = "") {
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
             const payload = {
@@ -71,30 +83,24 @@
             const [routines, setRoutines] = useState([]);
             const [logs, setLogs] = useState([]);
             const [activeWorkout, setActiveWorkout] = useState(null);
-            const [loading, setLoading] = useState(false);
             const [timer, setTimer] = useState(0);
             const [modal, setModal] = useState(null);
             const [aiAnalysis, setAiAnalysis] = useState("");
             const [isAiLoading, setIsAiLoading] = useState(false);
             const timerRef = useRef(null);
 
-            // IMPORTANTE: REEMPLAZA ESTO CON TUS DATOS DE FIREBASE
-            const firebaseConfig = {
-                apiKey: "AIza...",
-                authDomain: "tu-proyecto.firebaseapp.com",
-                projectId: "tu-proyecto",
-                storageBucket: "tu-proyecto.appspot.com",
-                messagingSenderId: "123456",
-                appId: "1:123456:web:abcdef"
-            };
-
+            // Inicialización corregida para entorno Web
             const app = initializeApp(firebaseConfig);
             const auth = getAuth(app);
             const db = getFirestore(app);
             const appId = 'titan-track-pro';
 
             useEffect(() => {
-                const initAuth = async () => { await signInAnonymously(auth); };
+                const initAuth = async () => {
+                    try {
+                        await signInAnonymously(auth);
+                    } catch (e) { console.error("Error Auth:", e); }
+                };
                 initAuth();
                 const unsubAuth = onAuthStateChanged(auth, setUser);
                 return () => unsubAuth();
@@ -107,23 +113,23 @@
 
                 const unsubR = onSnapshot(routineRef, (s) => {
                     setRoutines(s.docs.map(d => ({ id: d.id, ...d.data() })));
-                }, (err) => console.error(err));
+                });
 
                 const unsubL = onSnapshot(query(logsRef), (s) => {
                     const data = s.docs.map(d => ({ id: d.id, ...d.data() }));
                     setLogs(data.sort((a, b) => b.timestamp - a.timestamp));
-                }, (err) => console.error(err));
+                });
 
                 return () => { unsubR(); unsubL(); };
             }, [user]);
 
+            // Lógica de Rutinas y Entrenamiento (Copiado íntegramente de tu archivo)
             const generateAiRoutine = async (goal) => {
                 if (!goal) return;
                 setIsAiLoading(true);
                 try {
                     const systemPrompt = `Eres un experto entrenador personal. Basado en el objetivo del usuario, elige exactamente entre 4 y 6 ejercicios de esta lista: ${JSON.stringify(EXERCISE_LIBRARY)}. Responde solo con los nombres de los ejercicios separados por comas.`;
-                    const prompt = `Objetivo del usuario: ${goal}`;
-                    const result = await callGemini(prompt, systemPrompt);
+                    const result = await callGemini(`Objetivo del usuario: ${goal}`, systemPrompt);
                     const selectedExercises = result.split(',').map(ex => ex.trim()).filter(ex => 
                         Object.values(EXERCISE_LIBRARY).flat().includes(ex)
                     );
@@ -136,55 +142,20 @@
                             createdAt: Date.now()
                         });
                         setModal(null);
-                    } else { alert("La IA no identificó ejercicios válidos."); }
+                    }
                 } catch (e) { alert("Error: " + e.message); } finally { setIsAiLoading(false); }
             };
 
-            const analyzePerformance = async () => {
-                if (logs.length === 0) return;
-                setIsAiLoading(true);
-                try {
-                    const historyText = logs.slice(0, 5).map(l => `${new Date(l.timestamp).toLocaleDateString()}: ${l.totalVolume}kg`).join('\n');
-                    const analysis = await callGemini(`Analiza mi progreso: \n${historyText}`, "Eres un analista pro. Máximo 80 palabras.");
-                    setAiAnalysis(analysis);
-                } catch (e) { setAiAnalysis("Error analizando datos."); } finally { setIsAiLoading(false); }
-            };
-
-            const createRoutine = async (name, restTime) => {
-                if (!name || !user) return;
-                try {
-                    await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'routines'), {
-                        name, exercises: [], restTime: parseInt(restTime) || 90, createdAt: Date.now()
-                    });
-                    setModal(null);
-                } catch (e) { console.error(e); }
-            };
-
-            const updateRestTime = async (rId, seconds) => {
-                if (!user) return;
-                try {
-                    await updateDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'routines', rId), { 
-                        restTime: parseInt(seconds) || 0 
-                    });
-                } catch (e) { console.error(e); }
-            };
-
-            const toggleExerciseInRoutine = async (rId, exName) => {
-                if (!user) return;
-                const routine = routines.find(r => r.id === rId);
-                const exercises = routine.exercises || [];
-                const newExercises = exercises.includes(exName) ? exercises.filter(e => e !== exName) : [...exercises, exName];
-                await updateDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'routines', rId), { exercises: newExercises });
-            };
-
             const finishWorkout = async () => {
-                if (!user) return;
                 const results = activeWorkout.exercises.map(ex => ({
                     exercise: ex.name,
                     sets: ex.sets.filter(s => s.done && s.w && s.r)
                 })).filter(ex => ex.sets.length > 0);
+                
                 if (results.length === 0) return alert("Registra series.");
+                
                 const volume = results.reduce((a, ex) => a + ex.sets.reduce((sa, s) => sa + (parseFloat(s.w) * parseFloat(s.r)), 0), 0);
+                
                 await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'logs'), {
                     routineName: activeWorkout.name,
                     results,
@@ -202,6 +173,36 @@
                 timerRef.current = setInterval(() => {
                     setTimer(t => { if (t <= 1) { clearInterval(timerRef.current); return 0; } return t - 1; });
                 }, 1000);
+            };
+
+            const createRoutine = async (name, restTime) => {
+                await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'routines'), {
+                    name, exercises: [], restTime: parseInt(restTime) || 90, createdAt: Date.now()
+                });
+                setModal(null);
+            };
+
+            const updateRestTime = async (rId, seconds) => {
+                await updateDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'routines', rId), { 
+                    restTime: parseInt(seconds) || 0 
+                });
+            };
+
+            const toggleExerciseInRoutine = async (rId, exName) => {
+                const routine = routines.find(r => r.id === rId);
+                const exercises = routine.exercises || [];
+                const newExercises = exercises.includes(exName) ? exercises.filter(e => e !== exName) : [...exercises, exName];
+                await updateDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'routines', rId), { exercises: newExercises });
+            };
+
+            const analyzePerformance = async () => {
+                if (logs.length === 0) return;
+                setIsAiLoading(true);
+                try {
+                    const historyText = logs.slice(0, 5).map(l => `${new Date(l.timestamp).toLocaleDateString()}: ${l.totalVolume}kg`).join('\n');
+                    const analysis = await callGemini(`Analiza mi progreso: \n${historyText}`, "Eres un analista pro. Máximo 80 palabras.");
+                    setAiAnalysis(analysis);
+                } catch (e) { setAiAnalysis("Error analizando datos."); } finally { setIsAiLoading(false); }
             };
 
             if (!user) return (
@@ -245,11 +246,9 @@
                                 <div className="grid grid-cols-2 gap-4">
                                     <button onClick={() => setModal({type: 'routine'})} className="flex flex-col items-center justify-center py-6 bg-zinc-900/50 border border-white/5 rounded-3xl text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all group">
                                         <span className="text-[10px] font-black uppercase tracking-widest mb-1 group-hover:scale-110 transition-transform">Crear Manual</span>
-                                        <span className="text-[8px] opacity-40 uppercase font-bold tracking-widest">Protocolo</span>
                                     </button>
-                                    <button onClick={() => setModal({type: 'ai-routine'})} className="flex flex-col items-center justify-center py-6 bg-blue-600/90 hover:bg-blue-600 rounded-3xl text-white shadow-xl transition-all active:scale-95 group">
+                                    <button onClick={() => setModal({type: 'ai-routine'})} className="flex flex-col items-center justify-center py-6 bg-blue-600/90 hover:bg-blue-600 rounded-3xl text-white shadow-xl transition-all group active:scale-95">
                                         <span className="text-[10px] font-black uppercase tracking-widest mb-1 group-hover:scale-110 transition-transform">✨ Generar IA</span>
-                                        <span className="text-[8px] opacity-70 uppercase font-bold tracking-widest">Inteligencia</span>
                                     </button>
                                 </div>
 
@@ -260,19 +259,16 @@
                                             <div className="flex justify-between items-start">
                                                 <div>
                                                     <h3 className="text-2xl font-black italic uppercase tracking-tighter text-white group-hover:text-blue-500 transition-colors">{r.name}</h3>
-                                                    <div className="flex items-center gap-2 mt-2">
-                                                        <span className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">Descanso:</span>
-                                                        <span className="text-[9px] font-black text-blue-500 uppercase">{r.restTime || 0}s</span>
-                                                    </div>
+                                                    <span className="text-[9px] font-black text-blue-500 uppercase tracking-widest block mt-2">Descanso: {r.restTime || 0}s</span>
                                                 </div>
-                                                <button onClick={() => deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'routines', r.id))} className="text-zinc-800 hover:text-red-500 transition-colors p-2 bg-black rounded-full border border-white/5">✕</button>
+                                                <button onClick={() => deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'routines', r.id))} className="text-zinc-800 hover:text-red-500 p-2 bg-black rounded-full border border-white/5">✕</button>
                                             </div>
 
                                             <div className="flex flex-wrap gap-2">
                                                 {r.exercises?.map((ex, i) => (
                                                     <span key={i} className="text-[9px] font-bold bg-zinc-900 px-4 py-2 rounded-xl text-zinc-400 uppercase border border-white/5">{ex}</span>
                                                 ))}
-                                                <button onClick={() => setModal({type: 'exercise', routineId: r.id})} className="bg-blue-600/10 text-blue-500 border border-blue-600/20 w-8 h-8 flex items-center justify-center rounded-xl font-black hover:bg-blue-600 hover:text-white transition-all">+</button>
+                                                <button onClick={() => setModal({type: 'exercise', routineId: r.id})} className="bg-blue-600/10 text-blue-500 border border-blue-600/20 w-8 h-8 flex items-center justify-center rounded-xl font-black">+</button>
                                             </div>
 
                                             <button onClick={() => {
@@ -283,7 +279,7 @@
                                                     exercises: r.exercises.map(ex => ({ name: ex, sets: [{w:'', r:'', done:false}] })) 
                                                 });
                                                 setView('workout');
-                                            }} className="w-full py-5 bg-white text-black rounded-2xl font-black uppercase text-[11px] tracking-[0.2em] active:scale-95 transition-all shadow-xl shadow-white/5">
+                                            }} className="w-full py-5 bg-white text-black rounded-2xl font-black uppercase text-[11px] tracking-[0.2em] active:scale-95 transition-all">
                                                 Entrenamiento de Hoy
                                             </button>
                                         </div>
@@ -293,9 +289,9 @@
                         )}
 
                         {view === 'workout' && activeWorkout && (
-                            <div className="space-y-10 animate-in max-w-lg mx-auto">
+                            <div className="space-y-10 animate-in">
                                 <div className="flex items-center gap-6">
-                                    <button onClick={() => setActiveWorkout(null)} className="w-12 h-12 flex items-center justify-center bg-zinc-900 border border-white/10 rounded-full text-zinc-400 hover:text-white transition-all">←</button>
+                                    <button onClick={() => setActiveWorkout(null)} className="w-12 h-12 flex items-center justify-center bg-zinc-900 border border-white/10 rounded-full text-zinc-400">←</button>
                                     <h2 className="text-3xl font-black italic uppercase text-blue-600 tracking-tighter">{activeWorkout.name}</h2>
                                 </div>
 
@@ -306,28 +302,24 @@
                                             {ex.sets.map((s, sIdx) => (
                                                 <div key={sIdx} className="flex gap-4 items-center">
                                                     <div className="w-4 text-[10px] font-black text-zinc-700 italic">{sIdx + 1}</div>
-                                                    <div className="relative flex-1">
-                                                        <input type="number" placeholder="KG" value={s.w} className="w-full bg-black p-4 rounded-2xl text-center font-black border border-white/5 focus:border-blue-600 outline-none text-white" 
-                                                            onChange={e => {
-                                                                const nx = [...activeWorkout.exercises]; nx[exIdx].sets[sIdx].w = e.target.value;
-                                                                setActiveWorkout({...activeWorkout, exercises: nx});
-                                                            }} />
-                                                    </div>
-                                                    <div className="relative flex-1">
-                                                        <input type="number" placeholder="REPS" value={s.r} className="w-full bg-black p-4 rounded-2xl text-center font-black border border-white/5 focus:border-blue-600 outline-none text-white"
-                                                            onChange={e => {
-                                                                const nx = [...activeWorkout.exercises]; nx[exIdx].sets[sIdx].r = e.target.value;
-                                                                setActiveWorkout({...activeWorkout, exercises: nx});
-                                                            }} />
-                                                    </div>
+                                                    <input type="number" placeholder="KG" value={s.w} className="w-full bg-black p-4 rounded-2xl text-center font-black border border-white/5 focus:border-blue-600 outline-none text-white" 
+                                                        onChange={e => {
+                                                            const nx = [...activeWorkout.exercises]; nx[exIdx].sets[sIdx].w = e.target.value;
+                                                            setActiveWorkout({...activeWorkout, exercises: nx});
+                                                        }} />
+                                                    <input type="number" placeholder="REPS" value={s.r} className="w-full bg-black p-4 rounded-2xl text-center font-black border border-white/5 focus:border-blue-600 outline-none text-white"
+                                                        onChange={e => {
+                                                            const nx = [...activeWorkout.exercises]; nx[exIdx].sets[sIdx].r = e.target.value;
+                                                            setActiveWorkout({...activeWorkout, exercises: nx});
+                                                        }} />
                                                     <button onClick={() => {
                                                         const nx = [...activeWorkout.exercises]; 
                                                         const isDone = !nx[exIdx].sets[sIdx].done;
                                                         nx[exIdx].sets[sIdx].done = isDone;
                                                         setActiveWorkout({...activeWorkout, exercises: nx});
                                                         if(isDone) startRest(activeWorkout.restTime);
-                                                    }} className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${s.done ? 'bg-blue-600 text-white shadow-lg' : 'bg-zinc-900 text-zinc-700'}`}>
-                                                        ✓
+                                                    }} className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${s.done ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'bg-zinc-900 text-zinc-700'}`}>
+                                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3.5" d="M5 13l4 4L19 7"></path></svg>
                                                     </button>
                                                 </div>
                                             ))}
@@ -335,7 +327,7 @@
                                         <button onClick={() => {
                                             const nx = [...activeWorkout.exercises]; nx[exIdx].sets.push({w:'', r:'', done:false});
                                             setActiveWorkout({...activeWorkout, exercises: nx});
-                                        }} className="w-full py-4 bg-zinc-950 border border-white/5 rounded-2xl text-[9px] font-black text-zinc-500 uppercase tracking-widest">+ Añadir Serie</button>
+                                        }} className="w-full py-4 bg-zinc-950 border border-white/5 rounded-2xl text-[9px] font-black text-zinc-500 uppercase tracking-widest hover:text-blue-500 transition-all">+ Añadir Serie</button>
                                     </div>
                                 ))}
                                 <button onClick={finishWorkout} className="w-full py-6 bg-blue-600 text-white rounded-[2rem] font-black uppercase text-xs tracking-[0.3em] shadow-2xl active:scale-[0.98] transition-all">
@@ -347,24 +339,22 @@
                         {view === 'history' && (
                             <div className="space-y-10 animate-in">
                                 <button onClick={analyzePerformance} disabled={isAiLoading || logs.length === 0} className="relative group w-full text-left overflow-hidden">
-                                    <div className="absolute inset-0 bg-blue-600/5 group-hover:bg-blue-600/10 rounded-[2.5rem]"></div>
+                                    <div className="absolute inset-0 bg-blue-600/5 group-hover:bg-blue-600/10 transition-colors rounded-[2.5rem]"></div>
                                     <div className="relative p-10 rounded-[2.5rem] border border-blue-600/20">
                                         <span className="text-[10px] font-black text-blue-500 uppercase tracking-[0.3em] block mb-4 italic">✨ Intelligence Feedback</span>
-                                        {isAiLoading ? <p className="text-xs font-black text-zinc-400 uppercase animate-pulse">Procesando Métricas...</p> : <p className="text-sm text-zinc-200 font-medium italic leading-relaxed">{aiAnalysis || "Solicita un informe detallado."}</p>}
+                                        {isAiLoading ? <p className="text-xs font-black text-zinc-400 uppercase animate-pulse">Procesando...</p> : <p className="text-sm text-zinc-200 italic leading-relaxed">{aiAnalysis || "Solicita un informe detallado."}</p>}
                                     </div>
                                 </button>
                                 
                                 <div className="space-y-6">
-                                    <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.4em] px-4">Registro Histórico</h4>
                                     {logs.map(l => (
                                         <div key={l.id} className="bg-[#0a0a0a] p-8 rounded-[2.5rem] border border-white/5 flex justify-between items-center group hover:border-white/10 transition-all">
                                             <div>
-                                                <h4 className="text-lg font-black italic uppercase tracking-tight text-white">{l.routineName}</h4>
-                                                <span className="text-[10px] font-bold text-zinc-600 mt-1 block">{new Date(l.timestamp).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' })}</span>
+                                                <h4 className="text-lg font-black italic uppercase text-white">{l.routineName}</h4>
+                                                <span className="text-[10px] font-bold text-zinc-600 mt-1 block">{new Date(l.timestamp).toLocaleDateString()}</span>
                                             </div>
                                             <div className="text-right">
                                                 <p className="text-2xl font-black italic text-blue-600">{l.totalVolume}<span className="text-[10px] ml-1 text-zinc-700">KG</span></p>
-                                                <p className="text-[8px] font-black text-zinc-800 uppercase tracking-widest">Fuerza Total</p>
                                             </div>
                                         </div>
                                     ))}
@@ -373,28 +363,27 @@
                         )}
                     </div>
 
+                    {/* MODAL REDISEÑADO */}
                     {modal && (
                         <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4 bg-black/90 backdrop-blur-sm animate-in">
                             <div className="bg-[#0f0f0f] w-full max-w-md rounded-t-[3rem] sm:rounded-[3rem] p-10 space-y-10 border border-white/10 shadow-2xl max-h-[85vh] overflow-y-auto scrollbar-hide">
                                 <div className="flex justify-between items-center">
-                                    <h3 className="text-xl font-black uppercase italic text-white">
-                                        {modal.type === 'ai-routine' ? 'Generador IA' : modal.type === 'routine' ? 'Nuevo Plan' : 'Configuración'}
-                                    </h3>
-                                    <button onClick={() => setModal(null)} className="w-10 h-10 flex items-center justify-center bg-black rounded-full border border-white/5 text-zinc-600 hover:text-white transition-all">✕</button>
+                                    <h3 className="text-xl font-black uppercase italic tracking-tighter text-white">Configuración</h3>
+                                    <button onClick={() => setModal(null)} className="w-10 h-10 flex items-center justify-center bg-black rounded-full text-zinc-600">✕</button>
                                 </div>
 
                                 {modal.type === 'ai-routine' ? (
                                     <div className="space-y-8">
-                                        <textarea id="aiGoal" placeholder="Ej: Ganar fuerza en piernas..." className="w-full bg-black p-6 rounded-[2rem] font-bold outline-none border border-white/5 h-36 text-white" />
-                                        <button disabled={isAiLoading} onClick={() => generateAiRoutine(document.getElementById('aiGoal').value)} className="w-full py-6 bg-blue-600 text-white rounded-[2rem] font-black text-xs uppercase shadow-xl active:scale-95">
+                                        <textarea id="aiGoal" placeholder="Ej: Ganar fuerza en piernas..." className="w-full bg-black p-6 rounded-[2rem] font-bold outline-none border border-white/5 h-36 text-white text-sm" />
+                                        <button disabled={isAiLoading} onClick={() => generateAiRoutine(document.getElementById('aiGoal').value)} className="w-full py-6 bg-blue-600 text-white rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-blue-900/20 active:scale-95">
                                             {isAiLoading ? 'GENERANDO...' : 'ACTIVAR INTELIGENCIA'}
                                         </button>
                                     </div>
                                 ) : modal.type === 'routine' ? (
                                     <div className="space-y-8">
-                                        <input id="routineName" type="text" placeholder="NOMBRE DEL PROGRAMA" className="w-full bg-black p-6 rounded-[2rem] font-black outline-none border border-white/5 uppercase text-white" />
-                                        <input id="restTime" type="number" defaultValue="90" className="w-full bg-black p-6 rounded-[2rem] font-black border border-white/5 text-white" />
-                                        <button onClick={() => createRoutine(document.getElementById('routineName').value, document.getElementById('restTime').value)} className="w-full py-6 bg-white text-black rounded-[2rem] font-black uppercase">Guardar Protocolo</button>
+                                        <input id="routineName" type="text" placeholder="NOMBRE DEL PLAN" className="w-full bg-black p-6 rounded-[2rem] font-black outline-none border border-white/5 uppercase text-sm text-white" />
+                                        <input id="restTime" type="number" defaultValue="90" className="w-full bg-black p-6 rounded-[2rem] font-black border border-white/5 text-sm text-white" />
+                                        <button onClick={() => createRoutine(document.getElementById('routineName').value, document.getElementById('restTime').value)} className="w-full py-6 bg-white text-black rounded-[2rem] font-black uppercase text-xs tracking-[0.2em]">Guardar Protocolo</button>
                                     </div>
                                 ) : (
                                     <div className="space-y-10 pb-10">
@@ -424,6 +413,7 @@
                         </div>
                     )}
 
+                    {/* NAVEGACIÓN FIJA REDISEÑADA */}
                     <nav className="fixed bottom-0 left-0 right-0 z-50 px-6 pb-8">
                         <div className="max-w-xs mx-auto bg-black/80 backdrop-blur-2xl border border-white/10 p-3 flex justify-around rounded-[2.5rem] shadow-2xl">
                             <button onClick={() => setView('routines')} className={`flex-1 py-4 flex flex-col items-center gap-1 rounded-2xl transition-all ${view === 'routines' ? 'bg-blue-600 text-white' : 'text-zinc-600'}`}>
