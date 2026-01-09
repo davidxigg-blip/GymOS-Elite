@@ -1,452 +1,425 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { initializeApp } from "firebase/app";
-import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
-import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Titan Track AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-[#050505]">
+    <div id="root"></div>
 
-// Configuración de la API de Gemini
-const apiKey = ""; 
-const GEMINI_MODEL = "gemini-2.5-flash-preview-09-2025";
+    <script type="text/babel" data-type="module">
+        // Importamos Firebase como módulos ESM directamente desde el CDN de Google
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, getDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-const EXERCISE_LIBRARY = {
-    "Pecho": ["Press Banca", "Press Inclinado", "Aperturas", "Fondos"],
-    "Espalda": ["Dominadas", "Remo con Barra", "Jalón al Pecho", "Remo en Polea"],
-    "Piernas": ["Sentadillas", "Prensa", "Peso Muerto Rumano", "Extensiones"],
-    "Hombros": ["Press Militar", "Elevaciones Laterales", "Facepull"],
-    "Brazos": ["Curl Bíceps", "Tríceps Polea", "Martillo", "Press Francés"]
-};
+        const { useState, useEffect, useRef } = React;
 
-async function callGemini(prompt, systemInstruction = "") {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
-    const payload = {
-        contents: [{ parts: [{ text: prompt }] }],
-        systemInstruction: { parts: [{ text: systemInstruction }] }
-    };
+        // --- CONFIGURACIÓN (REEMPLAZA ESTOS VALORES) ---
+        const apiKey = "TU_API_KEY_AQUI"; 
+        const GEMINI_MODEL = "gemini-1.5-flash"; // Versión estable recomendada
 
-    for (let i = 0; i < 5; i++) {
-        try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            const data = await response.json();
-            return data.candidates?.[0]?.content?.parts?.[0]?.text;
-        } catch (error) {
-            const delay = Math.pow(2, i) * 1000;
-            await new Promise(resolve => setTimeout(resolve, delay));
-        }
-    }
-    throw new Error("Error de conexión con la IA.");
-}
-
-export default function App() {
-    const [user, setUser] = useState(null);
-    const [view, setView] = useState('routines');
-    const [routines, setRoutines] = useState([]);
-    const [logs, setLogs] = useState([]);
-    const [activeWorkout, setActiveWorkout] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [timer, setTimer] = useState(0);
-    const [modal, setModal] = useState(null);
-    const [aiAnalysis, setAiAnalysis] = useState("");
-    const [isAiLoading, setIsAiLoading] = useState(false);
-    const timerRef = useRef(null);
-
-    const firebaseConfig = JSON.parse(__firebase_config);
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'titan-track-pro';
-
-    useEffect(() => {
-        const initAuth = async () => {
-            await signInAnonymously(auth);
+        // Pega aquí los valores que obtienes de la consola de Firebase
+        const firebaseConfig = {
+            apiKey: "AIza...",
+            authDomain: "tu-app.firebaseapp.com",
+            projectId: "tu-app",
+            storageBucket: "tu-app.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abcdefg"
         };
-        initAuth();
-        const unsubAuth = onAuthStateChanged(auth, setUser);
-        return () => unsubAuth();
-    }, []);
 
-    useEffect(() => {
-        if (!user) return;
-        const routineRef = collection(db, 'artifacts', appId, 'users', user.uid, 'routines');
-        const logsRef = collection(db, 'artifacts', appId, 'users', user.uid, 'logs');
+        const EXERCISE_LIBRARY = {
+            "Pecho": ["Press Banca", "Press Inclinado", "Aperturas", "Fondos"],
+            "Espalda": ["Dominadas", "Remo con Barra", "Jalón al Pecho", "Remo en Polea"],
+            "Piernas": ["Sentadillas", "Prensa", "Peso Muerto Rumano", "Extensiones"],
+            "Hombros": ["Press Militar", "Elevaciones Laterales", "Facepull"],
+            "Brazos": ["Curl Bíceps", "Tríceps Polea", "Martillo", "Press Francés"]
+        };
 
-        const unsubR = onSnapshot(routineRef, (s) => {
-            setRoutines(s.docs.map(d => ({ id: d.id, ...d.data() })));
-        }, (err) => console.error(err));
+        async function callGemini(prompt, systemInstruction = "") {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                systemInstruction: { parts: [{ text: systemInstruction }] }
+            };
 
-        const unsubL = onSnapshot(query(logsRef), (s) => {
-            const data = s.docs.map(d => ({ id: d.id, ...d.data() }));
-            setLogs(data.sort((a, b) => b.timestamp - a.timestamp));
-        }, (err) => console.error(err));
+            for (let i = 0; i < 3; i++) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    const data = await response.json();
+                    return data.candidates?.[0]?.content?.parts?.[0]?.text;
+                } catch (error) {
+                    const delay = Math.pow(2, i) * 1000;
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            }
+            throw new Error("Error de conexión con la IA.");
+        }
 
-        return () => { unsubR(); unsubL(); };
-    }, [user]);
+        function App() {
+            const [user, setUser] = useState(null);
+            const [view, setView] = useState('routines');
+            const [routines, setRoutines] = useState([]);
+            const [logs, setLogs] = useState([]);
+            const [activeWorkout, setActiveWorkout] = useState(null);
+            const [timer, setTimer] = useState(0);
+            const [modal, setModal] = useState(null);
+            const [aiAnalysis, setAiAnalysis] = useState("");
+            const [isAiLoading, setIsAiLoading] = useState(false);
+            const timerRef = useRef(null);
 
-    const generateAiRoutine = async (goal) => {
-        if (!goal) return;
-        setIsAiLoading(true);
-        try {
-            const systemPrompt = `Eres un experto entrenador personal. Basado en el objetivo del usuario, elige exactamente entre 4 y 6 ejercicios de esta lista: ${JSON.stringify(EXERCISE_LIBRARY)}. Responde solo con los nombres de los ejercicios separados por comas.`;
-            const prompt = `Objetivo del usuario: ${goal}`;
-            const result = await callGemini(prompt, systemPrompt);
-            const selectedExercises = result.split(',').map(ex => ex.trim()).filter(ex => 
-                Object.values(EXERCISE_LIBRARY).flat().includes(ex)
-            );
+            // Inicialización de Firebase
+            const app = initializeApp(firebaseConfig);
+            const auth = getAuth(app);
+            const db = getFirestore(app);
+            const appId = 'titan-track-pro';
 
-            if (selectedExercises.length > 0) {
+            useEffect(() => {
+                signInAnonymously(auth).catch(console.error);
+                return onAuthStateChanged(auth, setUser);
+            }, []);
+
+            useEffect(() => {
+                if (!user) return;
+                const routineRef = collection(db, 'artifacts', appId, 'users', user.uid, 'routines');
+                const logsRef = collection(db, 'artifacts', appId, 'users', user.uid, 'logs');
+
+                const unsubR = onSnapshot(routineRef, (s) => {
+                    setRoutines(s.docs.map(d => ({ id: d.id, ...d.data() })));
+                });
+
+                const unsubL = onSnapshot(query(logsRef), (s) => {
+                    const data = s.docs.map(d => ({ id: d.id, ...d.data() }));
+                    setLogs(data.sort((a, b) => b.timestamp - a.timestamp));
+                });
+
+                return () => { unsubR(); unsubL(); };
+            }, [user]);
+
+            // Lógica de IA y Rutinas
+            const generateAiRoutine = async (goal) => {
+                if (!goal) return;
+                setIsAiLoading(true);
+                try {
+                    const systemPrompt = `Eres un experto entrenador personal. Basado en el objetivo del usuario, elige exactamente entre 4 y 6 ejercicios de esta lista: ${JSON.stringify(EXERCISE_LIBRARY)}. Responde solo con los nombres de los ejercicios separados por comas.`;
+                    const result = await callGemini(`Objetivo del usuario: ${goal}`, systemPrompt);
+                    const selectedExercises = result.split(',').map(ex => ex.trim()).filter(ex => 
+                        Object.values(EXERCISE_LIBRARY).flat().includes(ex)
+                    );
+
+                    if (selectedExercises.length > 0) {
+                        await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'routines'), {
+                            name: `IA: ${goal.substring(0, 20)}`,
+                            exercises: selectedExercises,
+                            restTime: 90,
+                            createdAt: Date.now()
+                        });
+                        setModal(null);
+                    }
+                } catch (e) { alert("Error: " + e.message); } finally { setIsAiLoading(false); }
+            };
+
+            const analyzePerformance = async () => {
+                if (logs.length === 0) return;
+                setIsAiLoading(true);
+                try {
+                    const historyText = logs.slice(0, 5).map(l => `${new Date(l.timestamp).toLocaleDateString()}: ${l.totalVolume}kg`).join('\n');
+                    const analysis = await callGemini(`Analiza mi progreso: \n${historyText}`, "Eres un analista pro. Máximo 80 palabras.");
+                    setAiAnalysis(analysis);
+                } catch (e) { setAiAnalysis("Error analizando datos."); } finally { setIsAiLoading(false); }
+            };
+
+            const createRoutine = async (name, restTime) => {
+                if (!name || !user) return;
                 await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'routines'), {
-                    name: `IA: ${goal.substring(0, 20)}`,
-                    exercises: selectedExercises,
-                    restTime: 90,
-                    createdAt: Date.now()
+                    name, exercises: [], restTime: parseInt(restTime) || 90, createdAt: Date.now()
                 });
                 setModal(null);
-            } else {
-                alert("La IA no identificó ejercicios válidos.");
-            }
-        } catch (e) { alert("Error: " + e.message); } finally { setIsAiLoading(false); }
-    };
+            };
 
-    const analyzePerformance = async () => {
-        if (logs.length === 0) return;
-        setIsAiLoading(true);
-        try {
-            const historyText = logs.slice(0, 5).map(l => `${new Date(l.timestamp).toLocaleDateString()}: ${l.totalVolume}kg`).join('\n');
-            const analysis = await callGemini(`Analiza mi progreso: \n${historyText}`, "Eres un analista pro. Máximo 80 palabras.");
-            setAiAnalysis(analysis);
-        } catch (e) { setAiAnalysis("Error analizando datos."); } finally { setIsAiLoading(false); }
-    };
+            const updateRestTime = async (rId, seconds) => {
+                await updateDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'routines', rId), { 
+                    restTime: parseInt(seconds) || 0 
+                });
+            };
 
-    const createRoutine = async (name, restTime) => {
-        if (!name || !user) return;
-        try {
-            await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'routines'), {
-                name, exercises: [], restTime: parseInt(restTime) || 90, createdAt: Date.now()
-            });
-            setModal(null);
-        } catch (e) { console.error(e); }
-    };
+            const toggleExerciseInRoutine = async (rId, exName) => {
+                const routine = routines.find(r => r.id === rId);
+                const exercises = routine.exercises || [];
+                const newExercises = exercises.includes(exName) ? exercises.filter(e => e !== exName) : [...exercises, exName];
+                await updateDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'routines', rId), { exercises: newExercises });
+            };
 
-    const updateRestTime = async (rId, seconds) => {
-        if (!user) return;
-        try {
-            await updateDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'routines', rId), { 
-                restTime: parseInt(seconds) || 0 
-            });
-        } catch (e) { console.error(e); }
-    };
-
-    const toggleExerciseInRoutine = async (rId, exName) => {
-        if (!user) return;
-        const routine = routines.find(r => r.id === rId);
-        const exercises = routine.exercises || [];
-        const newExercises = exercises.includes(exName) ? exercises.filter(e => e !== exName) : [...exercises, exName];
-        await updateDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'routines', rId), { exercises: newExercises });
-    };
-
-    const finishWorkout = async () => {
-        if (!user) return;
-        const results = activeWorkout.exercises.map(ex => ({
-            exercise: ex.name,
-            sets: ex.sets.filter(s => s.done && s.w && s.r)
-        })).filter(ex => ex.sets.length > 0);
-        if (results.length === 0) return alert("Registra series.");
-        const volume = results.reduce((a, ex) => a + ex.sets.reduce((sa, s) => sa + (parseFloat(s.w) * parseFloat(s.r)), 0), 0);
-        await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'logs'), {
-            routineName: activeWorkout.name,
-            results,
-            totalVolume: volume,
-            timestamp: Date.now()
-        });
-        setActiveWorkout(null);
-        setView('history');
-    };
-
-    const startRest = (s) => {
-        if (!s || s <= 0) return;
-        setTimer(s);
-        if (timerRef.current) clearInterval(timerRef.current);
-        timerRef.current = setInterval(() => {
-            setTimer(t => { if (t <= 1) { clearInterval(timerRef.current); return 0; } return t - 1; });
-        }, 1000);
-    };
-
-    if (!user) return <div className="h-screen bg-[#050505] flex flex-col items-center justify-center gap-4">
-        <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-        <span className="text-zinc-600 font-bold text-[10px] tracking-[0.3em] uppercase">Titan Track AI</span>
-    </div>;
-
-    return (
-        <div className="min-h-screen bg-[#050505] text-zinc-100 font-sans selection:bg-blue-500/30 overflow-x-hidden">
-            <div className="max-w-xl mx-auto px-5 sm:px-10 pt-10 pb-40">
+            const finishWorkout = async () => {
+                const results = activeWorkout.exercises.map(ex => ({
+                    exercise: ex.name,
+                    sets: ex.sets.filter(s => s.done && s.w && s.r)
+                })).filter(ex => ex.sets.length > 0);
                 
-                <header className="flex justify-between items-center mb-10">
-                    <div>
-                        <h2 className="text-2xl font-black italic tracking-tighter uppercase leading-none">
-                            Titan<span className="text-blue-600">Track</span>
-                        </h2>
-                        <span className="text-[9px] text-zinc-500 font-bold tracking-[0.3em] uppercase mt-1 block">IA Edition</span>
-                    </div>
-                    {timer > 0 && (
-                        <div onClick={() => setTimer(0)} className="bg-blue-600/10 border border-blue-600/20 text-blue-500 px-6 py-2 rounded-2xl font-black text-xs animate-pulse cursor-pointer backdrop-blur-sm">
-                            RESTA: {timer}s
-                        </div>
-                    )}
-                </header>
+                if (results.length === 0) return alert("Registra series.");
+                
+                const volume = results.reduce((a, ex) => a + ex.sets.reduce((sa, s) => sa + (parseFloat(s.w) * parseFloat(s.r)), 0), 0);
+                
+                await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'logs'), {
+                    routineName: activeWorkout.name,
+                    results,
+                    totalVolume: volume,
+                    timestamp: Date.now()
+                });
+                setActiveWorkout(null);
+                setView('history');
+            };
 
-                {view === 'routines' && !activeWorkout && (
-                    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                        {/* Tarjeta de Progreso Principal */}
-                        <div className="relative group">
-                            <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-[2.5rem] blur opacity-10 group-hover:opacity-20 transition duration-1000"></div>
-                            <div className="relative bg-[#0a0a0a] p-10 rounded-[2.5rem] border border-white/5">
-                                <span className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em] block mb-3">Volumen Total Reciente</span>
-                                <div className="flex items-baseline gap-3">
-                                    <h3 className="text-6xl font-black tracking-tighter italic text-white">{logs[0]?.totalVolume || 0}</h3>
-                                    <span className="text-blue-600 font-black text-sm uppercase italic">Kg Levantados</span>
-                                </div>
+            const startRest = (s) => {
+                if (!s || s <= 0) return;
+                setTimer(s);
+                if (timerRef.current) clearInterval(timerRef.current);
+                timerRef.current = setInterval(() => {
+                    setTimer(t => { if (t <= 1) { clearInterval(timerRef.current); return 0; } return t - 1; });
+                }, 1000);
+            };
+
+            if (!user) return (
+                <div className="h-screen bg-[#050505] flex flex-col items-center justify-center gap-4">
+                    <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                    <span className="text-zinc-600 font-bold text-[10px] tracking-[0.3em] uppercase">Titan Track AI</span>
+                </div>
+            );
+
+            return (
+                <div className="min-h-screen bg-[#050505] text-zinc-100 font-sans selection:bg-blue-500/30 overflow-x-hidden">
+                    <div className="max-w-xl mx-auto px-5 sm:px-10 pt-10 pb-40">
+                        
+                        <header className="flex justify-between items-center mb-10">
+                            <div>
+                                <h2 className="text-2xl font-black italic tracking-tighter uppercase leading-none">
+                                    Titan<span className="text-blue-600">Track</span>
+                                </h2>
+                                <span className="text-[9px] text-zinc-500 font-bold tracking-[0.3em] uppercase mt-1 block">IA Edition</span>
                             </div>
-                        </div>
-
-                        {/* Botones de Acción Estilizados */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <button onClick={() => setModal({type: 'routine'})} className="flex flex-col items-center justify-center py-6 bg-zinc-900/50 border border-white/5 rounded-3xl text-zinc-400 hover:text-white hover:bg-zinc-800/50 hover:border-white/10 transition-all group">
-                                <span className="text-[10px] font-black uppercase tracking-widest mb-1 group-hover:scale-110 transition-transform">Crear Manual</span>
-                                <span className="text-[8px] opacity-40 uppercase font-bold tracking-widest">Protocolo</span>
-                            </button>
-                            <button onClick={() => setModal({type: 'ai-routine'})} className="flex flex-col items-center justify-center py-6 bg-blue-600/90 hover:bg-blue-600 rounded-3xl text-white shadow-xl shadow-blue-900/10 transition-all active:scale-95 group">
-                                <span className="text-[10px] font-black uppercase tracking-widest mb-1 group-hover:scale-110 transition-transform">✨ Generar IA</span>
-                                <span className="text-[8px] opacity-70 uppercase font-bold tracking-widest">Inteligencia</span>
-                            </button>
-                        </div>
-
-                        {/* Lista de Rutinas con Mejor Espaciado */}
-                        <div className="space-y-6">
-                            <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.4em] px-4">Mis Rutinas</h4>
-                            {routines.map(r => (
-                                <div key={r.id} className="relative bg-[#0d0d0d] p-8 rounded-[2.5rem] border border-white/5 space-y-8 hover:border-white/10 transition-all group">
-                                    <div className="flex justify-between items-start">
-                                        <div>
-                                            <h3 className="text-2xl font-black italic uppercase tracking-tighter text-white group-hover:text-blue-500 transition-colors">{r.name}</h3>
-                                            <div className="flex items-center gap-2 mt-2">
-                                                <span className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">Descanso:</span>
-                                                <span className="text-[9px] font-black text-blue-500 uppercase">{r.restTime || 0}s</span>
-                                            </div>
-                                        </div>
-                                        <button onClick={() => deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'routines', r.id))} className="text-zinc-800 hover:text-red-500 transition-colors p-2 bg-black rounded-full border border-white/5">✕</button>
-                                    </div>
-
-                                    <div className="flex flex-wrap gap-2">
-                                        {r.exercises?.map((ex, i) => (
-                                            <span key={i} className="text-[9px] font-bold bg-zinc-900 px-4 py-2 rounded-xl text-zinc-400 uppercase border border-white/5">{ex}</span>
-                                        ))}
-                                        <button onClick={() => setModal({type: 'exercise', routineId: r.id})} className="bg-blue-600/10 text-blue-500 border border-blue-600/20 w-8 h-8 flex items-center justify-center rounded-xl font-black hover:bg-blue-600 hover:text-white transition-all">+</button>
-                                    </div>
-
-                                    <button onClick={() => {
-                                        if(!r.exercises?.length) return alert("Añade ejercicios.");
-                                        setActiveWorkout({ 
-                                            name: r.name, 
-                                            restTime: r.restTime || 0,
-                                            exercises: r.exercises.map(ex => ({ name: ex, sets: [{w:'', r:'', done:false}] })) 
-                                        });
-                                        setView('workout');
-                                    }} className="w-full py-5 bg-white text-black rounded-2xl font-black uppercase text-[11px] tracking-[0.2em] active:scale-95 transition-all shadow-xl shadow-white/5">
-                                        Entrenamiento de Hoy
-                                    </button>
-                                </div>
-                            ))}
-                            {routines.length === 0 && (
-                                <div className="text-center py-20 bg-zinc-900/20 rounded-[2.5rem] border border-dashed border-white/5">
-                                    <p className="text-zinc-600 font-bold text-xs uppercase tracking-widest">No hay protocolos activos</p>
+                            {timer > 0 && (
+                                <div onClick={() => setTimer(0)} className="bg-blue-600/10 border border-blue-600/20 text-blue-500 px-6 py-2 rounded-2xl font-black text-xs animate-pulse cursor-pointer backdrop-blur-sm">
+                                    RESTA: {timer}s
                                 </div>
                             )}
-                        </div>
-                    </div>
-                )}
+                        </header>
 
-                {view === 'workout' && activeWorkout && (
-                    <div className="space-y-10 animate-in fade-in duration-500 max-w-lg mx-auto">
-                        <div className="flex items-center gap-6">
-                            <button onClick={() => setActiveWorkout(null)} className="w-12 h-12 flex items-center justify-center bg-zinc-900 border border-white/10 rounded-full text-zinc-400 hover:text-white transition-all">←</button>
-                            <h2 className="text-3xl font-black italic uppercase text-blue-600 tracking-tighter">{activeWorkout.name}</h2>
-                        </div>
+                        {view === 'routines' && !activeWorkout && (
+                            <div className="space-y-10">
+                                <div className="relative group">
+                                    <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-[2.5rem] blur opacity-10 group-hover:opacity-20 transition duration-1000"></div>
+                                    <div className="relative bg-[#0a0a0a] p-10 rounded-[2.5rem] border border-white/5">
+                                        <span className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em] block mb-3">Volumen Total Reciente</span>
+                                        <div className="flex items-baseline gap-3">
+                                            <h3 className="text-6xl font-black tracking-tighter italic text-white">{logs[0]?.totalVolume || 0}</h3>
+                                            <span className="text-blue-600 font-black text-sm uppercase italic">Kg Levantados</span>
+                                        </div>
+                                    </div>
+                                </div>
 
-                        {activeWorkout.exercises.map((ex, exIdx) => (
-                            <div key={exIdx} className="bg-[#0a0a0a] p-8 rounded-[2.5rem] border border-white/5 space-y-8">
-                                <h4 className="text-xs font-black uppercase text-zinc-500 tracking-[0.3em] border-b border-white/5 pb-4">{ex.name}</h4>
-                                <div className="space-y-4">
-                                    {ex.sets.map((s, sIdx) => (
-                                        <div key={sIdx} className="flex gap-4 items-center">
-                                            <div className="w-4 text-[10px] font-black text-zinc-700 italic">{sIdx + 1}</div>
-                                            <div className="relative flex-1">
-                                                <input type="number" placeholder="KG" value={s.w} className="w-full bg-black p-4 rounded-2xl text-center font-black border border-white/5 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all outline-none text-white placeholder-zinc-800" 
-                                                    onChange={e => {
-                                                        const nx = [...activeWorkout.exercises]; nx[exIdx].sets[sIdx].w = e.target.value;
-                                                        setActiveWorkout({...activeWorkout, exercises: nx});
-                                                    }} />
+                                <div className="grid grid-cols-2 gap-4">
+                                    <button onClick={() => setModal({type: 'routine'})} className="flex flex-col items-center justify-center py-6 bg-zinc-900/50 border border-white/5 rounded-3xl text-zinc-400 hover:text-white hover:bg-zinc-800/50 hover:border-white/10 transition-all group">
+                                        <span className="text-[10px] font-black uppercase tracking-widest mb-1 group-hover:scale-110 transition-transform">Crear Manual</span>
+                                    </button>
+                                    <button onClick={() => setModal({type: 'ai-routine'})} className="flex flex-col items-center justify-center py-6 bg-blue-600/90 hover:bg-blue-600 rounded-3xl text-white shadow-xl shadow-blue-900/10 transition-all active:scale-95 group">
+                                        <span className="text-[10px] font-black uppercase tracking-widest mb-1 group-hover:scale-110 transition-transform">✨ Generar IA</span>
+                                    </button>
+                                </div>
+
+                                <div className="space-y-6">
+                                    <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.4em] px-4">Mis Rutinas</h4>
+                                    {routines.map(r => (
+                                        <div key={r.id} className="relative bg-[#0d0d0d] p-8 rounded-[2.5rem] border border-white/5 space-y-8 hover:border-white/10 transition-all group">
+                                            <div className="flex justify-between items-start">
+                                                <div>
+                                                    <h3 className="text-2xl font-black italic uppercase tracking-tighter text-white group-hover:text-blue-500 transition-colors">{r.name}</h3>
+                                                    <span className="text-[9px] font-black text-blue-500 uppercase tracking-widest block mt-2">Descanso: {r.restTime || 0}s</span>
+                                                </div>
+                                                <button onClick={() => deleteDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'routines', r.id))} className="text-zinc-800 hover:text-red-500 p-2 bg-black rounded-full border border-white/5">✕</button>
                                             </div>
-                                            <div className="relative flex-1">
-                                                <input type="number" placeholder="REPS" value={s.r} className="w-full bg-black p-4 rounded-2xl text-center font-black border border-white/5 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all outline-none text-white placeholder-zinc-800"
-                                                    onChange={e => {
-                                                        const nx = [...activeWorkout.exercises]; nx[exIdx].sets[sIdx].r = e.target.value;
-                                                        setActiveWorkout({...activeWorkout, exercises: nx});
-                                                    }} />
+
+                                            <div className="flex flex-wrap gap-2">
+                                                {r.exercises?.map((ex, i) => (
+                                                    <span key={i} className="text-[9px] font-bold bg-zinc-900 px-4 py-2 rounded-xl text-zinc-400 uppercase border border-white/5">{ex}</span>
+                                                ))}
+                                                <button onClick={() => setModal({type: 'exercise', routineId: r.id})} className="bg-blue-600/10 text-blue-500 border border-blue-600/20 w-8 h-8 flex items-center justify-center rounded-xl font-black">+</button>
                                             </div>
+
                                             <button onClick={() => {
-                                                const nx = [...activeWorkout.exercises]; 
-                                                const isDone = !nx[exIdx].sets[sIdx].done;
-                                                nx[exIdx].sets[sIdx].done = isDone;
-                                                setActiveWorkout({...activeWorkout, exercises: nx});
-                                                if(isDone) startRest(activeWorkout.restTime);
-                                            }} className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${s.done ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'bg-zinc-900 text-zinc-700 hover:text-zinc-500'}`}>
-                                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3.5" d="M5 13l4 4L19 7"></path></svg>
+                                                if(!r.exercises?.length) return alert("Añade ejercicios.");
+                                                setActiveWorkout({ 
+                                                    name: r.name, 
+                                                    restTime: r.restTime || 0,
+                                                    exercises: r.exercises.map(ex => ({ name: ex, sets: [{w:'', r:'', done:false}] })) 
+                                                });
+                                                setView('workout');
+                                            }} className="w-full py-5 bg-white text-black rounded-2xl font-black uppercase text-[11px] tracking-[0.2em] active:scale-95 transition-all">
+                                                Entrenamiento de Hoy
                                             </button>
                                         </div>
                                     ))}
                                 </div>
-                                <button onClick={() => {
-                                    const nx = [...activeWorkout.exercises]; nx[exIdx].sets.push({w:'', r:'', done:false});
-                                    setActiveWorkout({...activeWorkout, exercises: nx});
-                                }} className="w-full py-4 bg-zinc-950 border border-white/5 rounded-2xl text-[9px] font-black text-zinc-500 uppercase tracking-widest hover:text-blue-500 hover:border-blue-600/30 transition-all">+ Añadir Serie</button>
                             </div>
-                        ))}
-                        <button onClick={finishWorkout} className="w-full py-6 bg-blue-600 text-white rounded-[2rem] font-black uppercase text-xs tracking-[0.3em] shadow-2xl shadow-blue-900/20 active:scale-[0.98] transition-all">
-                            Finalizar Protocolo
-                        </button>
-                    </div>
-                )}
+                        )}
 
-                {view === 'history' && (
-                    <div className="space-y-10 animate-in fade-in duration-500">
-                        <button onClick={analyzePerformance} disabled={isAiLoading || logs.length === 0} className="relative group w-full text-left overflow-hidden">
-                            <div className="absolute inset-0 bg-blue-600/5 group-hover:bg-blue-600/10 transition-colors rounded-[2.5rem]"></div>
-                            <div className="relative p-10 rounded-[2.5rem] border border-blue-600/20">
-                                <span className="text-[10px] font-black text-blue-500 uppercase tracking-[0.3em] block mb-4 italic">✨ Intelligence Feedback</span>
-                                {isAiLoading ? (
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-3 h-3 bg-blue-600 rounded-full animate-ping"></div>
-                                        <p className="text-xs font-black text-zinc-400 uppercase">Procesando Métricas...</p>
-                                    </div>
-                                ) : (
-                                    <p className="text-sm text-zinc-200 font-medium leading-relaxed italic">{aiAnalysis || "Solicita un informe detallado basado en tus últimos entrenamientos."}</p>
-                                )}
-                            </div>
-                        </button>
-                        
-                        <div className="space-y-6">
-                            <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.4em] px-4">Registro Histórico</h4>
-                            {logs.map(l => (
-                                <div key={l.id} className="bg-[#0a0a0a] p-8 rounded-[2.5rem] border border-white/5 flex justify-between items-center group hover:border-white/10 transition-all">
-                                    <div>
-                                        <h4 className="text-lg font-black italic uppercase tracking-tight text-white">{l.routineName}</h4>
-                                        <span className="text-[10px] font-bold text-zinc-600 mt-1 block">{new Date(l.timestamp).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' })}</span>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="text-2xl font-black italic text-blue-600">{l.totalVolume}<span className="text-[10px] ml-1 text-zinc-700">KG</span></p>
-                                        <p className="text-[8px] font-black text-zinc-800 uppercase tracking-widest">Fuerza Total</p>
-                                    </div>
+                        {view === 'workout' && activeWorkout && (
+                            <div className="space-y-10">
+                                <div className="flex items-center gap-6">
+                                    <button onClick={() => setActiveWorkout(null)} className="w-12 h-12 flex items-center justify-center bg-zinc-900 border border-white/10 rounded-full text-zinc-400">←</button>
+                                    <h2 className="text-3xl font-black italic uppercase text-blue-600 tracking-tighter">{activeWorkout.name}</h2>
                                 </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
-            </div>
 
-            {/* MODAL REDISEÑADO */}
-            {modal && (
-                <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4 bg-black/90 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="bg-[#0f0f0f] w-full max-w-md rounded-t-[3rem] sm:rounded-[3rem] p-10 space-y-10 border border-white/10 shadow-2xl shadow-black max-h-[85vh] overflow-y-auto scrollbar-hide">
-                        <div className="flex justify-between items-center">
-                            <h3 className="text-xl font-black uppercase italic tracking-tighter text-white">
-                                {modal.type === 'ai-routine' ? 'Generador IA' : modal.type === 'routine' ? 'Nuevo Plan' : 'Configurar Ejercicios'}
-                            </h3>
-                            <button onClick={() => setModal(null)} className="w-10 h-10 flex items-center justify-center bg-black rounded-full border border-white/5 text-zinc-600 hover:text-white transition-all">✕</button>
-                        </div>
-
-                        {modal.type === 'ai-routine' ? (
-                            <div className="space-y-8">
-                                <div className="space-y-2">
-                                    <label className="text-[9px] font-black text-zinc-600 uppercase tracking-widest px-1">Describe tu enfoque</label>
-                                    <textarea id="aiGoal" placeholder="Ej: Ganar fuerza en piernas y espalda..." className="w-full bg-black p-6 rounded-[2rem] font-bold outline-none border border-white/5 h-36 text-sm focus:border-blue-600 transition-all text-white" />
-                                </div>
-                                <button disabled={isAiLoading} onClick={() => generateAiRoutine(document.getElementById('aiGoal').value)} className="w-full py-6 bg-blue-600 text-white rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-blue-900/20 active:scale-95">
-                                    {isAiLoading ? 'GENERANDO PROTOCOLO...' : 'ACTIVAR INTELIGENCIA'}
-                                </button>
-                            </div>
-                        ) : modal.type === 'routine' ? (
-                            <div className="space-y-8">
-                                <div className="space-y-6">
-                                    <div className="space-y-2">
-                                        <label className="text-[9px] font-black text-zinc-600 uppercase tracking-widest px-1">Nombre del Programa</label>
-                                        <input id="routineName" type="text" placeholder="PUSH DAY / FULL BODY" className="w-full bg-black p-6 rounded-[2rem] font-black outline-none border border-white/5 focus:border-blue-600 transition-all uppercase text-sm text-white" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[9px] font-black text-zinc-600 uppercase tracking-widest px-1">Descanso Global (Segundos)</label>
-                                        <input id="restTime" type="number" defaultValue="90" className="w-full bg-black p-6 rounded-[2rem] font-black outline-none border border-white/5 focus:border-blue-600 transition-all text-sm text-white" />
-                                    </div>
-                                </div>
-                                <button onClick={() => {
-                                    const n = document.getElementById('routineName').value;
-                                    const r = document.getElementById('restTime').value;
-                                    createRoutine(n, r);
-                                }} className="w-full py-6 bg-white text-black rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-white/5">Guardar Protocolo</button>
-                            </div>
-                        ) : (
-                            <div className="space-y-10 pb-10">
-                                <div className="p-8 bg-black rounded-[2.5rem] border border-blue-600/10">
-                                    <label className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-3 block italic">Tiempo de recuperación</label>
-                                    <div className="flex items-center gap-4">
-                                        <input 
-                                            type="number" 
-                                            value={routines.find(r => r.id === modal.routineId)?.restTime || 0}
-                                            onChange={(e) => updateRestTime(modal.routineId, e.target.value)}
-                                            className="bg-transparent text-4xl font-black text-blue-600 outline-none w-24"
-                                        />
-                                        <span className="text-xs font-black text-zinc-800 uppercase">Segundos</span>
-                                    </div>
-                                </div>
-                                
-                                {Object.entries(EXERCISE_LIBRARY).map(([cat, exs]) => (
-                                    <div key={cat} className="space-y-5">
-                                        <h5 className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.4em] border-b border-white/5 pb-2">{cat}</h5>
-                                        <div className="grid grid-cols-1 gap-2">
-                                            {exs.map(ex => {
-                                                const isSelected = routines.find(r => r.id === modal.routineId)?.exercises?.includes(ex);
-                                                return (
-                                                    <button key={ex} onClick={() => toggleExerciseInRoutine(modal.routineId, ex)} 
-                                                        className={`p-5 rounded-2xl text-left text-[10px] font-black uppercase transition-all flex justify-between items-center ${isSelected ? 'bg-blue-600/10 text-blue-500 border border-blue-600/30 shadow-lg shadow-blue-900/10' : 'bg-black text-zinc-600 border border-white/5'}`}>
-                                                        {ex}
-                                                        {isSelected && <span className="bg-blue-600 text-white w-4 h-4 flex items-center justify-center rounded-full text-[8px]">✓</span>}
+                                {activeWorkout.exercises.map((ex, exIdx) => (
+                                    <div key={exIdx} className="bg-[#0a0a0a] p-8 rounded-[2.5rem] border border-white/5 space-y-8">
+                                        <h4 className="text-xs font-black uppercase text-zinc-500 tracking-[0.3em] border-b border-white/5 pb-4">{ex.name}</h4>
+                                        <div className="space-y-4">
+                                            {ex.sets.map((s, sIdx) => (
+                                                <div key={sIdx} className="flex gap-4 items-center">
+                                                    <div className="w-4 text-[10px] font-black text-zinc-700 italic">{sIdx + 1}</div>
+                                                    <input type="number" placeholder="KG" value={s.w} className="w-full bg-black p-4 rounded-2xl text-center font-black border border-white/5 focus:border-blue-600 outline-none text-white" 
+                                                        onChange={e => {
+                                                            const nx = [...activeWorkout.exercises]; nx[exIdx].sets[sIdx].w = e.target.value;
+                                                            setActiveWorkout({...activeWorkout, exercises: nx});
+                                                        }} />
+                                                    <input type="number" placeholder="REPS" value={s.r} className="w-full bg-black p-4 rounded-2xl text-center font-black border border-white/5 focus:border-blue-600 outline-none text-white"
+                                                        onChange={e => {
+                                                            const nx = [...activeWorkout.exercises]; nx[exIdx].sets[sIdx].r = e.target.value;
+                                                            setActiveWorkout({...activeWorkout, exercises: nx});
+                                                        }} />
+                                                    <button onClick={() => {
+                                                        const nx = [...activeWorkout.exercises]; 
+                                                        const isDone = !nx[exIdx].sets[sIdx].done;
+                                                        nx[exIdx].sets[sIdx].done = isDone;
+                                                        setActiveWorkout({...activeWorkout, exercises: nx});
+                                                        if(isDone) startRest(activeWorkout.restTime);
+                                                    }} className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${s.done ? 'bg-blue-600 text-white' : 'bg-zinc-900 text-zinc-700'}`}>
+                                                        ✓
                                                     </button>
-                                                );
-                                            })}
+                                                </div>
+                                            ))}
                                         </div>
+                                        <button onClick={() => {
+                                            const nx = [...activeWorkout.exercises]; nx[exIdx].sets.push({w:'', r:'', done:false});
+                                            setActiveWorkout({...activeWorkout, exercises: nx});
+                                        }} className="w-full py-4 bg-zinc-950 border border-white/5 rounded-2xl text-[9px] font-black text-zinc-500 uppercase tracking-widest">+ Añadir Serie</button>
                                     </div>
                                 ))}
-                                <button onClick={() => setModal(null)} className="w-full py-6 bg-white text-black rounded-[2rem] font-black text-[11px] uppercase tracking-[0.2em]">Cerrar Configuración</button>
+                                <button onClick={finishWorkout} className="w-full py-6 bg-blue-600 text-white rounded-[2rem] font-black uppercase text-xs tracking-[0.3em] shadow-2xl shadow-blue-900/20 active:scale-95 transition-all">
+                                    Finalizar Protocolo
+                                </button>
+                            </div>
+                        )}
+
+                        {view === 'history' && (
+                            <div className="space-y-10">
+                                <button onClick={analyzePerformance} disabled={isAiLoading || logs.length === 0} className="relative group w-full text-left overflow-hidden">
+                                    <div className="absolute inset-0 bg-blue-600/5 rounded-[2.5rem]"></div>
+                                    <div className="relative p-10 rounded-[2.5rem] border border-blue-600/20">
+                                        <span className="text-[10px] font-black text-blue-500 uppercase tracking-[0.3em] block mb-4 italic">✨ Intelligence Feedback</span>
+                                        {isAiLoading ? <p className="text-xs font-black text-zinc-400 uppercase">Analizando...</p> : <p className="text-sm text-zinc-200 italic">{aiAnalysis || "Solicita un informe detallado."}</p>}
+                                    </div>
+                                </button>
+                                
+                                <div className="space-y-6">
+                                    {logs.map(l => (
+                                        <div key={l.id} className="bg-[#0a0a0a] p-8 rounded-[2.5rem] border border-white/5 flex justify-between items-center group">
+                                            <div>
+                                                <h4 className="text-lg font-black italic uppercase text-white">{l.routineName}</h4>
+                                                <span className="text-[10px] font-bold text-zinc-600 block mt-1">{new Date(l.timestamp).toLocaleDateString()}</span>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="text-2xl font-black italic text-blue-600">{l.totalVolume}<span className="text-[10px] ml-1 text-zinc-700">KG</span></p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         )}
                     </div>
-                </div>
-            )}
 
-            {/* NAVEGACIÓN FIJA REDISEÑADA */}
-            <nav className="fixed bottom-0 left-0 right-0 z-50 px-6 pb-8">
-                <div className="max-w-xs mx-auto bg-black/80 backdrop-blur-2xl border border-white/10 p-3 flex justify-around rounded-[2.5rem] shadow-2xl">
-                    <button onClick={() => setView('routines')} className={`flex-1 py-4 flex flex-col items-center gap-1 rounded-2xl transition-all ${view === 'routines' ? 'bg-blue-600 text-white' : 'text-zinc-600'}`}>
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
-                        <span className="text-[8px] font-black uppercase tracking-widest italic">Plan</span>
-                    </button>
-                    <button onClick={() => setView('history')} className={`flex-1 py-4 flex flex-col items-center gap-1 rounded-2xl transition-all ${view === 'history' ? 'bg-blue-600 text-white' : 'text-zinc-600'}`}>
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
-                        <span className="text-[8px] font-black uppercase tracking-widest italic">Logs</span>
-                    </button>
+                    {/* MODAL REDISEÑADO */}
+                    {modal && (
+                        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4 bg-black/90 backdrop-blur-sm">
+                            <div className="bg-[#0f0f0f] w-full max-w-md rounded-t-[3rem] sm:rounded-[3rem] p-10 space-y-10 border border-white/10 max-h-[85vh] overflow-y-auto scrollbar-hide">
+                                <div className="flex justify-between items-center">
+                                    <h3 className="text-xl font-black uppercase italic tracking-tighter text-white">Configuración</h3>
+                                    <button onClick={() => setModal(null)} className="w-10 h-10 flex items-center justify-center bg-black rounded-full text-zinc-600">✕</button>
+                                </div>
+
+                                {modal.type === 'ai-routine' ? (
+                                    <div className="space-y-8">
+                                        <textarea id="aiGoal" placeholder="Ej: Ganar fuerza en piernas..." className="w-full bg-black p-6 rounded-[2rem] font-bold outline-none border border-white/5 h-36 text-sm text-white" />
+                                        <button disabled={isAiLoading} onClick={() => generateAiRoutine(document.getElementById('aiGoal').value)} className="w-full py-6 bg-blue-600 text-white rounded-[2rem] font-black text-xs uppercase tracking-[0.2em]">
+                                            {isAiLoading ? 'GENERANDO...' : 'ACTIVAR INTELIGENCIA'}
+                                        </button>
+                                    </div>
+                                ) : modal.type === 'routine' ? (
+                                    <div className="space-y-8">
+                                        <input id="routineName" type="text" placeholder="NOMBRE RUTINA" className="w-full bg-black p-6 rounded-[2rem] font-black outline-none border border-white/5 text-sm text-white uppercase" />
+                                        <input id="restTime" type="number" defaultValue="90" className="w-full bg-black p-6 rounded-[2rem] font-black border border-white/5 text-sm text-white" />
+                                        <button onClick={() => createRoutine(document.getElementById('routineName').value, document.getElementById('restTime').value)} className="w-full py-6 bg-white text-black rounded-[2rem] font-black text-xs uppercase tracking-[0.2em]">Guardar</button>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-10">
+                                        <div className="p-8 bg-black rounded-[2.5rem] border border-blue-600/10">
+                                            <input type="number" value={routines.find(r => r.id === modal.routineId)?.restTime || 0}
+                                                onChange={(e) => updateRestTime(modal.routineId, e.target.value)}
+                                                className="bg-transparent text-4xl font-black text-blue-600 outline-none w-full text-center" />
+                                            <span className="text-[10px] font-black text-zinc-800 uppercase block text-center mt-2">Segundos de descanso</span>
+                                        </div>
+                                        {Object.entries(EXERCISE_LIBRARY).map(([cat, exs]) => (
+                                            <div key={cat} className="space-y-4">
+                                                <h5 className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.4em]">{cat}</h5>
+                                                {exs.map(ex => {
+                                                    const isSelected = routines.find(r => r.id === modal.routineId)?.exercises?.includes(ex);
+                                                    return (
+                                                        <button key={ex} onClick={() => toggleExerciseInRoutine(modal.routineId, ex)} 
+                                                            className={`w-full p-5 rounded-2xl text-left text-[10px] font-black uppercase flex justify-between items-center ${isSelected ? 'bg-blue-600/10 text-blue-500 border border-blue-600/30' : 'bg-black text-zinc-600 border border-white/5'}`}>
+                                                            {ex} {isSelected && '✓'}
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    <nav className="fixed bottom-0 left-0 right-0 z-50 px-6 pb-8">
+                        <div className="max-w-xs mx-auto bg-black/80 backdrop-blur-2xl border border-white/10 p-3 flex justify-around rounded-[2.5rem] shadow-2xl">
+                            <button onClick={() => setView('routines')} className={`flex-1 py-4 flex flex-col items-center gap-1 rounded-2xl transition-all ${view === 'routines' ? 'bg-blue-600 text-white' : 'text-zinc-600'}`}>
+                                <span className="text-[8px] font-black uppercase tracking-widest italic">Plan</span>
+                            </button>
+                            <button onClick={() => setView('history')} className={`flex-1 py-4 flex flex-col items-center gap-1 rounded-2xl transition-all ${view === 'history' ? 'bg-blue-600 text-white' : 'text-zinc-600'}`}>
+                                <span className="text-[8px] font-black uppercase tracking-widest italic">Logs</span>
+                            </button>
+                        </div>
+                    </nav>
                 </div>
-            </nav>
-        </div>
-    );
-}
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
