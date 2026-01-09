@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NeuralLift AI - Ultra Secure</title>
+    <title>NeuralLift AI - Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        body { background: #050505; color: #fff; font-family: -apple-system, system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
-        .glass { background: rgba(20, 20, 20, 0.8); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.05); }
+        body { background: #050505; color: #fff; font-family: -apple-system, system-ui, sans-serif; }
+        .glass { background: rgba(20, 20, 20, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
         .input-pro { background: #0a0a0a !important; border: 1px solid #1a1a1a !important; transition: all 0.3s ease; }
-        .blue-glow { box-shadow: 0 10px 30px rgba(59, 130, 246, 0.15); }
+        .blue-glow { box-shadow: 0 0 20px rgba(59, 130, 246, 0.2); }
     </style>
 </head>
 <body>
@@ -21,7 +21,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc, getDocs, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, getDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDIEh7wcEQaAuXZbBmPHqqgdE2nplXOyPg",
@@ -34,8 +34,7 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        // Exportamos las funciones necesarias para el login
-        window.vault = { db, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc, getDocs, limit };
+        window.vault = { db, collection, addDoc, onSnapshot, query, orderBy, doc, getDoc, updateDoc, deleteDoc };
     </script>
 
     <script type="text/babel">
@@ -43,94 +42,152 @@
 
         function App() {
             const [userKey, setUserKey] = useState(localStorage.getItem("vault_token"));
-            const [view, setView] = useState('routines');
+            const [view, setView] = useState('routines'); 
             const [routines, setRoutines] = useState([]);
             const [logs, setLogs] = useState([]);
-            const [isLoggingIn, setIsLoggingIn] = useState(false);
+            const [isChecking, setIsChecking] = useState(false);
+            const [timer, setTimer] = useState(0);
+            const [activeWorkout, setActiveWorkout] = useState(null);
+            const timerRef = useRef(null);
 
             useEffect(() => {
                 if (!userKey) return;
                 const { db, collection, onSnapshot, query, orderBy } = window.vault;
-                
-                const unsubR = onSnapshot(collection(db, `${userKey}_routines`), (snap) => {
-                    setRoutines(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-                }, (err) => {
-                    // Si el token guardado ya no es válido según las reglas
-                    console.error("Acceso denegado");
-                    localStorage.removeItem("vault_token");
-                    setUserKey(null);
-                });
-                
-                const unsubL = onSnapshot(query(collection(db, `${userKey}_logs`), orderBy("timestamp", "desc")), (snap) => {
-                    setLogs(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-                });
-
+                const unsubR = onSnapshot(collection(db, `${userKey}_routines`), (s) => setRoutines(s.docs.map(d => ({id: d.id, ...d.data()}))));
+                const unsubL = onSnapshot(query(collection(db, `${userKey}_logs`), orderBy("timestamp", "desc")), (s) => setLogs(s.docs.map(d => ({id: d.id, ...d.data()}))));
                 return () => { unsubR(); unsubL(); };
             }, [userKey]);
 
             const handleLogin = async (e) => {
                 e.preventDefault();
                 const pin = e.target.pin.value;
-                if (!pin) return;
-
-                setIsLoggingIn(true);
+                setIsChecking(true);
                 try {
-                    const { db, collection, getDocs, limit, query } = window.vault;
-                    // VALIDACIÓN REAL: Intentamos leer la colección
-                    // Si el PIN no cumple la regla de Firestore, esto lanzará un error
-                    const q = query(collection(db, `${pin}_routines`), limit(1));
-                    await getDocs(q); 
-                    
-                    // Si llegamos aquí, el PIN es válido para las reglas de Firebase
-                    localStorage.setItem("vault_token", pin);
-                    setUserKey(pin);
-                } catch (error) {
-                    alert("ACCESO DENEGADO: PIN incorrecto o sin permisos.");
-                } finally {
-                    setIsLoggingIn(false);
-                }
+                    const docSnap = await window.vault.getDoc(window.vault.doc(window.vault.db, "config", "access"));
+                    if (docSnap.exists() && docSnap.data().pin === pin) {
+                        localStorage.setItem("vault_token", pin);
+                        setUserKey(pin);
+                    } else { alert("PIN Incorrecto"); }
+                } catch (err) { alert("Error de conexión"); }
+                finally { setIsChecking(false); }
+            };
+
+            const startRest = () => {
+                setTimer(90);
+                if(timerRef.current) clearInterval(timerRef.current);
+                timerRef.current = setInterval(() => {
+                    setTimer(t => { if(t <= 1) { clearInterval(timerRef.current); return 0; } return t - 1; });
+                }, 1000);
+            };
+
+            const saveWorkout = async () => {
+                const results = activeWorkout.exercises.map(ex => ({
+                    exercise: ex.name,
+                    sets: ex.sets.filter(s => s.done && s.w && s.r)
+                })).filter(ex => ex.sets.length > 0);
+
+                const totalVolume = results.reduce((acc, ex) => acc + ex.sets.reduce((sAcc, s) => sAcc + (s.w * s.r), 0), 0);
+
+                await window.vault.addDoc(window.vault.collection(window.vault.db, `${userKey}_logs`), {
+                    routineName: activeWorkout.name,
+                    results,
+                    totalVolume,
+                    timestamp: Date.now()
+                });
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                setActiveWorkout(null);
+                setView('history');
             };
 
             if (!userKey) return (
                 <div className="h-screen flex flex-col items-center justify-center p-8 bg-black">
-                    <h1 className="text-5xl font-black italic mb-2 text-blue-600 tracking-tighter">NEURAL<span className="text-white">LIFT</span></h1>
-                    <p className="text-zinc-600 text-[10px] uppercase tracking-[0.5em] mb-12">Security Layer Active</p>
+                    <h1 className="text-4xl font-black italic tracking-tighter mb-8">NEURAL<span className="text-blue-600">LIFT</span></h1>
                     <form onSubmit={handleLogin} className="w-full max-w-xs space-y-4">
-                        <input name="pin" type="password" placeholder="INGRESA TU LLAVE" className="w-full p-6 rounded-3xl text-center text-xl outline-none glass border-white/10" />
-                        <button disabled={isLoggingIn} className="w-full py-5 bg-blue-600 text-white rounded-3xl font-black uppercase text-xs tracking-[0.2em] blue-glow disabled:opacity-50">
-                            {isLoggingIn ? "Verificando..." : "Autorizar Acceso"}
-                        </button>
+                        <input name="pin" type="password" placeholder="PIN" className="w-full p-5 rounded-2xl text-center glass outline-none" />
+                        <button className="w-full py-4 bg-blue-600 rounded-2xl font-bold uppercase text-xs">{isChecking ? "..." : "Entrar"}</button>
                     </form>
                 </div>
             );
 
-            // ... (Resto del código de la interfaz que ya tenías)
             return (
-                <div className="max-w-md mx-auto p-6 pb-32 min-h-screen">
+                <div className="max-w-md mx-auto p-6 pb-32">
                     <header className="flex justify-between items-center mb-8 pt-4">
-                        <h1 className="text-2xl font-black italic tracking-tighter uppercase">Neural<span className="text-blue-600">Lift</span></h1>
-                        <button onClick={() => {localStorage.clear(); window.location.reload();}} className="text-[10px] text-zinc-500 font-bold">LOGOUT</button>
+                        <h2 className="text-xl font-black italic uppercase">Neural<span className="text-blue-600">Lift</span></h2>
+                        {timer > 0 && <span className="text-blue-500 font-mono font-bold">{timer}s</span>}
                     </header>
 
-                    {view === 'routines' && (
+                    {view === 'routines' && !activeWorkout && (
                         <div className="space-y-6">
-                            <button onClick={async () => {
-                                const name = window.prompt("Nombre:");
-                                if(name) await window.vault.addDoc(window.vault.collection(window.vault.db, `${userKey}_routines`), { name, exercises: [] });
-                            }} className="w-full py-5 border border-dashed border-zinc-800 rounded-3xl text-zinc-600 text-[10px] font-black">+ Nueva Rutina</button>
-                            
+                            <div className="glass p-6 rounded-3xl">
+                                <p className="text-zinc-500 text-[10px] font-bold uppercase">Volumen Total</p>
+                                <p className="text-3xl font-black">{logs[0]?.totalVolume || 0} KG</p>
+                            </div>
                             {routines.map(r => (
-                                <div key={r.id} className="glass p-8 rounded-[2.5rem]">
-                                    <h3 className="text-2xl font-black uppercase italic mb-4">{r.name}</h3>
-                                    <button onClick={() => setView('workout')} className="w-full py-4 bg-blue-600 rounded-2xl font-black text-[11px] uppercase">Entrenar</button>
+                                <div key={r.id} className="glass p-6 rounded-[2rem] space-y-4">
+                                    <h3 className="text-xl font-black uppercase italic">{r.name}</h3>
+                                    <button onClick={() => {
+                                        setActiveWorkout({
+                                            name: r.name,
+                                            exercises: r.exercises.map(ex => ({ name: ex, sets: [{w:'', r:'', done:false}] }))
+                                        });
+                                        setView('workout');
+                                    }} className="w-full py-3 bg-white text-black rounded-xl font-black text-[10px] uppercase">Iniciar Sesión</button>
                                 </div>
                             ))}
                         </div>
                     )}
 
-                    <nav className="fixed bottom-0 left-0 right-0 glass px-12 py-8 flex justify-around rounded-t-[3rem] z-40">
-                        <button onClick={() => setView('routines')} className={view === 'routines' ? 'text-blue-500' : 'text-zinc-700'}>RUTINAS</button>
-                        <button onClick={() => setView('history')} className={view === 'history' ? 'text-blue-500' : 'text-zinc-700'}>HISTORIAL</button>
+                    {view === 'workout' && activeWorkout && (
+                        <div className="space-y-8">
+                            <h2 className="text-2xl font-black italic text-blue-600 uppercase">{activeWorkout.name}</h2>
+                            {activeWorkout.exercises.map((ex, exIdx) => (
+                                <div key={exIdx} className="space-y-4">
+                                    <p className="text-xs font-black uppercase text-zinc-500 tracking-widest">{ex.name}</p>
+                                    {ex.sets.map((set, setIdx) => (
+                                        <div key={setIdx} className="flex gap-2">
+                                            <input type="number" placeholder="KG" className="w-full glass p-3 rounded-xl text-center font-bold" value={set.w} onChange={e => {
+                                                const newEx = [...activeWorkout.exercises]; newEx[exIdx].sets[setIdx].w = e.target.value;
+                                                setActiveWorkout({...activeWorkout, exercises: newEx});
+                                            }} />
+                                            <input type="number" placeholder="REPS" className="w-full glass p-3 rounded-xl text-center font-bold" value={set.r} onChange={e => {
+                                                const newEx = [...activeWorkout.exercises]; newEx[exIdx].sets[setIdx].r = e.target.value;
+                                                setActiveWorkout({...activeWorkout, exercises: newEx});
+                                            }} />
+                                            <button onClick={() => {
+                                                const newEx = [...activeWorkout.exercises]; 
+                                                newEx[exIdx].sets[setIdx].done = !newEx[exIdx].sets[setIdx].done;
+                                                setActiveWorkout({...activeWorkout, exercises: newEx});
+                                                if(newEx[exIdx].sets[setIdx].done) startRest();
+                                            }} className={`px-5 rounded-xl ${set.done ? 'bg-blue-600' : 'bg-zinc-800'}`}>✓</button>
+                                        </div>
+                                    ))}
+                                    <button onClick={() => {
+                                        const newEx = [...activeWorkout.exercises]; newEx[exIdx].sets.push({w:'', r:'', done:false});
+                                        setActiveWorkout({...activeWorkout, exercises: newEx});
+                                    }} className="text-[9px] font-bold text-zinc-600 uppercase">+ Serie</button>
+                                </div>
+                            ))}
+                            <button onClick={saveWorkout} className="w-full py-5 bg-blue-600 rounded-2xl font-black uppercase text-xs">Finalizar</button>
+                        </div>
+                    )}
+
+                    {view === 'history' && (
+                        <div className="space-y-4">
+                            {logs.map(log => (
+                                <div key={log.id} className="glass p-5 rounded-2xl border-l-4 border-blue-600">
+                                    <div className="flex justify-between mb-2">
+                                        <span className="font-black italic uppercase text-sm">{log.routineName}</span>
+                                        <span className="text-[10px] text-zinc-500">{new Date(log.timestamp).toLocaleDateString()}</span>
+                                    </div>
+                                    <p className="text-xl font-black">{log.totalVolume} KG</p>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    <nav className="fixed bottom-0 left-0 right-0 glass px-10 py-8 flex justify-around rounded-t-[2.5rem]">
+                        <button onClick={() => setView('routines')} className={view === 'routines' ? 'text-blue-500' : 'text-zinc-700'}>WORKOUT</button>
+                        <button onClick={() => setView('history')} className={view === 'history' ? 'text-blue-500' : 'text-zinc-700'}>HISTORY</button>
                     </nav>
                 </div>
             );
