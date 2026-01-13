@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Gym OS Pro 2026</title>
+    <title>Gym OS Pro 2026 - Master Edition</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -16,7 +16,8 @@
         .glass { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
         .nav-tab.active { color: white; border-bottom: 3px solid var(--brand); }
         .routine-card { transition: all 0.3s ease; border: 1px solid rgba(99, 102, 241, 0.1); }
-        .routine-card:active { transform: scale(0.98); background: rgba(99, 102, 241, 0.1); }
+        .routine-card:active { transform: scale(0.98); }
+        .bar-transition { transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
         input[type="number"]::-webkit-inner-spin-button { display: none; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
@@ -25,19 +26,19 @@
 
     <div id="login-overlay" class="fixed inset-0 z-[1000] bg-slate-950 flex items-center justify-center px-6">
         <div class="glass p-8 rounded-[2.5rem] w-full max-w-md text-center">
-            <h2 class="text-3xl font-black mb-8 tracking-tighter text-indigo-500">GYMOS PRO</h2>
+            <h2 class="text-3xl font-black mb-8 tracking-tighter text-indigo-500 uppercase">GymOS Pro</h2>
             <div class="space-y-4">
                 <input type="email" id="login-email" placeholder="Email" class="w-full bg-slate-900 border border-white/5 px-6 py-4 rounded-2xl outline-none">
                 <input type="password" id="login-pass" placeholder="Password" class="w-full bg-slate-900 border border-white/5 px-6 py-4 rounded-2xl outline-none">
-                <button onclick="window.ejecutarLogin()" class="w-full py-5 bg-indigo-600 text-white font-black rounded-2xl">ENTRAR</button>
+                <button onclick="window.ejecutarLogin()" class="w-full py-5 bg-indigo-600 text-white font-black rounded-2xl shadow-lg">ENTRAR / REGISTRAR</button>
             </div>
         </div>
     </div>
 
     <nav class="sticky top-0 z-[500] glass border-b border-white/5 mb-6">
         <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-            <h1 class="font-black text-lg tracking-tighter">GYMOS <span class="text-indigo-500">PRO</span></h1>
-            <div id="rest-timer-display" class="hidden bg-slate-900 border border-rose-500/30 px-3 py-1.5 rounded-xl">
+            <h1 class="font-black text-lg tracking-tighter uppercase">GymOS <span class="text-indigo-500">Pro</span></h1>
+            <div id="rest-timer-display" class="hidden bg-slate-900 border border-rose-500/30 px-3 py-1.5 rounded-xl flex items-center gap-2">
                 <span id="timer-seconds" class="font-mono font-bold text-rose-400 text-xs">00:00</span>
             </div>
             <button onclick="window.cerrarSesion()" class="text-[10px] font-black bg-slate-800 px-4 py-2 rounded-lg">SALIR</button>
@@ -54,84 +55,95 @@
         <section id="section-dashboard" class="space-y-6">
             <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <div class="glass p-5 rounded-3xl border-l-4 border-indigo-500">
-                    <p class="text-[9px] font-black text-slate-500 uppercase">Volumen Total</p>
+                    <p class="text-[9px] font-black text-slate-500 uppercase">Volumen (kg)</p>
                     <h3 id="stat-volume" class="text-2xl font-black">0</h3>
                 </div>
-                <div class="glass p-5 rounded-3xl border-l-4 border-amber-500">
-                    <p class="text-[9px] font-black text-slate-500 uppercase">Días Activos</p>
-                    <h3 id="streak-count" class="text-2xl font-black">0</h3>
+                <div class="glass p-5 rounded-3xl border-l-4 border-emerald-500">
+                    <p class="text-[9px] font-black text-slate-500 uppercase">Series Total</p>
+                    <h3 id="stat-sets" class="text-2xl font-black">0</h3>
+                </div>
+                <div class="glass p-5 rounded-3xl border-l-4 border-amber-500 col-span-2 md:col-span-1">
+                    <p class="text-[9px] font-black text-slate-500 uppercase">Días Entrenados</p>
+                    <h3 id="streak-count" class="text-2xl font-black">🔥 0</h3>
                 </div>
             </div>
+
             <div class="glass p-6 rounded-[2.5rem]">
-                <h4 class="text-[10px] font-black text-slate-500 uppercase mb-6">Volumen 7 Días</h4>
+                <h4 class="text-[10px] font-black text-slate-500 uppercase mb-6">Progeso Semanal</h4>
                 <div id="volume-chart" class="flex items-end justify-between h-32 gap-2"></div>
             </div>
-            <div id="workout-history" class="grid gap-3"></div>
+
+            <div class="space-y-4">
+                <h3 class="text-lg font-black px-2">Historial de Sesiones</h3>
+                <div id="workout-history" class="grid gap-3"></div>
+            </div>
         </section>
 
         <section id="section-train" class="hidden space-y-6">
             <div id="routine-selector" class="space-y-6">
-                <div class="flex flex-col gap-2">
-                    <h2 class="text-2xl font-black">¿Qué entrenamos hoy?</h2>
-                    <p class="text-slate-500 text-sm">Selecciona una de tus rutinas para comenzar</p>
-                </div>
-                
-                <div id="train-routines-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    </div>
-
-                <button onclick="window.startFreeWorkout()" class="w-full py-4 border-2 border-dashed border-white/10 rounded-3xl text-slate-500 font-bold text-sm hover:border-indigo-500 hover:text-indigo-400 transition-colors">
-                    + Entrenamiento Libre
-                </button>
+                <h2 class="text-2xl font-black">Elige un Bloque</h2>
+                <div id="train-routines-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                <button onclick="window.startFreeWorkout()" class="w-full py-5 border-2 border-dashed border-white/10 rounded-[2rem] text-slate-500 font-bold hover:border-indigo-500 transition-all">+ Sesión Libre</button>
             </div>
 
             <div id="active-session-ui" class="hidden space-y-6">
                 <div class="glass p-6 rounded-[2rem] flex justify-between items-center">
                     <div>
-                        <h2 id="active-routine-name" class="font-black text-xl text-indigo-400 uppercase tracking-tight">Cargando...</h2>
+                        <h2 id="active-routine-name" class="font-black text-xl text-indigo-400 uppercase tracking-tight">--</h2>
                         <input type="date" id="workout-date" class="bg-transparent text-slate-500 font-bold outline-none text-xs">
                     </div>
-                    <button onclick="window.cancelSession()" class="bg-rose-500/10 text-rose-500 p-3 rounded-2xl">✕</button>
+                    <button onclick="window.cancelSession()" class="text-rose-500 bg-rose-500/10 p-3 rounded-xl font-bold">✕</button>
                 </div>
-
                 <div id="active-session-container" class="space-y-6"></div>
-
                 <div class="pb-20">
-                    <button onclick="window.saveFullSession()" class="w-full py-6 bg-indigo-600 text-white font-black rounded-3xl shadow-xl shadow-indigo-500/20">
-                        FINALIZAR Y GUARDAR
-                    </button>
+                    <button onclick="window.saveFullSession()" class="w-full py-6 bg-indigo-600 text-white font-black rounded-[2rem] shadow-xl">GUARDAR ENTRENAMIENTO</button>
                 </div>
             </div>
         </section>
 
-        <section id="section-routines" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <section id="section-routines" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div class="lg:col-span-5 space-y-6">
+                <div class="glass p-6 rounded-[2rem]">
+                    <h3 class="text-[10px] font-black text-indigo-400 uppercase mb-4">Calculadora 1RM</h3>
+                    <div class="flex gap-2">
+                        <input type="number" id="rm-weight" placeholder="Kg" class="w-full bg-slate-900 p-4 rounded-xl text-sm outline-none">
+                        <input type="number" id="rm-reps" placeholder="Reps" class="w-full bg-slate-900 p-4 rounded-xl text-sm outline-none">
+                        <div id="rm-result" class="flex-1 bg-indigo-600 rounded-xl flex items-center justify-center font-black">--</div>
+                    </div>
+                </div>
+
                 <div class="glass p-6 rounded-[2rem]">
                     <h3 class="text-[10px] font-black text-slate-500 uppercase mb-4">Añadir Ejercicio Propio</h3>
                     <div class="flex gap-2">
-                        <input type="text" id="custom-ex-name" placeholder="Ej: Hip Thrust" class="flex-1 bg-slate-900 p-4 rounded-xl text-sm outline-none">
-                        <button onclick="window.createCustomExercise()" class="bg-indigo-600 px-6 rounded-xl font-black">+</button>
+                        <input type="text" id="custom-ex-name" placeholder="Ej: Facepull" class="flex-1 bg-slate-900 p-4 rounded-xl text-sm outline-none">
+                        <button onclick="window.createCustomExercise()" class="bg-indigo-600 px-6 rounded-xl font-black text-xl">+</button>
                     </div>
                 </div>
+
                 <div class="glass p-6 rounded-[2rem]">
                     <h3 class="text-lg font-black mb-4">Librería</h3>
                     <input type="text" id="lib-search" placeholder="Buscar..." class="w-full bg-slate-900 p-4 rounded-xl text-sm mb-4 outline-none">
-                    <div id="library-list" class="h-80 overflow-y-auto no-scrollbar space-y-4"></div>
+                    <div id="library-list" class="h-64 overflow-y-auto no-scrollbar space-y-4"></div>
                 </div>
             </div>
+
             <div class="lg:col-span-7">
-                <div class="glass p-6 rounded-[2.5rem] sticky top-24">
-                    <h3 class="text-xl font-black mb-6">Creador de Rutinas</h3>
+                <div class="glass p-8 rounded-[2.5rem] sticky top-24">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-black">Configurar Bloque</h3>
+                        <button onclick="window.clearRoutine()" class="text-[10px] font-black text-rose-500">LIMPIAR</button>
+                    </div>
                     <div id="routine-config-list" class="space-y-3 mb-6"></div>
                     <div id="routine-save-controls" class="hidden space-y-4">
-                        <input type="text" id="routine-name-input" placeholder="Nombre (ej: Tirón A)" class="w-full bg-slate-900 p-4 rounded-xl outline-none">
-                        <button onclick="window.saveRoutineBlock()" class="w-full py-4 bg-emerald-600 font-black rounded-xl uppercase text-xs">Guardar Bloque de Rutina</button>
+                        <input type="text" id="routine-name-input" placeholder="Nombre (Ej: Empuje A)" class="w-full bg-slate-900 border border-indigo-500/30 p-5 rounded-2xl outline-none">
+                        <button onclick="window.saveRoutineBlock()" class="w-full py-4 bg-emerald-600 font-black rounded-xl uppercase text-xs">Guardar en Mis Bloques</button>
                     </div>
                 </div>
             </div>
         </section>
     </main>
 
-    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 glass border-indigo-500/50 px-6 py-3 rounded-xl opacity-0 transition-all z-[9999] font-black text-[10px] uppercase text-white pointer-events-none"></div>
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 glass border-indigo-500/50 px-8 py-3 rounded-xl opacity-0 transition-all duration-500 z-[9999] font-black text-[10px] uppercase text-white pointer-events-none"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -150,22 +162,15 @@
         const fb = initializeApp(firebaseConfig);
         const auth = getAuth(fb);
         const db = getFirestore(fb);
-        const APP_VER = 'gym-os-v4-redeploy';
+        const DB_KEY = 'gym-pro-v2026-master';
 
-        let user = null;
-        let myPlannedRoutine = [];
-        let activeSession = null;
-        let customExercises = [];
-        let savedBlocks = [];
+        let user = null, myPlannedRoutine = [], activeSession = null, customExercises = [], savedBlocks = [];
 
-        // --- AUTH ---
+        // AUTH
         window.ejecutarLogin = async () => {
-            const e = document.getElementById('login-email').value;
-            const p = document.getElementById('login-pass').value;
-            try { await signInWithEmailAndPassword(auth, e, p); } 
-            catch { await createUserWithEmailAndPassword(auth, e, p); }
+            const e = document.getElementById('login-email').value, p = document.getElementById('login-pass').value;
+            try { await signInWithEmailAndPassword(auth, e, p); } catch { await createUserWithEmailAndPassword(auth, e, p); }
         };
-
         window.cerrarSesion = () => signOut(auth).then(() => window.location.reload());
 
         onAuthStateChanged(auth, u => {
@@ -174,94 +179,113 @@
             if (u) initSync();
         });
 
+        // SYNC
         const initSync = () => {
-            // Historial
-            onSnapshot(query(collection(db, 'artifacts', APP_VER, 'users', user.uid, 'history'), orderBy('timestamp', 'desc')), snap => {
+            onSnapshot(query(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'history'), orderBy('timestamp', 'desc')), snap => {
                 const logs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 renderDashboard(logs);
             });
-            // Ejercicios Custom
-            onSnapshot(collection(db, 'artifacts', APP_VER, 'users', user.uid, 'custom_ex'), snap => {
+            onSnapshot(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'custom_ex'), snap => {
                 customExercises = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 renderLibrary();
             });
-            // Bloques de Rutina
-            onSnapshot(query(collection(db, 'artifacts', APP_VER, 'users', user.uid, 'blocks'), orderBy('createdAt', 'desc')), snap => {
+            onSnapshot(query(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'blocks'), orderBy('createdAt', 'desc')), snap => {
                 savedBlocks = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                renderTrainRoutineSelector();
+                renderTrainSelector();
             });
         };
 
-        // --- RENDERIZADO ENTRENAR (EL CORAZÓN DEL CAMBIO) ---
-        const renderTrainRoutineSelector = () => {
+        // DASHBOARD
+        const renderDashboard = (logs) => {
+            let v = 0, s = 0; const d = new Set();
+            logs.forEach(l => { d.add(l.date); l.sets.forEach(set => { v += (set.weight * set.reps); s++; }); });
+            document.getElementById('stat-volume').textContent = Math.round(v).toLocaleString();
+            document.getElementById('stat-sets').textContent = s;
+            document.getElementById('streak-count').textContent = `🔥 ${d.size}`;
+
+            // Chart
+            const chart = document.getElementById('volume-chart');
+            const last7 = [...Array(7)].map((_, i) => {
+                const day = new Date(); day.setDate(day.getDate() - i);
+                return day.toISOString().split('T')[0];
+            }).reverse();
+            const vols = last7.map(day => logs.filter(l => l.date === day).reduce((a,b)=>a+b.sets.reduce((x,y)=>x+(y.weight*y.reps),0),0));
+            const max = Math.max(...vols, 1000);
+            chart.innerHTML = vols.map((v, i) => `
+                <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end">
+                    <div class="w-full bg-indigo-500/10 rounded-lg relative flex items-end h-full overflow-hidden">
+                        <div class="w-full bg-indigo-500 bar-transition" style="height: ${(v/max)*100}%"></div>
+                    </div>
+                    <span class="text-[7px] font-bold text-slate-500">${last7[i].split('-')[2]}</span>
+                </div>`).join('');
+
+            document.getElementById('workout-history').innerHTML = logs.slice(0, 10).map(l => `
+                <div class="glass p-4 rounded-2xl flex justify-between items-center group">
+                    <div><p class="text-sm font-black">${l.exercise}</p><p class="text-[9px] text-slate-500 uppercase font-bold">${l.date}</p></div>
+                    <div class="flex items-center gap-4">
+                        <span class="text-xs font-bold text-indigo-400">${l.sets.length} series</span>
+                        <button onclick="window.deleteHistory('${l.id}')" class="text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity">✕</button>
+                    </div>
+                </div>`).join('');
+        };
+
+        window.deleteHistory = async (id) => { if(confirm("¿Eliminar registro?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', user.uid, 'history', id)); };
+
+        // TRAIN SELECTOR
+        const renderTrainSelector = () => {
             const list = document.getElementById('train-routines-list');
-            if(savedBlocks.length === 0) {
-                list.innerHTML = `<p class="text-slate-600 text-sm col-span-full">Crea tu primera rutina en la pestaña "Rutinas"</p>`;
-                return;
-            }
             list.innerHTML = savedBlocks.map(b => `
-                <div onclick='window.loadAndStartRoutine(${JSON.stringify(b.exercises)}, "${b.name}")' 
-                     class="routine-card glass p-6 rounded-[2rem] cursor-pointer hover:bg-indigo-600/10 group">
-                    <div class="flex justify-between items-start mb-4">
+                <div onclick='window.loadAndStart(${JSON.stringify(b.exercises)}, "${b.name}")' class="routine-card glass p-6 rounded-[2rem] cursor-pointer hover:bg-indigo-600/10 group">
+                    <div class="flex justify-between items-center mb-4">
                         <span class="bg-indigo-500/20 text-indigo-400 text-[10px] font-black px-3 py-1 rounded-full uppercase">Bloque</span>
                         <button onclick="event.stopPropagation(); window.deleteBlock('${b.id}')" class="text-slate-600 hover:text-rose-500">✕</button>
                     </div>
-                    <h3 class="text-xl font-black text-white group-hover:text-indigo-400 transition-colors">${b.name}</h3>
-                    <p class="text-slate-500 text-xs mt-1">${b.exercises.length} ejercicios configurados</p>
-                </div>
-            `).join('');
+                    <h3 class="text-xl font-black group-hover:text-indigo-400 transition-colors">${b.name}</h3>
+                    <p class="text-slate-500 text-xs mt-1">${b.exercises.length} ejercicios</p>
+                </div>`).join('');
         };
 
-        window.loadAndStartRoutine = (exercises, name) => {
+        window.loadAndStart = (exs, name) => {
             document.getElementById('routine-selector').classList.add('hidden');
             document.getElementById('active-session-ui').classList.remove('hidden');
             document.getElementById('active-routine-name').textContent = name;
-            
-            activeSession = exercises.map(ex => ({
-                ...ex,
-                actual: Array.from({ length: ex.sets }, () => ({ weight: "", reps: ex.reps, done: false }))
-            }));
+            activeSession = exs.map(e => ({ ...e, actual: Array.from({length: e.sets}, () => ({weight:"", reps: e.reps, done: false})) }));
             renderActiveSession();
         };
 
-        window.startFreeWorkout = () => {
-            const name = prompt("Nombre del entrenamiento:", "Entrenamiento Libre") || "Libre";
-            window.loadAndStartRoutine([], name);
-            window.showToast("Usa 'Rutinas' para añadir ejercicios");
-        };
+        window.startFreeWorkout = () => window.loadAndStart([], "Sesión Libre");
 
         const renderActiveSession = () => {
             const container = document.getElementById('active-session-container');
             container.innerHTML = activeSession.map((ex, exIdx) => `
                 <div class="glass p-6 rounded-[2.5rem] space-y-4">
-                    <div class="flex justify-between items-center">
-                        <h4 class="font-black text-white uppercase text-sm tracking-widest">${ex.name}</h4>
-                    </div>
+                    <h4 class="font-black text-white uppercase text-sm">${ex.name}</h4>
                     <div class="space-y-2">
                         ${ex.actual.map((s, sIdx) => `
-                            <div class="flex items-center gap-3 p-3 rounded-2xl ${s.done ? 'bg-emerald-500/10 border-emerald-500/30 border' : 'bg-slate-950/50 border-white/5 border'}">
+                            <div class="flex items-center gap-3 p-3 rounded-2xl ${s.done ? 'bg-emerald-500/10 border-emerald-500/30 border' : 'bg-slate-950 border-white/5 border'}">
                                 <button onclick="window.toggleSet(${exIdx}, ${sIdx})" class="w-10 h-10 rounded-xl font-black ${s.done ? 'bg-emerald-500 text-white' : 'bg-slate-800 text-slate-500'}">
                                     ${s.done ? '✓' : sIdx+1}
                                 </button>
                                 <div class="flex-1 grid grid-cols-2 gap-2">
-                                    <input type="number" placeholder="KG" value="${s.weight}" oninput="window.updateSet(${exIdx}, ${sIdx}, 'weight', this.value)" class="bg-transparent text-center font-bold outline-none">
-                                    <input type="number" placeholder="REPS" value="${s.reps}" oninput="window.updateSet(${exIdx}, ${sIdx}, 'reps', this.value)" class="bg-transparent text-center font-bold outline-none">
+                                    <div class="bg-slate-900/50 p-2 rounded-xl flex items-center gap-1">
+                                        <input type="number" placeholder="KG" value="${s.weight}" oninput="window.updateSet(${exIdx}, ${sIdx}, 'weight', this.value)" class="w-full bg-transparent text-center font-bold outline-none text-xs">
+                                        <span class="text-[8px] text-slate-600 font-black">KG</span>
+                                    </div>
+                                    <div class="bg-slate-900/50 p-2 rounded-xl flex items-center gap-1">
+                                        <input type="number" placeholder="REPS" value="${s.reps}" oninput="window.updateSet(${exIdx}, ${sIdx}, 'reps', this.value)" class="w-full bg-transparent text-center font-bold outline-none text-xs">
+                                        <span class="text-[8px] text-slate-600 font-black">REPS</span>
+                                    </div>
                                 </div>
-                            </div>
-                        `).join('')}
+                            </div>`).join('')}
                     </div>
-                </div>
-            `).join('');
+                </div>`).join('');
         };
 
-        // --- FUNCIONES DE SESIÓN ---
         window.toggleSet = (ei, si) => {
-            const s = activeSession[ei].actual[si];
-            s.done = !s.done;
+            const s = activeSession[ei].actual[si]; s.done = !s.done;
             if(s.done) window.startTimer(90);
             renderActiveSession();
         };
-
         window.updateSet = (ei, si, k, v) => { activeSession[ei].actual[si][k] = v; };
 
         window.saveFullSession = async () => {
@@ -270,11 +294,8 @@
                 sets: ex.actual.filter(s => s.done).map(s => ({ weight: parseFloat(s.weight)||0, reps: parseInt(s.reps)||0 })),
                 date: document.getElementById('workout-date').value
             })).filter(e => e.sets.length > 0);
-
-            for(const e of data) {
-                await addDoc(collection(db, 'artifacts', APP_VER, 'users', user.uid, 'history'), { ...e, timestamp: serverTimestamp() });
-            }
-            window.showToast("SESIÓN GUARDADA");
+            for(const e of data) await addDoc(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'history'), { ...e, timestamp: serverTimestamp() });
+            window.showToast("ENTRENAMIENTO GUARDADO");
             window.cancelSession();
         };
 
@@ -282,100 +303,87 @@
             activeSession = null;
             document.getElementById('routine-selector').classList.remove('hidden');
             document.getElementById('active-session-ui').classList.add('hidden');
+            window.switchTab('dashboard');
         };
 
-        // --- OTROS (ESTADÍSTICAS & RUTINAS) ---
+        // RUTINAS LOGIC
         window.saveRoutineBlock = async () => {
             const name = document.getElementById('routine-name-input').value.trim();
-            if(!name || myPlannedRoutine.length === 0) return;
-            await addDoc(collection(db, 'artifacts', APP_VER, 'users', user.uid, 'blocks'), {
-                name, exercises: myPlannedRoutine, createdAt: serverTimestamp()
-            });
-            myPlannedRoutine = [];
-            window.updatePlanUI();
-            window.showToast("RUTINA GUARDADA");
+            if(!name || myPlannedRoutine.length === 0) return window.showToast("Faltan datos");
+            await addDoc(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'blocks'), { name, exercises: myPlannedRoutine, createdAt: serverTimestamp() });
+            myPlannedRoutine = []; window.updatePlanUI(); window.showToast("BLOQUE GUARDADO");
         };
+        window.deleteBlock = async (id) => { if(confirm("¿Borrar rutina?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', user.uid, 'blocks', id)); };
 
-        window.deleteBlock = async (id) => { if(confirm("¿Borrar rutina?")) await deleteDoc(doc(db, 'artifacts', APP_VER, 'users', user.uid, 'blocks', id)); };
-
-        const renderDashboard = (logs) => {
-            let vol = 0; const days = new Set();
-            logs.forEach(l => { days.add(l.date); l.sets.forEach(s => vol += (s.weight * s.reps)); });
-            document.getElementById('stat-volume').textContent = Math.round(vol).toLocaleString() + " kg";
-            document.getElementById('streak-count').textContent = days.size;
-            
-            document.getElementById('workout-history').innerHTML = logs.slice(0, 5).map(l => `
-                <div class="glass p-4 rounded-2xl flex justify-between items-center group">
-                    <div><p class="text-sm font-black">${l.exercise}</p><p class="text-[9px] text-slate-500 uppercase">${l.date}</p></div>
-                    <button onclick="window.deleteHistory('${l.id}')" class="text-rose-500 opacity-0 group-hover:opacity-100 font-bold">✕</button>
-                </div>
-            `).join('');
-        };
-
-        window.deleteHistory = async (id) => { await deleteDoc(doc(db, 'artifacts', APP_VER, 'users', user.uid, 'history', id)); };
-
-        // --- LIBRERÍA ---
-        const renderLibrary = (filter = "") => {
-            const PRESETS = {"Empuje": ["Press Banca", "Militar"], "Tracción": ["Dominadas", "Remo"], "Pierna": ["Sentadilla", "Prensa"]};
-            const list = document.getElementById('library-list');
-            list.innerHTML = "";
-            const cats = { ...PRESETS, "Mis Ejercicios": customExercises.map(e => e.name) };
-
+        const renderLibrary = (f = "") => {
+            const PRE = {"Empuje":["Press Banca","Militar"],"Tracción":["Dominadas","Remo"],"Pierna":["Sentadilla","Prensa"]};
+            const list = document.getElementById('library-list'); list.innerHTML = "";
+            const cats = { ...PRE, "Mis Ejercicios": customExercises };
             Object.entries(cats).forEach(([cat, exs]) => {
-                const filtered = exs.filter(e => e.toLowerCase().includes(filter.toLowerCase()));
-                if (filtered.length === 0) return;
+                const isCustom = cat === "Mis Ejercicios";
+                const filtered = exs.filter(e => (isCustom ? e.name : e).toLowerCase().includes(f.toLowerCase()));
+                if(!filtered.length) return;
                 list.innerHTML += `<p class="text-[8px] font-black text-slate-600 uppercase mb-2 mt-4">${cat}</p>` + 
-                    filtered.map(ex => `<button onclick="window.addToPlan('${ex}')" class="w-full text-left bg-white/5 p-3 rounded-xl text-xs mb-1 flex justify-between">${ex} <span class="text-indigo-500">+</span></button>`).join('');
+                    filtered.map(ex => `
+                        <div class="bg-white/5 p-3 rounded-xl text-xs flex justify-between items-center mb-1">
+                            <span onclick="window.addToPlan('${isCustom?ex.name:ex}')" class="cursor-pointer">${isCustom?ex.name:ex}</span>
+                            <div class="flex gap-4">
+                                ${isCustom ? `<button onclick="window.deleteCustomEx('${ex.id}')" class="text-rose-500">✕</button>` : ''}
+                                <button onclick="window.addToPlan('${isCustom?ex.name:ex}')" class="text-indigo-500 font-black">+</button>
+                            </div>
+                        </div>`).join('');
             });
         };
 
-        window.addToPlan = (name) => {
-            myPlannedRoutine.push({ name, sets: 3, reps: 10 });
-            window.updatePlanUI();
-        };
-
+        window.addToPlan = (name) => { myPlannedRoutine.push({ name, sets: 3, reps: 10 }); window.updatePlanUI(); };
+        window.removePlanItem = (i) => { myPlannedRoutine.splice(i,1); window.updatePlanUI(); };
         window.updatePlanUI = () => {
             const list = document.getElementById('routine-config-list');
-            document.getElementById('routine-save-controls').classList.toggle('hidden', myPlannedRoutine.length === 0);
+            document.getElementById('routine-save-controls').classList.toggle('hidden', !myPlannedRoutine.length);
             list.innerHTML = myPlannedRoutine.map((it, idx) => `
                 <div class="bg-white/5 p-4 rounded-xl flex justify-between items-center">
                     <span class="text-xs font-bold">${it.name}</span>
-                    <button onclick="window.removePlanItem(${idx})" class="text-rose-500 font-bold">✕</button>
+                    <div class="flex gap-3">
+                        <input type="number" value="${it.sets}" onchange="myPlannedRoutine[${idx}].sets=parseInt(this.value)" class="w-8 bg-slate-900 text-center text-indigo-400 font-bold rounded">
+                        <button onclick="window.removePlanItem(${idx})" class="text-rose-500">✕</button>
+                    </div>
                 </div>`).join('');
         };
 
-        window.removePlanItem = (i) => { myPlannedRoutine.splice(i,1); window.updatePlanUI(); };
         window.createCustomExercise = async () => {
-            const name = document.getElementById('custom-ex-name').value;
-            await addDoc(collection(db, 'artifacts', APP_VER, 'users', user.uid, 'custom_ex'), { name });
+            const n = document.getElementById('custom-ex-name').value;
+            if(n) await addDoc(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'custom_ex'), { name: n });
             document.getElementById('custom-ex-name').value = "";
         };
+        window.deleteCustomEx = async (id) => { await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', user.uid, 'custom_ex', id)); };
 
-        // --- NAVEGACIÓN ---
+        // UTILS
         window.switchTab = (t) => {
             ['dashboard', 'train', 'routines'].forEach(s => {
                 document.getElementById(`section-${s}`).classList.toggle('hidden', s !== t);
                 document.getElementById(`tab-${s}`).classList.toggle('active', s === t);
             });
         };
-
         window.startTimer = (sec) => {
-            clearInterval(window.tInt);
-            const d = document.getElementById('rest-timer-display'); d.classList.remove('hidden');
-            let r = sec;
-            window.tInt = setInterval(() => {
-                document.getElementById('timer-seconds').textContent = `00:${r.toString().padStart(2,'0')}`;
+            clearInterval(window.tInt); const d = document.getElementById('rest-timer-display'); d.classList.remove('hidden');
+            let r = sec; window.tInt = setInterval(() => {
+                const m=Math.floor(r/60), s=r%60; document.getElementById('timer-seconds').textContent = `${m}:${s.toString().padStart(2,'0')}`;
                 if(r-- <= 0) { clearInterval(window.tInt); d.classList.add('hidden'); }
             }, 1000);
         };
-
         window.showToast = (m) => {
             const t = document.getElementById('toast'); t.textContent = m; t.classList.remove('opacity-0');
             setTimeout(() => t.classList.add('opacity-0'), 2000);
         };
+        const calcRM = () => {
+            const w = parseFloat(document.getElementById('rm-weight').value || 0), r = parseFloat(document.getElementById('rm-reps').value || 0);
+            document.getElementById('rm-result').textContent = (w && r) ? Math.round(w * (1 + (r / 30))) + " kg" : "--";
+        };
 
         window.onload = () => {
             document.getElementById('workout-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('rm-weight').addEventListener('input', calcRM);
+            document.getElementById('rm-reps').addEventListener('input', calcRM);
             document.getElementById('lib-search').addEventListener('input', e => renderLibrary(e.target.value));
             renderLibrary();
         };
