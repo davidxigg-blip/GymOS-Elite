@@ -3,36 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Gym OS Pro 2026 - Ultra</title>
+    <title>Gym OS Pro 2026</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="https://img.icons8.com/fluency/512/dumbbell.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root { --brand: #6366f1; --bg: #020617; }
         body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; color: #f8fafc; padding-top: env(safe-area-inset-top); }
-        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .glass { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
         .nav-tab.active { color: white; border-bottom: 3px solid var(--brand); }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .bar-transition { transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        .routine-card { transition: all 0.3s ease; border: 1px solid rgba(99, 102, 241, 0.1); }
+        .routine-card:active { transform: scale(0.98); background: rgba(99, 102, 241, 0.1); }
         input[type="number"]::-webkit-inner-spin-button { display: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="min-h-screen pb-32">
 
     <div id="login-overlay" class="fixed inset-0 z-[1000] bg-slate-950 flex items-center justify-center px-6">
         <div class="glass p-8 rounded-[2.5rem] w-full max-w-md text-center">
-            <div class="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-indigo-500/30">
-                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-            </div>
-            <h2 class="text-3xl font-black mb-8 tracking-tighter">GYMOS <span class="text-indigo-500">PRO</span></h2>
+            <h2 class="text-3xl font-black mb-8 tracking-tighter text-indigo-500">GYMOS PRO</h2>
             <div class="space-y-4">
                 <input type="email" id="login-email" placeholder="Email" class="w-full bg-slate-900 border border-white/5 px-6 py-4 rounded-2xl outline-none">
                 <input type="password" id="login-pass" placeholder="Password" class="w-full bg-slate-900 border border-white/5 px-6 py-4 rounded-2xl outline-none">
-                <button onclick="window.ejecutarLogin()" class="w-full py-5 bg-indigo-600 text-white font-black rounded-2xl shadow-xl shadow-indigo-500/20">ENTRAR</button>
+                <button onclick="window.ejecutarLogin()" class="w-full py-5 bg-indigo-600 text-white font-black rounded-2xl">ENTRAR</button>
             </div>
         </div>
     </div>
@@ -40,12 +37,10 @@
     <nav class="sticky top-0 z-[500] glass border-b border-white/5 mb-6">
         <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
             <h1 class="font-black text-lg tracking-tighter">GYMOS <span class="text-indigo-500">PRO</span></h1>
-            <div class="flex items-center gap-3">
-                <div id="rest-timer-display" class="hidden bg-slate-900 border border-rose-500/30 px-3 py-1.5 rounded-xl flex items-center gap-2">
-                    <span id="timer-seconds" class="font-mono font-bold text-rose-400 text-xs">00:00</span>
-                </div>
-                <button onclick="window.cerrarSesion()" class="text-[10px] font-black bg-slate-800 px-4 py-2 rounded-lg">SALIR</button>
+            <div id="rest-timer-display" class="hidden bg-slate-900 border border-rose-500/30 px-3 py-1.5 rounded-xl">
+                <span id="timer-seconds" class="font-mono font-bold text-rose-400 text-xs">00:00</span>
             </div>
+            <button onclick="window.cerrarSesion()" class="text-[10px] font-black bg-slate-800 px-4 py-2 rounded-lg">SALIR</button>
         </div>
         <div class="flex justify-center gap-8">
             <button onclick="window.switchTab('dashboard')" id="tab-dashboard" class="nav-tab active py-4 text-[10px] font-black uppercase tracking-widest text-slate-500">Panel</button>
@@ -59,98 +54,84 @@
         <section id="section-dashboard" class="space-y-6">
             <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <div class="glass p-5 rounded-3xl border-l-4 border-indigo-500">
-                    <p class="text-[9px] font-black text-slate-500 uppercase">Volumen (kg)</p>
+                    <p class="text-[9px] font-black text-slate-500 uppercase">Volumen Total</p>
                     <h3 id="stat-volume" class="text-2xl font-black">0</h3>
                 </div>
-                <div class="glass p-5 rounded-3xl border-l-4 border-emerald-500">
-                    <p class="text-[9px] font-black text-slate-500 uppercase">Series Total</p>
-                    <h3 id="stat-sets" class="text-2xl font-black">0</h3>
-                </div>
-                <div class="glass p-5 rounded-3xl border-l-4 border-amber-500 col-span-2 md:col-span-1">
+                <div class="glass p-5 rounded-3xl border-l-4 border-amber-500">
                     <p class="text-[9px] font-black text-slate-500 uppercase">Días Activos</p>
-                    <h3 id="streak-count" class="text-2xl font-black">🔥 0</h3>
+                    <h3 id="streak-count" class="text-2xl font-black">0</h3>
                 </div>
             </div>
-
             <div class="glass p-6 rounded-[2.5rem]">
-                <h4 class="text-[10px] font-black text-slate-500 uppercase mb-6">Progreso Semanal</h4>
+                <h4 class="text-[10px] font-black text-slate-500 uppercase mb-6">Volumen 7 Días</h4>
                 <div id="volume-chart" class="flex items-end justify-between h-32 gap-2"></div>
             </div>
-
-            <div class="space-y-4">
-                <h3 class="text-lg font-black px-2">Historial Reciente</h3>
-                <div id="workout-history" class="grid gap-3"></div>
-            </div>
+            <div id="workout-history" class="grid gap-3"></div>
         </section>
 
         <section id="section-train" class="hidden space-y-6">
-            <div class="glass p-6 rounded-[2rem] flex justify-between items-center">
-                <h2 class="font-black text-xl">Sesión</h2>
-                <input type="date" id="workout-date" class="bg-transparent text-indigo-400 font-bold outline-none text-sm">
+            <div id="routine-selector" class="space-y-6">
+                <div class="flex flex-col gap-2">
+                    <h2 class="text-2xl font-black">¿Qué entrenamos hoy?</h2>
+                    <p class="text-slate-500 text-sm">Selecciona una de tus rutinas para comenzar</p>
+                </div>
+                
+                <div id="train-routines-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    </div>
+
+                <button onclick="window.startFreeWorkout()" class="w-full py-4 border-2 border-dashed border-white/10 rounded-3xl text-slate-500 font-bold text-sm hover:border-indigo-500 hover:text-indigo-400 transition-colors">
+                    + Entrenamiento Libre
+                </button>
             </div>
-            
-            <div id="active-session-container" class="space-y-6">
-                <div class="text-center py-20 text-slate-600 italic text-sm">Carga una rutina para empezar...</div>
-            </div>
-            
-            <div id="session-actions" class="hidden pb-20 flex gap-4">
-                <button onclick="window.saveFullSession()" class="flex-1 py-5 bg-indigo-600 text-white font-black rounded-2xl shadow-lg">GUARDAR ENTRENAMIENTO</button>
-                <button onclick="window.cancelSession()" class="px-6 bg-slate-900 text-rose-500 font-black rounded-2xl">✕</button>
+
+            <div id="active-session-ui" class="hidden space-y-6">
+                <div class="glass p-6 rounded-[2rem] flex justify-between items-center">
+                    <div>
+                        <h2 id="active-routine-name" class="font-black text-xl text-indigo-400 uppercase tracking-tight">Cargando...</h2>
+                        <input type="date" id="workout-date" class="bg-transparent text-slate-500 font-bold outline-none text-xs">
+                    </div>
+                    <button onclick="window.cancelSession()" class="bg-rose-500/10 text-rose-500 p-3 rounded-2xl">✕</button>
+                </div>
+
+                <div id="active-session-container" class="space-y-6"></div>
+
+                <div class="pb-20">
+                    <button onclick="window.saveFullSession()" class="w-full py-6 bg-indigo-600 text-white font-black rounded-3xl shadow-xl shadow-indigo-500/20">
+                        FINALIZAR Y GUARDAR
+                    </button>
+                </div>
             </div>
         </section>
 
         <section id="section-routines" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div class="lg:col-span-5 space-y-6">
-                <div class="glass p-6 rounded-[2rem] bg-indigo-600/5">
-                    <h3 class="text-[10px] font-black text-indigo-400 uppercase mb-4">Calculadora 1RM</h3>
+                <div class="glass p-6 rounded-[2rem]">
+                    <h3 class="text-[10px] font-black text-slate-500 uppercase mb-4">Añadir Ejercicio Propio</h3>
                     <div class="flex gap-2">
-                        <input type="number" id="rm-weight" placeholder="Kg" class="w-full bg-slate-900/50 p-3 rounded-xl text-sm outline-none">
-                        <input type="number" id="rm-reps" placeholder="Reps" class="w-full bg-slate-900/50 p-3 rounded-xl text-sm outline-none">
-                        <div id="rm-result" class="flex-1 bg-indigo-600 rounded-xl flex items-center justify-center font-black text-sm">--</div>
+                        <input type="text" id="custom-ex-name" placeholder="Ej: Hip Thrust" class="flex-1 bg-slate-900 p-4 rounded-xl text-sm outline-none">
+                        <button onclick="window.createCustomExercise()" class="bg-indigo-600 px-6 rounded-xl font-black">+</button>
                     </div>
                 </div>
-
-                <div class="glass p-6 rounded-[2rem]">
-                    <h3 class="text-[10px] font-black text-slate-500 uppercase mb-4">Añadir Ejercicio Manual</h3>
-                    <div class="flex gap-2">
-                        <input type="text" id="custom-ex-name" placeholder="Ej: Hip Thrust" class="flex-1 bg-slate-900 p-3 rounded-xl text-sm outline-none">
-                        <button onclick="window.createCustomExercise()" class="bg-indigo-600 px-5 rounded-xl font-black">+</button>
-                    </div>
-                </div>
-
-                <div class="glass p-6 rounded-[2rem]">
-                    <h3 class="text-[10px] font-black text-slate-500 uppercase mb-4">Mis Bloques de Rutina</h3>
-                    <div id="saved-routines-list" class="space-y-3"></div>
-                </div>
-
                 <div class="glass p-6 rounded-[2rem]">
                     <h3 class="text-lg font-black mb-4">Librería</h3>
-                    <input type="text" id="lib-search" placeholder="Buscar..." class="w-full bg-slate-900 p-3 rounded-xl text-sm mb-4 outline-none">
-                    <div id="library-list" class="h-64 overflow-y-auto no-scrollbar space-y-4"></div>
+                    <input type="text" id="lib-search" placeholder="Buscar..." class="w-full bg-slate-900 p-4 rounded-xl text-sm mb-4 outline-none">
+                    <div id="library-list" class="h-80 overflow-y-auto no-scrollbar space-y-4"></div>
                 </div>
             </div>
-
             <div class="lg:col-span-7">
                 <div class="glass p-6 rounded-[2.5rem] sticky top-24">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-xl font-black">Planificador</h3>
-                        <button onclick="window.clearRoutine()" class="text-[10px] font-black text-rose-500 uppercase">Limpiar</button>
-                    </div>
+                    <h3 class="text-xl font-black mb-6">Creador de Rutinas</h3>
                     <div id="routine-config-list" class="space-y-3 mb-6"></div>
-                    
                     <div id="routine-save-controls" class="hidden space-y-4">
-                        <input type="text" id="routine-name-input" placeholder="Nombre de esta rutina..." class="w-full bg-slate-900 border border-indigo-500/30 p-4 rounded-xl outline-none">
-                        <div class="flex gap-2">
-                            <button onclick="window.saveRoutineBlock()" class="flex-1 py-4 bg-emerald-600 text-[10px] font-black rounded-xl uppercase">Guardar Bloque</button>
-                            <button onclick="window.startRoutine()" class="flex-1 py-4 bg-indigo-600 text-[10px] font-black rounded-xl uppercase">Entrenar Ahora</button>
-                        </div>
+                        <input type="text" id="routine-name-input" placeholder="Nombre (ej: Tirón A)" class="w-full bg-slate-900 p-4 rounded-xl outline-none">
+                        <button onclick="window.saveRoutineBlock()" class="w-full py-4 bg-emerald-600 font-black rounded-xl uppercase text-xs">Guardar Bloque de Rutina</button>
                     </div>
                 </div>
             </div>
         </section>
     </main>
 
-    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 glass border-indigo-500/50 px-6 py-3 rounded-xl opacity-0 transition-all z-[9999] font-black text-[10px] uppercase pointer-events-none"></div>
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 glass border-indigo-500/50 px-6 py-3 rounded-xl opacity-0 transition-all z-[9999] font-black text-[10px] uppercase text-white pointer-events-none"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -169,28 +150,20 @@
         const fb = initializeApp(firebaseConfig);
         const auth = getAuth(fb);
         const db = getFirestore(fb);
-        const APP_ID = 'gym-os-2026-final-v1';
-
-        const PRESETS = {
-            "Pecho": ["Press Banca", "Press Inclinado", "Aperturas"],
-            "Espalda": ["Dominadas", "Remo con Barra", "Jalón al Pecho"],
-            "Pierna": ["Sentadilla", "Prensa", "Peso Muerto Rumano"],
-            "Hombro/Brazo": ["Press Militar", "Elevaciones Laterales", "Curl Bíceps"]
-        };
+        const APP_VER = 'gym-os-v4-redeploy';
 
         let user = null;
         let myPlannedRoutine = [];
         let activeSession = null;
         let customExercises = [];
-        let timerInt = null;
+        let savedBlocks = [];
 
         // --- AUTH ---
         window.ejecutarLogin = async () => {
             const e = document.getElementById('login-email').value;
             const p = document.getElementById('login-pass').value;
-            if(!e || !p) return;
             try { await signInWithEmailAndPassword(auth, e, p); } 
-            catch { try { await createUserWithEmailAndPassword(auth, e, p); } catch(err) { window.showToast(err.message); } }
+            catch { await createUserWithEmailAndPassword(auth, e, p); }
         };
 
         window.cerrarSesion = () => signOut(auth).then(() => window.location.reload());
@@ -198,240 +171,187 @@
         onAuthStateChanged(auth, u => {
             user = u;
             document.getElementById('login-overlay').classList.toggle('hidden', !!u);
-            if (u) { initSync(); }
+            if (u) initSync();
         });
 
-        // --- SYNC DATA ---
         const initSync = () => {
             // Historial
-            onSnapshot(query(collection(db, 'artifacts', APP_ID, 'users', user.uid, 'history'), orderBy('timestamp', 'desc')), snap => {
+            onSnapshot(query(collection(db, 'artifacts', APP_VER, 'users', user.uid, 'history'), orderBy('timestamp', 'desc')), snap => {
                 const logs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 renderDashboard(logs);
             });
             // Ejercicios Custom
-            onSnapshot(collection(db, 'artifacts', APP_ID, 'users', user.uid, 'custom_ex'), snap => {
+            onSnapshot(collection(db, 'artifacts', APP_VER, 'users', user.uid, 'custom_ex'), snap => {
                 customExercises = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 renderLibrary();
             });
-            // Rutinas Guardadas (Bloques)
-            onSnapshot(query(collection(db, 'artifacts', APP_ID, 'users', user.uid, 'routine_blocks'), orderBy('createdAt', 'desc')), snap => {
-                renderRoutineBlocks(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+            // Bloques de Rutina
+            onSnapshot(query(collection(db, 'artifacts', APP_VER, 'users', user.uid, 'blocks'), orderBy('createdAt', 'desc')), snap => {
+                savedBlocks = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderTrainRoutineSelector();
             });
         };
 
-        // --- DASHBOARD & HISTORY ---
-        const renderDashboard = (logs) => {
-            let vol = 0, sets = 0; const days = new Set();
-            logs.forEach(l => {
-                days.add(l.date);
-                l.sets.forEach(s => { vol += (s.weight * s.reps); sets++; });
-            });
-            document.getElementById('stat-volume').textContent = Math.round(vol).toLocaleString();
-            document.getElementById('stat-sets').textContent = sets;
-            document.getElementById('streak-count').textContent = `🔥 ${days.size}`;
-
-            // Gráfico
-            const chart = document.getElementById('volume-chart');
-            const last7 = [...Array(7)].map((_, i) => {
-                const d = new Date(); d.setDate(d.getDate() - i);
-                return d.toISOString().split('T')[0];
-            }).reverse();
-            const vols = last7.map(day => logs.filter(l => l.date === day).reduce((a,b)=>a+b.sets.reduce((x,y)=>x+(y.weight*y.reps),0),0));
-            const max = Math.max(...vols, 1000);
-            chart.innerHTML = vols.map((v, i) => `
-                <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end">
-                    <div class="w-full bg-indigo-500/10 rounded-lg relative flex items-end h-full overflow-hidden">
-                        <div class="w-full bg-indigo-500 bar-transition" style="height: ${(v/max)*100}%"></div>
+        // --- RENDERIZADO ENTRENAR (EL CORAZÓN DEL CAMBIO) ---
+        const renderTrainRoutineSelector = () => {
+            const list = document.getElementById('train-routines-list');
+            if(savedBlocks.length === 0) {
+                list.innerHTML = `<p class="text-slate-600 text-sm col-span-full">Crea tu primera rutina en la pestaña "Rutinas"</p>`;
+                return;
+            }
+            list.innerHTML = savedBlocks.map(b => `
+                <div onclick='window.loadAndStartRoutine(${JSON.stringify(b.exercises)}, "${b.name}")' 
+                     class="routine-card glass p-6 rounded-[2rem] cursor-pointer hover:bg-indigo-600/10 group">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="bg-indigo-500/20 text-indigo-400 text-[10px] font-black px-3 py-1 rounded-full uppercase">Bloque</span>
+                        <button onclick="event.stopPropagation(); window.deleteBlock('${b.id}')" class="text-slate-600 hover:text-rose-500">✕</button>
                     </div>
-                    <span class="text-[7px] font-bold text-slate-500">${last7[i].split('-')[2]}</span>
-                </div>`).join('');
-
-            // Lista Historial
-            document.getElementById('workout-history').innerHTML = logs.slice(0, 10).map(l => `
-                <div class="glass p-4 rounded-2xl flex justify-between items-center group">
-                    <div>
-                        <p class="text-sm font-black">${l.exercise}</p>
-                        <p class="text-[9px] text-slate-500 uppercase font-bold">${l.date}</p>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <span class="text-xs font-bold text-indigo-400">${l.sets.length} series</span>
-                        <button onclick="window.deleteHistory('${l.id}')" class="text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity">✕</button>
-                    </div>
-                </div>`).join('');
+                    <h3 class="text-xl font-black text-white group-hover:text-indigo-400 transition-colors">${b.name}</h3>
+                    <p class="text-slate-500 text-xs mt-1">${b.exercises.length} ejercicios configurados</p>
+                </div>
+            `).join('');
         };
 
-        window.deleteHistory = async (id) => { if(confirm("¿Borrar registro?")) await deleteDoc(doc(db, 'artifacts', APP_ID, 'users', user.uid, 'history', id)); };
-
-        // --- LIBRERÍA Y PERSONALIZACIÓN ---
-        window.createCustomExercise = async () => {
-            const name = document.getElementById('custom-ex-name').value.trim();
-            if(!name) return;
-            await addDoc(collection(db, 'artifacts', APP_ID, 'users', user.uid, 'custom_ex'), { name });
-            document.getElementById('custom-ex-name').value = "";
-            window.showToast("EJERCICIO CREADO");
+        window.loadAndStartRoutine = (exercises, name) => {
+            document.getElementById('routine-selector').classList.add('hidden');
+            document.getElementById('active-session-ui').classList.remove('hidden');
+            document.getElementById('active-routine-name').textContent = name;
+            
+            activeSession = exercises.map(ex => ({
+                ...ex,
+                actual: Array.from({ length: ex.sets }, () => ({ weight: "", reps: ex.reps, done: false }))
+            }));
+            renderActiveSession();
         };
 
-        window.deleteCustomEx = async (id) => { if(confirm("¿Borrar ejercicio propio?")) await deleteDoc(doc(db, 'artifacts', APP_ID, 'users', user.uid, 'custom_ex', id)); };
+        window.startFreeWorkout = () => {
+            const name = prompt("Nombre del entrenamiento:", "Entrenamiento Libre") || "Libre";
+            window.loadAndStartRoutine([], name);
+            window.showToast("Usa 'Rutinas' para añadir ejercicios");
+        };
 
-        const renderLibrary = (filter = "") => {
-            const list = document.getElementById('library-list');
-            list.innerHTML = "";
-            const cats = { ...PRESETS, "Mis Ejercicios": customExercises };
-
-            Object.entries(cats).forEach(([cat, exs]) => {
-                const isCustom = cat === "Mis Ejercicios";
-                const filtered = exs.filter(e => (isCustom ? e.name : e).toLowerCase().includes(filter.toLowerCase()));
-                if (filtered.length === 0) return;
-
-                const div = document.createElement('div');
-                div.innerHTML = `<p class="text-[8px] font-black text-slate-600 uppercase mb-2 mt-4">${cat}</p>
-                    <div class="grid gap-2">${filtered.map(ex => {
-                        const name = isCustom ? ex.name : ex;
-                        return `
-                        <div class="bg-white/5 p-3 rounded-xl text-xs flex justify-between items-center">
-                            <span onclick="window.addToPlan('${name}')" class="flex-1 cursor-pointer font-medium">${name}</span>
-                            <div class="flex gap-4">
-                                ${isCustom ? `<button onclick="window.deleteCustomEx('${ex.id}')" class="text-rose-500">✕</button>` : ''}
-                                <button onclick="window.addToPlan('${name}')" class="text-indigo-500 font-black">+</button>
+        const renderActiveSession = () => {
+            const container = document.getElementById('active-session-container');
+            container.innerHTML = activeSession.map((ex, exIdx) => `
+                <div class="glass p-6 rounded-[2.5rem] space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h4 class="font-black text-white uppercase text-sm tracking-widest">${ex.name}</h4>
+                    </div>
+                    <div class="space-y-2">
+                        ${ex.actual.map((s, sIdx) => `
+                            <div class="flex items-center gap-3 p-3 rounded-2xl ${s.done ? 'bg-emerald-500/10 border-emerald-500/30 border' : 'bg-slate-950/50 border-white/5 border'}">
+                                <button onclick="window.toggleSet(${exIdx}, ${sIdx})" class="w-10 h-10 rounded-xl font-black ${s.done ? 'bg-emerald-500 text-white' : 'bg-slate-800 text-slate-500'}">
+                                    ${s.done ? '✓' : sIdx+1}
+                                </button>
+                                <div class="flex-1 grid grid-cols-2 gap-2">
+                                    <input type="number" placeholder="KG" value="${s.weight}" oninput="window.updateSet(${exIdx}, ${sIdx}, 'weight', this.value)" class="bg-transparent text-center font-bold outline-none">
+                                    <input type="number" placeholder="REPS" value="${s.reps}" oninput="window.updateSet(${exIdx}, ${sIdx}, 'reps', this.value)" class="bg-transparent text-center font-bold outline-none">
+                                </div>
                             </div>
-                        </div>`;
-                    }).join('')}</div>`;
-                list.appendChild(div);
-            });
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
         };
 
-        // --- GESTIÓN DE RUTINAS (BLOQUES) ---
+        // --- FUNCIONES DE SESIÓN ---
+        window.toggleSet = (ei, si) => {
+            const s = activeSession[ei].actual[si];
+            s.done = !s.done;
+            if(s.done) window.startTimer(90);
+            renderActiveSession();
+        };
+
+        window.updateSet = (ei, si, k, v) => { activeSession[ei].actual[si][k] = v; };
+
+        window.saveFullSession = async () => {
+            const data = activeSession.map(ex => ({
+                exercise: ex.name,
+                sets: ex.actual.filter(s => s.done).map(s => ({ weight: parseFloat(s.weight)||0, reps: parseInt(s.reps)||0 })),
+                date: document.getElementById('workout-date').value
+            })).filter(e => e.sets.length > 0);
+
+            for(const e of data) {
+                await addDoc(collection(db, 'artifacts', APP_VER, 'users', user.uid, 'history'), { ...e, timestamp: serverTimestamp() });
+            }
+            window.showToast("SESIÓN GUARDADA");
+            window.cancelSession();
+        };
+
+        window.cancelSession = () => {
+            activeSession = null;
+            document.getElementById('routine-selector').classList.remove('hidden');
+            document.getElementById('active-session-ui').classList.add('hidden');
+        };
+
+        // --- OTROS (ESTADÍSTICAS & RUTINAS) ---
         window.saveRoutineBlock = async () => {
             const name = document.getElementById('routine-name-input').value.trim();
-            if(!name || myPlannedRoutine.length === 0) return window.showToast("Falta nombre o ejercicios");
-            await addDoc(collection(db, 'artifacts', APP_ID, 'users', user.uid, 'routine_blocks'), {
+            if(!name || myPlannedRoutine.length === 0) return;
+            await addDoc(collection(db, 'artifacts', APP_VER, 'users', user.uid, 'blocks'), {
                 name, exercises: myPlannedRoutine, createdAt: serverTimestamp()
             });
-            window.showToast("BLOQUE GUARDADO");
-            document.getElementById('routine-name-input').value = "";
+            myPlannedRoutine = [];
+            window.updatePlanUI();
+            window.showToast("RUTINA GUARDADA");
         };
 
-        const renderRoutineBlocks = (blocks) => {
-            const list = document.getElementById('saved-routines-list');
-            if(blocks.length === 0) { list.innerHTML = "<p class='text-[10px] text-slate-600'>No hay bloques guardados.</p>"; return; }
-            list.innerHTML = blocks.map(b => `
-                <div class="bg-white/5 p-4 rounded-xl flex justify-between items-center group">
-                    <button onclick='window.loadRoutineBlock(${JSON.stringify(b.exercises)})' class="text-left flex-1">
-                        <p class="text-xs font-black text-white uppercase">${b.name}</p>
-                        <p class="text-[9px] text-slate-500">${b.exercises.length} ejercicios</p>
-                    </button>
-                    <button onclick="window.deleteRoutineBlock('${b.id}')" class="text-rose-500 opacity-0 group-hover:opacity-100 px-2 font-bold">✕</button>
-                </div>`).join('');
+        window.deleteBlock = async (id) => { if(confirm("¿Borrar rutina?")) await deleteDoc(doc(db, 'artifacts', APP_VER, 'users', user.uid, 'blocks', id)); };
+
+        const renderDashboard = (logs) => {
+            let vol = 0; const days = new Set();
+            logs.forEach(l => { days.add(l.date); l.sets.forEach(s => vol += (s.weight * s.reps)); });
+            document.getElementById('stat-volume').textContent = Math.round(vol).toLocaleString() + " kg";
+            document.getElementById('streak-count').textContent = days.size;
+            
+            document.getElementById('workout-history').innerHTML = logs.slice(0, 5).map(l => `
+                <div class="glass p-4 rounded-2xl flex justify-between items-center group">
+                    <div><p class="text-sm font-black">${l.exercise}</p><p class="text-[9px] text-slate-500 uppercase">${l.date}</p></div>
+                    <button onclick="window.deleteHistory('${l.id}')" class="text-rose-500 opacity-0 group-hover:opacity-100 font-bold">✕</button>
+                </div>
+            `).join('');
         };
 
-        window.loadRoutineBlock = (exs) => { myPlannedRoutine = exs; window.updatePlanUI(); window.showToast("BLOQUE CARGADO"); };
-        window.deleteRoutineBlock = async (id) => { if(confirm("¿Eliminar bloque?")) await deleteDoc(doc(db, 'artifacts', APP_ID, 'users', user.uid, 'routine_blocks', id)); };
+        window.deleteHistory = async (id) => { await deleteDoc(doc(db, 'artifacts', APP_VER, 'users', user.uid, 'history', id)); };
 
-        // --- PLANIFICADOR ---
+        // --- LIBRERÍA ---
+        const renderLibrary = (filter = "") => {
+            const PRESETS = {"Empuje": ["Press Banca", "Militar"], "Tracción": ["Dominadas", "Remo"], "Pierna": ["Sentadilla", "Prensa"]};
+            const list = document.getElementById('library-list');
+            list.innerHTML = "";
+            const cats = { ...PRESETS, "Mis Ejercicios": customExercises.map(e => e.name) };
+
+            Object.entries(cats).forEach(([cat, exs]) => {
+                const filtered = exs.filter(e => e.toLowerCase().includes(filter.toLowerCase()));
+                if (filtered.length === 0) return;
+                list.innerHTML += `<p class="text-[8px] font-black text-slate-600 uppercase mb-2 mt-4">${cat}</p>` + 
+                    filtered.map(ex => `<button onclick="window.addToPlan('${ex}')" class="w-full text-left bg-white/5 p-3 rounded-xl text-xs mb-1 flex justify-between">${ex} <span class="text-indigo-500">+</span></button>`).join('');
+            });
+        };
+
         window.addToPlan = (name) => {
-            if(myPlannedRoutine.some(p => p.name === name)) return;
             myPlannedRoutine.push({ name, sets: 3, reps: 10 });
             window.updatePlanUI();
         };
 
         window.updatePlanUI = () => {
             const list = document.getElementById('routine-config-list');
-            const ctrls = document.getElementById('routine-save-controls');
-            if(myPlannedRoutine.length === 0) {
-                list.innerHTML = "<p class='text-slate-600 text-xs italic text-center py-10'>Añade ejercicios de la librería...</p>";
-                ctrls.classList.add('hidden');
-            } else {
-                ctrls.classList.remove('hidden');
-                list.innerHTML = myPlannedRoutine.map((it, idx) => `
-                    <div class="bg-white/5 p-4 rounded-xl flex justify-between items-center">
-                        <span class="text-xs font-bold">${it.name}</span>
-                        <div class="flex items-center gap-3">
-                            <input type="number" value="${it.sets}" onchange="window.updatePlanItem(${idx}, 'sets', this.value)" class="w-8 bg-slate-900 text-center text-indigo-400 font-bold rounded">
-                            <button onclick="window.removePlanItem(${idx})" class="text-rose-500 px-2 font-bold">✕</button>
-                        </div>
-                    </div>`).join('');
-            }
-        };
-
-        window.updatePlanItem = (i, k, v) => { myPlannedRoutine[i][k] = parseInt(v) || 1; };
-        window.removePlanItem = (i) => { myPlannedRoutine.splice(i, 1); window.updatePlanUI(); };
-        window.clearRoutine = () => { myPlannedRoutine = []; window.updatePlanUI(); };
-
-        // --- ENTRENAMIENTO ACTIVO ---
-        window.startRoutine = () => {
-            activeSession = myPlannedRoutine.map(ex => ({
-                ...ex, actual: Array.from({ length: ex.sets }, () => ({ weight: "", reps: ex.reps, done: false }))
-            }));
-            window.renderActiveSession();
-            window.switchTab('train');
-            document.getElementById('session-actions').classList.remove('hidden');
-        };
-
-        window.renderActiveSession = () => {
-            const container = document.getElementById('active-session-container');
-            container.innerHTML = activeSession.map((ex, exIdx) => `
-                <div class="glass p-5 rounded-[2rem] space-y-4">
-                    <h4 class="font-black text-sm">${ex.name}</h4>
-                    <div class="space-y-2">
-                        ${ex.actual.map((s, sIdx) => `
-                            <div class="flex items-center gap-3 p-3 rounded-xl ${s.done ? 'bg-emerald-500/10 border-emerald-500/30 border' : 'bg-slate-950 border-white/5 border'}">
-                                <button onclick="window.toggleSet(${exIdx}, ${sIdx})" class="w-8 h-8 rounded-lg font-black text-xs ${s.done ? 'bg-emerald-500' : 'bg-slate-800 text-slate-400'}">
-                                    ${s.done ? '✓' : sIdx+1}
-                                </button>
-                                <div class="flex-1 grid grid-cols-2 gap-2">
-                                    <div class="flex items-center gap-1 bg-slate-900/50 px-3 py-2 rounded-lg">
-                                        <input type="number" placeholder="0" value="${s.weight}" oninput="window.updateSet(${exIdx}, ${sIdx}, 'weight', this.value)" class="w-full bg-transparent text-center font-bold outline-none text-xs">
-                                        <span class="text-[8px] text-slate-600 font-black">KG</span>
-                                    </div>
-                                    <div class="flex items-center gap-1 bg-slate-900/50 px-3 py-2 rounded-lg">
-                                        <input type="number" placeholder="0" value="${s.reps}" oninput="window.updateSet(${exIdx}, ${sIdx}, 'reps', this.value)" class="w-full bg-transparent text-center font-bold outline-none text-xs">
-                                        <span class="text-[8px] text-slate-600 font-black">REPS</span>
-                                    </div>
-                                </div>
-                            </div>`).join('')}
-                    </div>
+            document.getElementById('routine-save-controls').classList.toggle('hidden', myPlannedRoutine.length === 0);
+            list.innerHTML = myPlannedRoutine.map((it, idx) => `
+                <div class="bg-white/5 p-4 rounded-xl flex justify-between items-center">
+                    <span class="text-xs font-bold">${it.name}</span>
+                    <button onclick="window.removePlanItem(${idx})" class="text-rose-500 font-bold">✕</button>
                 </div>`).join('');
         };
 
-        window.toggleSet = (ei, si) => {
-            const s = activeSession[ei].actual[si];
-            s.done = !s.done;
-            if(s.done) window.startRestTimer(90);
-            window.renderActiveSession();
+        window.removePlanItem = (i) => { myPlannedRoutine.splice(i,1); window.updatePlanUI(); };
+        window.createCustomExercise = async () => {
+            const name = document.getElementById('custom-ex-name').value;
+            await addDoc(collection(db, 'artifacts', APP_VER, 'users', user.uid, 'custom_ex'), { name });
+            document.getElementById('custom-ex-name').value = "";
         };
 
-        window.updateSet = (ei, si, k, v) => { activeSession[ei].actual[si][k] = v; };
-
-        window.startRestTimer = (sec) => {
-            clearInterval(timerInt);
-            const disp = document.getElementById('rest-timer-display');
-            disp.classList.remove('hidden');
-            let r = sec;
-            timerInt = setInterval(() => {
-                const m = Math.floor(r/60); const s = r%60;
-                document.getElementById('timer-seconds').textContent = `${m}:${s.toString().padStart(2,'0')}`;
-                if(r-- <= 0) { clearInterval(timerInt); disp.classList.add('hidden'); }
-            }, 1000);
-        };
-
-        window.saveFullSession = async () => {
-            const logs = activeSession.map(ex => ({
-                exercise: ex.name,
-                sets: ex.actual.filter(s => s.done).map(s => ({ weight: parseFloat(s.weight)||0, reps: parseInt(s.reps)||0 })),
-                date: document.getElementById('workout-date').value
-            })).filter(e => e.sets.length > 0);
-
-            for(const e of logs) {
-                await addDoc(collection(db, 'artifacts', APP_ID, 'users', user.uid, 'history'), { ...e, timestamp: serverTimestamp() });
-            }
-            window.showToast("ENTRENAMIENTO GUARDADO");
-            activeSession = null;
-            window.switchTab('dashboard');
-        };
-
-        window.cancelSession = () => { if(confirm("¿Cancelar sesión?")) { activeSession = null; window.switchTab('dashboard'); } };
-
-        // --- EXTRAS ---
+        // --- NAVEGACIÓN ---
         window.switchTab = (t) => {
             ['dashboard', 'train', 'routines'].forEach(s => {
                 document.getElementById(`section-${s}`).classList.toggle('hidden', s !== t);
@@ -439,24 +359,23 @@
             });
         };
 
-        window.showToast = (m) => {
-            const t = document.getElementById('toast');
-            t.textContent = m; t.classList.remove('opacity-0');
-            setTimeout(() => t.classList.add('opacity-0'), 3000);
+        window.startTimer = (sec) => {
+            clearInterval(window.tInt);
+            const d = document.getElementById('rest-timer-display'); d.classList.remove('hidden');
+            let r = sec;
+            window.tInt = setInterval(() => {
+                document.getElementById('timer-seconds').textContent = `00:${r.toString().padStart(2,'0')}`;
+                if(r-- <= 0) { clearInterval(window.tInt); d.classList.add('hidden'); }
+            }, 1000);
         };
 
-        const calcRM = () => {
-            const w = parseFloat(document.getElementById('rm-weight').value || 0);
-            const r = parseFloat(document.getElementById('rm-reps').value || 0);
-            const res = document.getElementById('rm-result');
-            if(w && r) res.textContent = Math.round(w * (1 + (r / 30))) + " kg";
-            else res.textContent = "--";
+        window.showToast = (m) => {
+            const t = document.getElementById('toast'); t.textContent = m; t.classList.remove('opacity-0');
+            setTimeout(() => t.classList.add('opacity-0'), 2000);
         };
 
         window.onload = () => {
             document.getElementById('workout-date').value = new Date().toISOString().split('T')[0];
-            document.getElementById('rm-weight').addEventListener('input', calcRM);
-            document.getElementById('rm-reps').addEventListener('input', calcRM);
             document.getElementById('lib-search').addEventListener('input', e => renderLibrary(e.target.value));
             renderLibrary();
         };
