@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Gym OS Pro 2026 - Mobile Optimized</title>
+    <title>Gym OS Pro 2026</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -20,7 +20,6 @@
             color: #f8fafc; 
             overflow-x: hidden;
             -webkit-tap-highlight-color: transparent;
-            /* Ajuste para el notch del iPhone */
             padding-top: env(safe-area-inset-top);
             padding-bottom: env(safe-area-inset-bottom);
         }
@@ -30,18 +29,7 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         input[type="number"]::-webkit-inner-spin-button { display: none; }
         .bar-transition { transition: height 1s cubic-bezier(0.4, 0, 0.2, 1); }
-        
-        /* Fix para que el botón de Logout sea siempre cliqueable */
-        .btn-logout { 
-            touch-action: manipulation;
-            cursor: pointer;
-            z-index: 9999 !important;
-        }
-
-        /* Estilo extra para que la navegación no se pegue arriba en modo App */
-        nav {
-            padding-top: 10px;
-        }
+        .btn-logout { touch-action: manipulation; cursor: pointer; z-index: 9999 !important; }
     </style>
 </head>
 <body class="min-h-screen pb-32">
@@ -54,9 +42,9 @@
             <h2 class="text-3xl font-black text-white tracking-tighter mb-2">GYMOS PRO</h2>
             <p class="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] mb-8">Performance & Analytics</p>
             <div class="space-y-4">
-                <input type="email" id="login-email" placeholder="Correo Electrónico" class="w-full bg-slate-900 border border-white/5 px-6 py-4 rounded-2xl text-white outline-none focus:border-indigo-500 transition-all">
-                <input type="password" id="login-pass" placeholder="Contraseña" class="w-full bg-slate-900 border border-white/5 px-6 py-4 rounded-2xl text-white outline-none focus:border-indigo-500 transition-all">
-                <button onclick="window.ejecutarLogin()" class="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl transition-all shadow-xl shadow-indigo-600/30">ENTRAR O REGISTRARSE</button>
+                <input type="email" id="login-email" placeholder="Correo" class="w-full bg-slate-900 border border-white/5 px-6 py-4 rounded-2xl text-white outline-none">
+                <input type="password" id="login-pass" placeholder="Contraseña" class="w-full bg-slate-900 border border-white/5 px-6 py-4 rounded-2xl text-white outline-none">
+                <button onclick="window.ejecutarLogin()" class="w-full py-5 bg-indigo-600 text-white font-black rounded-2xl shadow-xl">ENTRAR</button>
             </div>
         </div>
     </div>
@@ -66,12 +54,9 @@
             <h1 class="font-black text-xl tracking-tighter">GYMOS <span class="text-indigo-500">PRO</span></h1>
             <div class="flex items-center gap-3">
                 <div id="rest-timer-display" class="hidden bg-slate-900 border border-rose-500/30 px-3 py-2 rounded-xl flex items-center gap-2">
-                    <span class="w-2 h-2 bg-rose-500 rounded-full animate-pulse"></span>
                     <span id="timer-seconds" class="font-mono font-bold text-rose-400 text-xs">00:00</span>
                 </div>
-                <button onclick="window.cerrarSesion()" class="btn-logout text-[10px] font-black bg-rose-500 text-white px-5 py-3 rounded-xl shadow-lg shadow-rose-500/20 active:scale-90 transition-all">
-                    SALIR ✕
-                </button>
+                <button onclick="window.cerrarSesion()" class="btn-logout text-[10px] font-black bg-rose-500 text-white px-5 py-3 rounded-xl">SALIR ✕</button>
             </div>
         </div>
         <div class="flex justify-center gap-8 pb-2">
@@ -90,36 +75,20 @@
                     <h3 id="stat-volume" class="text-3xl font-black text-white">0 <span class="text-sm text-slate-500">kg</span></h3>
                 </div>
                 <div class="glass-panel p-6 rounded-[2rem] border-l-4 border-emerald-500">
-                    <p class="text-[10px] font-black text-slate-500 uppercase mb-1">Series Totales</p>
+                    <p class="text-[10px] font-black text-slate-500 uppercase mb-1">Series</p>
                     <h3 id="stat-sets" class="text-3xl font-black text-white">0</h3>
                 </div>
                 <div class="glass-panel p-6 rounded-[2rem] border-l-4 border-amber-500">
-                    <p class="text-[10px] font-black text-slate-500 uppercase mb-1">Constancia</p>
-                    <h3 id="streak-count" class="text-3xl font-black text-white">🔥 0 <span class="text-sm text-slate-500">Días</span></h3>
+                    <p class="text-[10px] font-black text-slate-500 uppercase mb-1">Días Entrenados</p>
+                    <h3 id="streak-count" class="text-3xl font-black text-white">🔥 0</h3>
                 </div>
             </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div class="glass-panel p-8 rounded-[2.5rem]">
-                    <h4 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-8">Volumen Semanal (7d)</h4>
-                    <div id="volume-chart" class="flex items-end justify-between h-40 gap-3 px-2"></div>
-                </div>
-
-                <div class="glass-panel p-8 rounded-[2.5rem]">
-                    <h4 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-6 text-center text-indigo-400">CALCULADORA 1RM</h4>
-                    <div class="grid grid-cols-2 gap-4 mb-6">
-                        <input type="number" id="rm-weight" placeholder="KG" class="w-full bg-slate-900 border border-white/5 p-4 rounded-2xl text-white font-bold outline-none text-center focus:border-indigo-500">
-                        <input type="number" id="rm-reps" placeholder="REPS" class="w-full bg-slate-900 border border-white/5 p-4 rounded-2xl text-white font-bold outline-none text-center focus:border-indigo-500">
-                    </div>
-                    <div class="p-6 bg-indigo-600/10 rounded-[2rem] border border-indigo-500/20 text-center">
-                        <p class="text-[10px] font-black text-indigo-400 uppercase mb-1">Máximo Estimado</p>
-                        <h3 id="rm-result" class="text-4xl font-black text-white">0 <span class="text-sm">kg</span></h3>
-                    </div>
-                </div>
+            <div class="glass-panel p-8 rounded-[2.5rem]">
+                <h4 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-8">Volumen Semanal</h4>
+                <div id="volume-chart" class="flex items-end justify-between h-40 gap-3 px-2"></div>
             </div>
-
             <div class="space-y-4">
-                <h3 class="text-xl font-black px-2">Historial Reciente</h3>
+                <h3 class="text-xl font-black px-2">Historial</h3>
                 <div id="workout-history" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
             </div>
         </section>
@@ -131,18 +100,27 @@
             </div>
             <div id="active-session-container" class="space-y-6"></div>
             <div id="session-actions" class="hidden pb-12">
-                <button onclick="window.saveFullSession()" class="w-full py-6 bg-indigo-600 text-white font-black text-xl rounded-[2rem] shadow-2xl">GUARDAR SESIÓN</button>
+                <button onclick="window.saveFullSession()" class="w-full py-6 bg-indigo-600 text-white font-black text-xl rounded-[2rem]">GUARDAR SESIÓN</button>
             </div>
         </section>
 
         <section id="section-routines" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <div class="lg:col-span-5">
-                <div class="glass-panel p-8 rounded-[2.5rem] sticky top-28">
+            <div class="lg:col-span-5 space-y-6">
+                <div class="glass-panel p-6 rounded-[2rem] border border-indigo-500/20">
+                    <h3 class="text-xs font-black mb-4 text-indigo-400 uppercase tracking-widest">Crear Ejercicio Propio</h3>
+                    <div class="flex gap-2">
+                        <input type="text" id="custom-ex-name" placeholder="Ej: Hip Thrust..." class="flex-1 bg-slate-900 border border-white/5 px-4 py-3 rounded-xl text-sm outline-none focus:border-indigo-500">
+                        <button onclick="window.createCustomExercise()" class="bg-indigo-600 px-4 rounded-xl font-black text-xl">+</button>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-8 rounded-[2.5rem]">
                     <h3 class="text-xl font-black mb-6">Librería</h3>
                     <input type="text" id="lib-search" placeholder="Filtrar..." class="w-full bg-slate-900 border border-white/5 px-6 py-4 rounded-2xl text-sm mb-6 outline-none">
                     <div id="library-list" class="h-96 overflow-y-auto no-scrollbar space-y-4"></div>
                 </div>
             </div>
+
             <div class="lg:col-span-7">
                 <div class="glass-panel p-8 rounded-[2.5rem]">
                     <div class="flex justify-between items-center mb-8"><h3 class="text-2xl font-black">Mi Plan</h3><button onclick="window.clearRoutine()" class="text-[10px] font-black text-rose-500 uppercase">Vaciar</button></div>
@@ -169,45 +147,33 @@
             appId: "1:177629353240:web:3a7b3f73d05c9468347a6d"
         };
 
-        const EXERCISES = {
-            "Empuje": ["Press Banca", "Press Inclinado", "Press Militar", "Elevaciones Laterales", "Extensiones Tríceps"],
-            "Tracción": ["Dominadas", "Remo Barra", "Jalón Pecho", "Curl Bíceps", "Martillo", "Facepulls"],
-            "Pierna": ["Sentadillas", "Prensa 45°", "Peso Muerto", "Extensiones Cuádriceps", "Gemelos"]
-        };
-
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
         const appId = 'gym-os-2026-ultimate-fixed';
 
+        const PRESET_EXERCISES = {
+            "Empuje": ["Press Banca", "Press Inclinado", "Press Militar", "Elevaciones Laterales", "Extensiones Tríceps"],
+            "Tracción": ["Dominadas", "Remo Barra", "Jalón Pecho", "Curl Bíceps", "Martillo", "Facepulls"],
+            "Pierna": ["Sentadillas", "Prensa 45°", "Peso Muerto", "Extensiones Cuádriceps", "Gemelos"]
+        };
+
         let user = null;
         let myPlannedRoutine = JSON.parse(localStorage.getItem('planned_routine_v2') || '[]');
         let activeSession = null;
         let timerInterval = null;
+        let customExercisesList = [];
 
-        // --- AUTH LOGIC ---
+        // --- AUTH ---
         window.ejecutarLogin = async () => {
             const email = document.getElementById('login-email').value;
             const pass = document.getElementById('login-pass').value;
-            if(!email || !pass) return window.showToast("Rellena los campos");
-            try {
-                await signInWithEmailAndPassword(auth, email, pass);
-            } catch (e) {
-                if (e.code === 'auth/user-not-found' || e.code === 'auth/invalid-credential') {
-                    try { await createUserWithEmailAndPassword(auth, email, pass); } catch (err) { window.showToast(err.message); }
-                } else { window.showToast(e.message); }
-            }
+            if(!email || !pass) return;
+            try { await signInWithEmailAndPassword(auth, email, pass); } 
+            catch { try { await createUserWithEmailAndPassword(auth, email, pass); } catch(e) { window.showToast(e.message); } }
         };
 
-        window.cerrarSesion = async () => {
-            try {
-                await signOut(auth);
-                localStorage.removeItem('planned_routine_v2');
-                window.location.reload();
-            } catch (error) {
-                window.showToast("Error al salir");
-            }
-        };
+        window.cerrarSesion = () => signOut(auth).then(() => window.location.reload());
 
         onAuthStateChanged(auth, u => {
             const overlay = document.getElementById('login-overlay');
@@ -216,14 +182,39 @@
                 overlay.classList.add('hidden', 'opacity-0');
                 overlay.style.pointerEvents = 'none';
                 initDataSync();
+                initCustomExercisesSync(); // Cargar ejercicios personalizados
             } else {
-                user = null;
                 overlay.classList.remove('hidden', 'opacity-0');
                 overlay.style.pointerEvents = 'all';
             }
         });
 
-        // --- TABS & UI ---
+        // --- NUEVA FUNCIÓN: CREAR EJERCICIO MANUAL ---
+        window.createCustomExercise = async () => {
+            const input = document.getElementById('custom-ex-name');
+            const name = input.value.trim();
+            if(!name) return;
+            try {
+                await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'custom_exercises'), {
+                    name: name,
+                    category: "Mis Ejercicios",
+                    createdAt: serverTimestamp()
+                });
+                input.value = "";
+                window.showToast("EJERCICIO CREADO");
+            } catch (e) { window.showToast("Error al guardar"); }
+        };
+
+        const initCustomExercisesSync = () => {
+            const q = query(collection(db, 'artifacts', appId, 'users', user.uid, 'custom_exercises'), orderBy('name'));
+            onSnapshot(q, snap => {
+                customExercisesList = [];
+                snap.forEach(doc => customExercisesList.push(doc.data().name));
+                renderLibrary();
+            });
+        };
+
+        // --- LIBRERÍA Y PLAN ---
         window.switchTab = (tab) => {
             ['dashboard', 'train', 'routines'].forEach(t => {
                 document.getElementById(`section-${t}`).classList.toggle('hidden', t !== tab);
@@ -234,22 +225,27 @@
         const renderLibrary = (filter = "") => {
             const list = document.getElementById('library-list');
             list.innerHTML = "";
-            Object.entries(EXERCISES).forEach(([cat, exs]) => {
+            
+            // Combinar predefinidos con personalizados
+            const categories = { ...PRESET_EXERCISES };
+            if(customExercisesList.length > 0) categories["Mis Ejercicios"] = customExercisesList;
+
+            Object.entries(categories).forEach(([cat, exs]) => {
                 const filtered = exs.filter(e => e.toLowerCase().includes(filter.toLowerCase()));
                 if (filtered.length === 0) return;
                 const div = document.createElement('div');
                 div.innerHTML = `<p class="text-[9px] font-black text-slate-600 uppercase mb-3 mt-4">${cat}</p>
                     <div class="grid gap-2">${filtered.map(ex => `
-                        <button onclick="window.addToPlan('${ex}', '${cat}')" class="w-full text-left bg-white/5 p-4 rounded-xl text-xs flex justify-between">
+                        <button onclick="window.addToPlan('${ex}')" class="w-full text-left bg-white/5 p-4 rounded-xl text-xs flex justify-between">
                             ${ex} <span class="text-indigo-500 font-black">+</span>
                         </button>`).join('')}</div>`;
                 list.appendChild(div);
             });
         };
 
-        window.addToPlan = (name, cat) => {
+        window.addToPlan = (name) => {
             if (myPlannedRoutine.some(p => p.name === name)) return;
-            myPlannedRoutine.push({ name, cat, sets: 3, reps: 10 });
+            myPlannedRoutine.push({ name, sets: 3, reps: 10 });
             window.updatePlanUI();
         };
 
@@ -273,11 +269,11 @@
             }
         };
 
-        window.updatePlanItem = (i, k, v) => { myPlannedRoutine[i][k] = parseInt(v) || 1; localStorage.setItem('planned_routine_v2', JSON.stringify(myPlannedRoutine)); };
+        window.updatePlanItem = (i, k, v) => { myPlannedRoutine[i][k] = parseInt(v) || 1; window.updatePlanUI(); };
         window.removePlanItem = (i) => { myPlannedRoutine.splice(i, 1); window.updatePlanUI(); };
         window.clearRoutine = () => { if(confirm("¿Vaciar?")) { myPlannedRoutine = []; window.updatePlanUI(); }};
 
-        // --- WORKOUT LOGIC ---
+        // --- WORKOUT ---
         window.startRoutine = () => {
             activeSession = myPlannedRoutine.map(ex => ({
                 ...ex,
@@ -309,12 +305,9 @@
         };
 
         window.toggleSet = (ei, si) => {
-            const current = activeSession[ei].actual[si].done;
-            activeSession[ei].actual[si].done = !current;
-            if(!current) {
-                const rest = prompt("Segundos de descanso:", "90") || "90";
-                window.startRestTimer(parseInt(rest));
-            }
+            const s = activeSession[ei].actual[si];
+            s.done = !s.done;
+            if(s.done) window.startRestTimer(90);
             window.renderActiveSession();
         };
 
@@ -342,12 +335,12 @@
             for(const e of entries) {
                 await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'history'), { ...e, timestamp: serverTimestamp() });
             }
-            window.showToast("GUARDADO");
+            window.showToast("SESIÓN GUARDADA");
             activeSession = null;
             window.switchTab('dashboard');
         };
 
-        // --- DASHBOARD SYNC ---
+        // --- STATS SYNC ---
         const initDataSync = () => {
             const q = query(collection(db, 'artifacts', appId, 'users', user.uid, 'history'), orderBy('timestamp', 'desc'));
             onSnapshot(q, snap => {
@@ -365,26 +358,16 @@
             });
             document.getElementById('stat-volume').innerHTML = `${Math.round(v).toLocaleString()} <span class="text-sm">kg</span>`;
             document.getElementById('stat-sets').textContent = s;
-            document.getElementById('streak-count').innerHTML = `🔥 ${d.size} <span class="text-sm">Días</span>`;
+            document.getElementById('streak-count').textContent = `🔥 ${d.size}`;
             
-            renderChart(logs);
-            document.getElementById('workout-history').innerHTML = logs.slice(0, 4).map(l => `
-                <div class="glass-panel p-4 rounded-2xl flex justify-between items-center">
-                    <div><p class="text-sm font-black text-white">${l.exercise}</p><p class="text-[9px] text-slate-500 uppercase">${l.date}</p></div>
-                    <p class="text-xs font-bold text-indigo-400">${l.sets.length} sets</p>
-                </div>`).join('');
-        };
-
-        const renderChart = (logs) => {
+            // Gráfico simple
             const chart = document.getElementById('volume-chart');
             const last7 = [...Array(7)].map((_, i) => {
                 const d = new Date(); d.setDate(d.getDate() - i);
                 return d.toISOString().split('T')[0];
             }).reverse();
-
             const vols = last7.map(day => logs.filter(l => l.date === day).reduce((a,b)=>a+b.sets.reduce((x,y)=>x+(y.weight*y.reps),0),0));
             const max = Math.max(...vols, 100);
-
             chart.innerHTML = vols.map((v, i) => `
                 <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end">
                     <div class="w-full bg-indigo-600/20 rounded-t-lg relative flex items-end h-full overflow-hidden">
@@ -392,20 +375,15 @@
                     </div>
                     <span class="text-[8px] font-bold text-slate-600">${last7[i].split('-')[2]}</span>
                 </div>`).join('');
+
+            document.getElementById('workout-history').innerHTML = logs.slice(0, 4).map(l => `
+                <div class="glass-panel p-4 rounded-2xl flex justify-between items-center">
+                    <div><p class="text-sm font-black text-white">${l.exercise}</p><p class="text-[9px] text-slate-500 uppercase">${l.date}</p></div>
+                    <p class="text-xs font-bold text-indigo-400">${l.sets.length} sets</p>
+                </div>`).join('');
         };
 
-        // --- 1RM CALC ---
-        const calcRM = () => {
-            const w = parseFloat(document.getElementById('rm-weight').value);
-            const r = parseFloat(document.getElementById('rm-reps').value);
-            if(w && r) {
-                const rm = w / (1.0278 - (0.0278 * r));
-                document.getElementById('rm-result').innerHTML = `${Math.round(rm)} <span class="text-sm">kg</span>`;
-            }
-        };
-        document.getElementById('rm-weight').addEventListener('input', calcRM);
-        document.getElementById('rm-reps').addEventListener('input', calcRM);
-
+        // --- UTILS ---
         window.showToast = (m) => {
             const t = document.getElementById('toast');
             t.textContent = m; t.classList.remove('opacity-0');
@@ -419,6 +397,16 @@
         };
 
         document.getElementById('lib-search').addEventListener('input', e => renderLibrary(e.target.value));
+        
+        // --- 1RM ---
+        const calcRM = () => {
+            const w = parseFloat(document.getElementById('rm-weight')?.value || 0);
+            const r = parseFloat(document.getElementById('rm-reps')?.value || 0);
+            if(w && r) {
+                const rm = w / (1.0278 - (0.0278 * r));
+                document.getElementById('rm-result').innerHTML = `${Math.round(rm)} <span class="text-sm">kg</span>`;
+            }
+        };
     </script>
 </body>
 </html>
