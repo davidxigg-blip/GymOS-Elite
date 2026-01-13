@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Gym OS Pro 2026 - Master Edition</title>
+    <title>Gym OS Pro 2026 - Secure Master Edition</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -28,9 +28,12 @@
         <div class="glass p-8 rounded-[2.5rem] w-full max-w-md text-center">
             <h2 class="text-3xl font-black mb-8 tracking-tighter text-indigo-500 uppercase">GymOS Pro</h2>
             <div class="space-y-4">
-                <input type="email" id="login-email" placeholder="Email" class="w-full bg-slate-900 border border-white/5 px-6 py-4 rounded-2xl outline-none">
-                <input type="password" id="login-pass" placeholder="Password" class="w-full bg-slate-900 border border-white/5 px-6 py-4 rounded-2xl outline-none">
-                <button onclick="window.ejecutarLogin()" class="w-full py-5 bg-indigo-600 text-white font-black rounded-2xl shadow-lg">ENTRAR / REGISTRAR</button>
+                <input type="email" id="login-email" placeholder="Email" class="w-full bg-slate-900 border border-white/5 px-6 py-4 rounded-2xl outline-none focus:border-indigo-500 transition-colors">
+                <input type="password" id="login-pass" placeholder="Password" class="w-full bg-slate-900 border border-white/5 px-6 py-4 rounded-2xl outline-none focus:border-indigo-500 transition-colors">
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="window.ejecutarLogin('signin')" class="py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-lg hover:bg-indigo-700 transition-all">ENTRAR</button>
+                    <button onclick="window.ejecutarLogin('signup')" class="py-4 bg-slate-800 text-white font-black rounded-2xl border border-white/5 hover:bg-slate-700 transition-all">REGISTRAR</button>
+                </div>
             </div>
         </div>
     </div>
@@ -41,7 +44,7 @@
             <div id="rest-timer-display" class="hidden bg-slate-900 border border-rose-500/30 px-3 py-1.5 rounded-xl flex items-center gap-2">
                 <span id="timer-seconds" class="font-mono font-bold text-rose-400 text-xs">00:00</span>
             </div>
-            <button onclick="window.cerrarSesion()" class="text-[10px] font-black bg-slate-800 px-4 py-2 rounded-lg">SALIR</button>
+            <button onclick="window.cerrarSesion()" class="text-[10px] font-black bg-slate-800 px-4 py-2 rounded-lg hover:bg-rose-900 transition-colors">SALIR</button>
         </div>
         <div class="flex justify-center gap-8">
             <button onclick="window.switchTab('dashboard')" id="tab-dashboard" class="nav-tab active py-4 text-[10px] font-black uppercase tracking-widest text-slate-500">Panel</button>
@@ -96,7 +99,7 @@
                 </div>
                 <div id="active-session-container" class="space-y-6"></div>
                 <div class="pb-20">
-                    <button onclick="window.saveFullSession()" class="w-full py-6 bg-indigo-600 text-white font-black rounded-[2rem] shadow-xl">GUARDAR ENTRENAMIENTO</button>
+                    <button onclick="window.saveFullSession()" class="w-full py-6 bg-indigo-600 text-white font-black rounded-[2rem] shadow-xl hover:bg-indigo-500 transition-all">GUARDAR ENTRENAMIENTO</button>
                 </div>
             </div>
         </section>
@@ -116,7 +119,7 @@
                     <h3 class="text-[10px] font-black text-slate-500 uppercase mb-4">Añadir Ejercicio Propio</h3>
                     <div class="flex gap-2">
                         <input type="text" id="custom-ex-name" placeholder="Ej: Facepull" class="flex-1 bg-slate-900 p-4 rounded-xl text-sm outline-none">
-                        <button onclick="window.createCustomExercise()" class="bg-indigo-600 px-6 rounded-xl font-black text-xl">+</button>
+                        <button onclick="window.createCustomExercise()" class="bg-indigo-600 px-6 rounded-xl font-black text-xl hover:bg-indigo-500 transition-all">+</button>
                     </div>
                 </div>
 
@@ -131,12 +134,12 @@
                 <div class="glass p-8 rounded-[2.5rem] sticky top-24">
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="text-xl font-black">Configurar Bloque</h3>
-                        <button onclick="window.clearRoutine()" class="text-[10px] font-black text-rose-500">LIMPIAR</button>
+                        <button onclick="window.clearRoutine()" class="text-[10px] font-black text-rose-500 hover:underline">LIMPIAR</button>
                     </div>
                     <div id="routine-config-list" class="space-y-3 mb-6"></div>
                     <div id="routine-save-controls" class="hidden space-y-4">
                         <input type="text" id="routine-name-input" placeholder="Nombre (Ej: Empuje A)" class="w-full bg-slate-900 border border-indigo-500/30 p-5 rounded-2xl outline-none">
-                        <button onclick="window.saveRoutineBlock()" class="w-full py-4 bg-emerald-600 font-black rounded-xl uppercase text-xs">Guardar en Mis Bloques</button>
+                        <button onclick="window.saveRoutineBlock()" class="w-full py-4 bg-emerald-600 font-black rounded-xl uppercase text-xs hover:bg-emerald-500 transition-all">Guardar en Mis Bloques</button>
                     </div>
                 </div>
             </div>
@@ -166,11 +169,26 @@
 
         let user = null, myPlannedRoutine = [], activeSession = null, customExercises = [], savedBlocks = [];
 
-        // AUTH
-        window.ejecutarLogin = async () => {
-            const e = document.getElementById('login-email').value, p = document.getElementById('login-pass').value;
-            try { await signInWithEmailAndPassword(auth, e, p); } catch { await createUserWithEmailAndPassword(auth, e, p); }
+        // SECURITY: Función para sanitizar HTML y prevenir XSS
+        const escapeHTML = (str) => {
+            if (!str) return "";
+            return String(str).replace(/[&<>"']/g, m => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            })[m]);
         };
+
+        // AUTH: Refactorizada para separar Login de Registro
+        window.ejecutarLogin = async (mode) => {
+            const e = document.getElementById('login-email').value, p = document.getElementById('login-pass').value;
+            if (!e || !p) return window.showToast("Completa los datos");
+            try {
+                if (mode === 'signin') await signInWithEmailAndPassword(auth, e, p);
+                else await createUserWithEmailAndPassword(auth, e, p);
+            } catch (err) {
+                window.showToast("Error: " + err.message);
+            }
+        };
+
         window.cerrarSesion = () => signOut(auth).then(() => window.location.reload());
 
         onAuthStateChanged(auth, u => {
@@ -198,19 +216,22 @@
         // DASHBOARD
         const renderDashboard = (logs) => {
             let v = 0, s = 0; const d = new Set();
-            logs.forEach(l => { d.add(l.date); l.sets.forEach(set => { v += (set.weight * set.reps); s++; }); });
+            logs.forEach(l => { 
+                d.add(l.date); 
+                if(l.sets) l.sets.forEach(set => { v += (set.weight * set.reps); s++; }); 
+            });
             document.getElementById('stat-volume').textContent = Math.round(v).toLocaleString();
             document.getElementById('stat-sets').textContent = s;
             document.getElementById('streak-count').textContent = `🔥 ${d.size}`;
 
-            // Chart
             const chart = document.getElementById('volume-chart');
             const last7 = [...Array(7)].map((_, i) => {
                 const day = new Date(); day.setDate(day.getDate() - i);
                 return day.toISOString().split('T')[0];
             }).reverse();
-            const vols = last7.map(day => logs.filter(l => l.date === day).reduce((a,b)=>a+b.sets.reduce((x,y)=>x+(y.weight*y.reps),0),0));
+            const vols = last7.map(day => logs.filter(l => l.date === day).reduce((a,b)=>a+(b.sets?b.sets.reduce((x,y)=>x+(y.weight*y.reps),0):0),0));
             const max = Math.max(...vols, 1000);
+            
             chart.innerHTML = vols.map((v, i) => `
                 <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end">
                     <div class="w-full bg-indigo-500/10 rounded-lg relative flex items-end h-full overflow-hidden">
@@ -221,9 +242,12 @@
 
             document.getElementById('workout-history').innerHTML = logs.slice(0, 10).map(l => `
                 <div class="glass p-4 rounded-2xl flex justify-between items-center group">
-                    <div><p class="text-sm font-black">${l.exercise}</p><p class="text-[9px] text-slate-500 uppercase font-bold">${l.date}</p></div>
+                    <div>
+                        <p class="text-sm font-black">${escapeHTML(l.exercise)}</p>
+                        <p class="text-[9px] text-slate-500 uppercase font-bold">${escapeHTML(l.date)}</p>
+                    </div>
                     <div class="flex items-center gap-4">
-                        <span class="text-xs font-bold text-indigo-400">${l.sets.length} series</span>
+                        <span class="text-xs font-bold text-indigo-400">${l.sets ? l.sets.length : 0} series</span>
                         <button onclick="window.deleteHistory('${l.id}')" class="text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity">✕</button>
                     </div>
                 </div>`).join('');
@@ -235,12 +259,12 @@
         const renderTrainSelector = () => {
             const list = document.getElementById('train-routines-list');
             list.innerHTML = savedBlocks.map(b => `
-                <div onclick='window.loadAndStart(${JSON.stringify(b.exercises)}, "${b.name}")' class="routine-card glass p-6 rounded-[2rem] cursor-pointer hover:bg-indigo-600/10 group">
+                <div onclick='window.loadAndStart(${JSON.stringify(b.exercises).replace(/'/g, "&apos;")}, "${escapeHTML(b.name)}")' class="routine-card glass p-6 rounded-[2rem] cursor-pointer hover:bg-indigo-600/10 group">
                     <div class="flex justify-between items-center mb-4">
                         <span class="bg-indigo-500/20 text-indigo-400 text-[10px] font-black px-3 py-1 rounded-full uppercase">Bloque</span>
                         <button onclick="event.stopPropagation(); window.deleteBlock('${b.id}')" class="text-slate-600 hover:text-rose-500">✕</button>
                     </div>
-                    <h3 class="text-xl font-black group-hover:text-indigo-400 transition-colors">${b.name}</h3>
+                    <h3 class="text-xl font-black group-hover:text-indigo-400 transition-colors">${escapeHTML(b.name)}</h3>
                     <p class="text-slate-500 text-xs mt-1">${b.exercises.length} ejercicios</p>
                 </div>`).join('');
         };
@@ -255,18 +279,15 @@
 
         window.startFreeWorkout = () => window.loadAndStart([], "Sesión Libre");
 
-        // NUEVA FUNCIÓN: Añadir serie a un ejercicio específico durante el entrenamiento activo
+        // FUNCIONALIDAD: Añadir serie dinámica (Solicitado)
         window.addSetToExercise = (exIdx) => {
             const exercise = activeSession[exIdx];
             const lastSet = exercise.actual[exercise.actual.length - 1];
-            
-            // Creamos una nueva serie heredando valores de la anterior si existe
             exercise.actual.push({
                 weight: lastSet ? lastSet.weight : "",
                 reps: lastSet ? lastSet.reps : 10,
                 done: false
             });
-            
             renderActiveSession();
         };
 
@@ -274,7 +295,7 @@
             const container = document.getElementById('active-session-container');
             container.innerHTML = activeSession.map((ex, exIdx) => `
                 <div class="glass p-6 rounded-[2.5rem] space-y-4">
-                    <h4 class="font-black text-white uppercase text-sm">${ex.name}</h4>
+                    <h4 class="font-black text-white uppercase text-sm">${escapeHTML(ex.name)}</h4>
                     <div class="space-y-2">
                         ${ex.actual.map((s, sIdx) => `
                             <div class="flex items-center gap-3 p-3 rounded-2xl ${s.done ? 'bg-emerald-500/10 border-emerald-500/30 border' : 'bg-slate-950 border-white/5 border'}">
@@ -312,6 +333,7 @@
                 sets: ex.actual.filter(s => s.done).map(s => ({ weight: parseFloat(s.weight)||0, reps: parseInt(s.reps)||0 })),
                 date: document.getElementById('workout-date').value
             })).filter(e => e.sets.length > 0);
+            
             for(const e of data) await addDoc(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'history'), { ...e, timestamp: serverTimestamp() });
             window.showToast("ENTRENAMIENTO GUARDADO");
             window.cancelSession();
@@ -331,6 +353,7 @@
             await addDoc(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'blocks'), { name, exercises: myPlannedRoutine, createdAt: serverTimestamp() });
             myPlannedRoutine = []; window.updatePlanUI(); window.showToast("BLOQUE GUARDADO");
         };
+
         window.deleteBlock = async (id) => { if(confirm("¿Borrar rutina?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', user.uid, 'blocks', id)); };
 
         const renderLibrary = (f = "") => {
@@ -341,13 +364,13 @@
                 const isCustom = cat === "Mis Ejercicios";
                 const filtered = exs.filter(e => (isCustom ? e.name : e).toLowerCase().includes(f.toLowerCase()));
                 if(!filtered.length) return;
-                list.innerHTML += `<p class="text-[8px] font-black text-slate-600 uppercase mb-2 mt-4">${cat}</p>` + 
+                list.innerHTML += `<p class="text-[8px] font-black text-slate-600 uppercase mb-2 mt-4">${escapeHTML(cat)}</p>` + 
                     filtered.map(ex => `
                         <div class="bg-white/5 p-3 rounded-xl text-xs flex justify-between items-center mb-1">
-                            <span onclick="window.addToPlan('${isCustom?ex.name:ex}')" class="cursor-pointer">${isCustom?ex.name:ex}</span>
+                            <span onclick="window.addToPlan('${escapeHTML(isCustom?ex.name:ex)}')" class="cursor-pointer">${escapeHTML(isCustom?ex.name:ex)}</span>
                             <div class="flex gap-4">
                                 ${isCustom ? `<button onclick="window.deleteCustomEx('${ex.id}')" class="text-rose-500">✕</button>` : ''}
-                                <button onclick="window.addToPlan('${isCustom?ex.name:ex}')" class="text-indigo-500 font-black">+</button>
+                                <button onclick="window.addToPlan('${escapeHTML(isCustom?ex.name:ex)}')" class="text-indigo-500 font-black">+</button>
                             </div>
                         </div>`).join('');
             });
@@ -355,12 +378,14 @@
 
         window.addToPlan = (name) => { myPlannedRoutine.push({ name, sets: 3, reps: 10 }); window.updatePlanUI(); };
         window.removePlanItem = (i) => { myPlannedRoutine.splice(i,1); window.updatePlanUI(); };
+        window.clearRoutine = () => { myPlannedRoutine = []; window.updatePlanUI(); };
+
         window.updatePlanUI = () => {
             const list = document.getElementById('routine-config-list');
             document.getElementById('routine-save-controls').classList.toggle('hidden', !myPlannedRoutine.length);
             list.innerHTML = myPlannedRoutine.map((it, idx) => `
                 <div class="bg-white/5 p-4 rounded-xl flex justify-between items-center">
-                    <span class="text-xs font-bold">${it.name}</span>
+                    <span class="text-xs font-bold">${escapeHTML(it.name)}</span>
                     <div class="flex gap-3">
                         <input type="number" value="${it.sets}" onchange="myPlannedRoutine[${idx}].sets=parseInt(this.value)" class="w-8 bg-slate-900 text-center text-indigo-400 font-bold rounded">
                         <button onclick="window.removePlanItem(${idx})" class="text-rose-500">✕</button>
@@ -369,10 +394,11 @@
         };
 
         window.createCustomExercise = async () => {
-            const n = document.getElementById('custom-ex-name').value;
+            const n = document.getElementById('custom-ex-name').value.trim();
             if(n) await addDoc(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'custom_ex'), { name: n });
             document.getElementById('custom-ex-name').value = "";
         };
+
         window.deleteCustomEx = async (id) => { await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', user.uid, 'custom_ex', id)); };
 
         // UTILS
@@ -382,17 +408,24 @@
                 document.getElementById(`tab-${s}`).classList.toggle('active', s === t);
             });
         };
+
         window.startTimer = (sec) => {
-            clearInterval(window.tInt); const d = document.getElementById('rest-timer-display'); d.classList.remove('hidden');
-            let r = sec; window.tInt = setInterval(() => {
-                const m=Math.floor(r/60), s=r%60; document.getElementById('timer-seconds').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+            clearInterval(window.tInt); 
+            const d = document.getElementById('rest-timer-display'); 
+            d.classList.remove('hidden');
+            let r = sec; 
+            window.tInt = setInterval(() => {
+                const m=Math.floor(r/60), s=r%60; 
+                document.getElementById('timer-seconds').textContent = `${m}:${s.toString().padStart(2,'0')}`;
                 if(r-- <= 0) { clearInterval(window.tInt); d.classList.add('hidden'); }
             }, 1000);
         };
+
         window.showToast = (m) => {
             const t = document.getElementById('toast'); t.textContent = m; t.classList.remove('opacity-0');
             setTimeout(() => t.classList.add('opacity-0'), 2000);
         };
+
         const calcRM = () => {
             const w = parseFloat(document.getElementById('rm-weight').value || 0), r = parseFloat(document.getElementById('rm-reps').value || 0);
             document.getElementById('rm-result').textContent = (w && r) ? Math.round(w * (1 + (r / 30))) + " kg" : "--";
