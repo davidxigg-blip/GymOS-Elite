@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Gym OS Pro 2026 - Secure Master Edition</title>
+    <title>Gym OS Pro 2026 - Master Edition</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -16,7 +16,6 @@
         .glass { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
         .nav-tab.active { color: white; border-bottom: 3px solid var(--brand); }
         .routine-card { transition: all 0.3s ease; border: 1px solid rgba(99, 102, 241, 0.1); }
-        .routine-card:active { transform: scale(0.98); }
         .bar-transition { transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
         input[type="number"]::-webkit-inner-spin-button { display: none; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -28,11 +27,11 @@
         <div class="glass p-8 rounded-[2.5rem] w-full max-w-md text-center">
             <h2 class="text-3xl font-black mb-8 tracking-tighter text-indigo-500 uppercase">GymOS Pro</h2>
             <div class="space-y-4">
-                <input type="email" id="login-email" placeholder="Email" class="w-full bg-slate-900 border border-white/5 px-6 py-4 rounded-2xl outline-none focus:border-indigo-500 transition-colors">
-                <input type="password" id="login-pass" placeholder="Password" class="w-full bg-slate-900 border border-white/5 px-6 py-4 rounded-2xl outline-none focus:border-indigo-500 transition-colors">
+                <input type="email" id="login-email" placeholder="Email" class="w-full bg-slate-900 border border-white/5 px-6 py-4 rounded-2xl outline-none focus:border-indigo-500">
+                <input type="password" id="login-pass" placeholder="Password" class="w-full bg-slate-900 border border-white/5 px-6 py-4 rounded-2xl outline-none focus:border-indigo-500">
                 <div class="grid grid-cols-2 gap-4">
-                    <button onclick="window.ejecutarLogin('signin')" class="py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-lg hover:bg-indigo-700 transition-all">ENTRAR</button>
-                    <button onclick="window.ejecutarLogin('signup')" class="py-4 bg-slate-800 text-white font-black rounded-2xl border border-white/5 hover:bg-slate-700 transition-all">REGISTRAR</button>
+                    <button onclick="window.ejecutarLogin('signin')" class="py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-lg">ENTRAR</button>
+                    <button onclick="window.ejecutarLogin('signup')" class="py-4 bg-slate-800 text-white font-black rounded-2xl border border-white/5">REGISTRAR</button>
                 </div>
             </div>
         </div>
@@ -41,9 +40,6 @@
     <nav class="sticky top-0 z-[500] glass border-b border-white/5 mb-6">
         <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
             <h1 class="font-black text-lg tracking-tighter uppercase">GymOS <span class="text-indigo-500">Pro</span></h1>
-            <div id="rest-timer-display" class="hidden bg-slate-900 border border-rose-500/30 px-3 py-1.5 rounded-xl flex items-center gap-2">
-                <span id="timer-seconds" class="font-mono font-bold text-rose-400 text-xs">00:00</span>
-            </div>
             <button onclick="window.cerrarSesion()" class="text-[10px] font-black bg-slate-800 px-4 py-2 rounded-lg hover:bg-rose-900 transition-colors">SALIR</button>
         </div>
         <div class="flex justify-center gap-8">
@@ -58,11 +54,11 @@
         <section id="section-dashboard" class="space-y-6">
             <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <div class="glass p-5 rounded-3xl border-l-4 border-indigo-500">
-                    <p class="text-[9px] font-black text-slate-500 uppercase">Volumen (kg)</p>
+                    <p class="text-[9px] font-black text-slate-500 uppercase">Volumen Total (kg)</p>
                     <h3 id="stat-volume" class="text-2xl font-black">0</h3>
                 </div>
                 <div class="glass p-5 rounded-3xl border-l-4 border-emerald-500">
-                    <p class="text-[9px] font-black text-slate-500 uppercase">Series Total</p>
+                    <p class="text-[9px] font-black text-slate-500 uppercase">Series Realizadas</p>
                     <h3 id="stat-sets" class="text-2xl font-black">0</h3>
                 </div>
                 <div class="glass p-5 rounded-3xl border-l-4 border-amber-500 col-span-2 md:col-span-1">
@@ -72,13 +68,13 @@
             </div>
 
             <div class="glass p-6 rounded-[2.5rem]">
-                <h4 class="text-[10px] font-black text-slate-500 uppercase mb-6">Progeso Semanal</h4>
+                <h4 class="text-[10px] font-black text-slate-500 uppercase mb-6">Progreso Semanal</h4>
                 <div id="volume-chart" class="flex items-end justify-between h-32 gap-2"></div>
             </div>
 
             <div class="space-y-4">
-                <h3 class="text-lg font-black px-2">Historial de Sesiones</h3>
-                <div id="workout-history" class="grid gap-3"></div>
+                <h3 class="text-lg font-black px-2">Historial Detallado</h3>
+                <div id="workout-history" class="grid gap-4"></div>
             </div>
         </section>
 
@@ -86,7 +82,7 @@
             <div id="routine-selector" class="space-y-6">
                 <h2 class="text-2xl font-black">Elige un Bloque</h2>
                 <div id="train-routines-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-                <button onclick="window.startFreeWorkout()" class="w-full py-5 border-2 border-dashed border-white/10 rounded-[2rem] text-slate-500 font-bold hover:border-indigo-500 transition-all">+ Sesión Libre</button>
+                <button onclick="window.startFreeWorkout()" class="w-full py-5 border-2 border-dashed border-white/10 rounded-[2rem] text-slate-500 font-bold hover:border-indigo-500">+ Sesión Libre</button>
             </div>
 
             <div id="active-session-ui" class="hidden space-y-6">
@@ -114,22 +110,12 @@
                         <div id="rm-result" class="flex-1 bg-indigo-600 rounded-xl flex items-center justify-center font-black">--</div>
                     </div>
                 </div>
-
-                <div class="glass p-6 rounded-[2rem]">
-                    <h3 class="text-[10px] font-black text-slate-500 uppercase mb-4">Añadir Ejercicio Propio</h3>
-                    <div class="flex gap-2">
-                        <input type="text" id="custom-ex-name" placeholder="Ej: Facepull" class="flex-1 bg-slate-900 p-4 rounded-xl text-sm outline-none">
-                        <button onclick="window.createCustomExercise()" class="bg-indigo-600 px-6 rounded-xl font-black text-xl hover:bg-indigo-500 transition-all">+</button>
-                    </div>
-                </div>
-
                 <div class="glass p-6 rounded-[2rem]">
                     <h3 class="text-lg font-black mb-4">Librería</h3>
-                    <input type="text" id="lib-search" placeholder="Buscar..." class="w-full bg-slate-900 p-4 rounded-xl text-sm mb-4 outline-none">
+                    <input type="text" id="lib-search" placeholder="Buscar ejercicio..." class="w-full bg-slate-900 p-4 rounded-xl text-sm mb-4 outline-none">
                     <div id="library-list" class="h-64 overflow-y-auto no-scrollbar space-y-4"></div>
                 </div>
             </div>
-
             <div class="lg:col-span-7">
                 <div class="glass p-8 rounded-[2.5rem] sticky top-24">
                     <div class="flex justify-between items-center mb-6">
@@ -139,7 +125,7 @@
                     <div id="routine-config-list" class="space-y-3 mb-6"></div>
                     <div id="routine-save-controls" class="hidden space-y-4">
                         <input type="text" id="routine-name-input" placeholder="Nombre (Ej: Empuje A)" class="w-full bg-slate-900 border border-indigo-500/30 p-5 rounded-2xl outline-none">
-                        <button onclick="window.saveRoutineBlock()" class="w-full py-4 bg-emerald-600 font-black rounded-xl uppercase text-xs hover:bg-emerald-500 transition-all">Guardar en Mis Bloques</button>
+                        <button onclick="window.saveRoutineBlock()" class="w-full py-4 bg-emerald-600 font-black rounded-xl uppercase text-xs hover:bg-emerald-500">Guardar Bloque</button>
                     </div>
                 </div>
             </div>
@@ -150,7 +136,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, query, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -167,27 +153,26 @@
         const db = getFirestore(fb);
         const DB_KEY = 'gym-pro-v2026-master';
 
-        // MEMORIA DE CARGA: Almacenará el último set de cada ejercicio
-        let user = null, myPlannedRoutine = [], activeSession = null, customExercises = [], savedBlocks = [], lastPerformance = {};
-
-        // SECURITY: Función para sanitizar HTML y prevenir XSS
-        const escapeHTML = (str) => {
-            if (!str) return "";
-            return String(str).replace(/[&<>"']/g, m => ({
-                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-            })[m]);
+        const GLOBAL_LIBRARY = {
+            "Pecho": ["Press Banca (Barra)", "Press Inclinado (Manc)", "Aperturas Polea", "Fondos Pecho"],
+            "Espalda": ["Dominadas", "Jalón al Pecho", "Remo con Barra", "Remo Gironda", "Peso Muerto"],
+            "Hombro": ["Press Militar", "Elevaciones Laterales", "Facepull", "Pájaros"],
+            "Pierna": ["Sentadilla", "Prensa", "Extensiones", "Curl Femoral", "Zancadas"],
+            "Brazo": ["Curl Bíceps", "Martillo", "Press Francés", "Extensión Tríceps"]
         };
 
-        // AUTH: Refactorizada para separar Login de Registro
+        let user = null, myPlannedRoutine = [], activeSession = null, customExercises = [], savedBlocks = [], lastPerformance = {};
+
+        const escapeHTML = (str) => String(str || "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
+
         window.ejecutarLogin = async (mode) => {
             const e = document.getElementById('login-email').value, p = document.getElementById('login-pass').value;
             if (!e || !p) return window.showToast("Completa los datos");
             try {
+                await setPersistence(auth, browserLocalPersistence);
                 if (mode === 'signin') await signInWithEmailAndPassword(auth, e, p);
                 else await createUserWithEmailAndPassword(auth, e, p);
-            } catch (err) {
-                window.showToast("Error: " + err.message);
-            }
+            } catch (err) { window.showToast("Error: " + err.message); }
         };
 
         window.cerrarSesion = () => signOut(auth).then(() => window.location.reload());
@@ -198,18 +183,13 @@
             if (u) initSync();
         });
 
-        // SYNC
         const initSync = () => {
             onSnapshot(query(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'history'), orderBy('timestamp', 'desc')), snap => {
                 const logs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 
-                // Lógica para detectar el último peso de cada ejercicio
+                // Track last performance
                 const tempPerf = {};
-                logs.forEach(log => {
-                    if (!tempPerf[log.exercise]) {
-                        tempPerf[log.exercise] = log.sets; // Guardamos los sets del registro más reciente
-                    }
-                });
+                logs.forEach(log => { if (!tempPerf[log.exercise]) tempPerf[log.exercise] = log.sets; });
                 lastPerformance = tempPerf;
                 
                 renderDashboard(logs);
@@ -224,7 +204,7 @@
             });
         };
 
-        // DASHBOARD
+        // RENDER PANEL CON PESOS DETALLADOS
         const renderDashboard = (logs) => {
             let v = 0, s = 0; const d = new Set();
             logs.forEach(l => { 
@@ -235,6 +215,7 @@
             document.getElementById('stat-sets').textContent = s;
             document.getElementById('streak-count').textContent = `🔥 ${d.size}`;
 
+            // Chart logic
             const chart = document.getElementById('volume-chart');
             const last7 = [...Array(7)].map((_, i) => {
                 const day = new Date(); day.setDate(day.getDate() - i);
@@ -242,7 +223,6 @@
             }).reverse();
             const vols = last7.map(day => logs.filter(l => l.date === day).reduce((a,b)=>a+(b.sets?b.sets.reduce((x,y)=>x+(y.weight*y.reps),0):0),0));
             const max = Math.max(...vols, 1000);
-            
             chart.innerHTML = vols.map((v, i) => `
                 <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end">
                     <div class="w-full bg-indigo-500/10 rounded-lg relative flex items-end h-full overflow-hidden">
@@ -251,30 +231,34 @@
                     <span class="text-[7px] font-bold text-slate-500">${last7[i].split('-')[2]}</span>
                 </div>`).join('');
 
-            document.getElementById('workout-history').innerHTML = logs.slice(0, 10).map(l => `
-                <div class="glass p-4 rounded-2xl flex justify-between items-center group">
-                    <div>
-                        <p class="text-sm font-black">${escapeHTML(l.exercise)}</p>
-                        <p class="text-[9px] text-slate-500 uppercase font-bold">${escapeHTML(l.date)}</p>
+            // Historial con detalle de series solicitado
+            document.getElementById('workout-history').innerHTML = logs.slice(0, 15).map(l => `
+                <div class="glass p-5 rounded-[2rem] space-y-4 group">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm font-black text-indigo-400 uppercase tracking-tight">${escapeHTML(l.exercise)}</p>
+                            <p class="text-[9px] text-slate-500 uppercase font-bold">${escapeHTML(l.date)}</p>
+                        </div>
+                        <button onclick="window.deleteHistory('${l.id}')" class="text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity p-1">✕</button>
                     </div>
-                    <div class="flex items-center gap-4">
-                        <span class="text-xs font-bold text-indigo-400">${l.sets ? l.sets.length : 0} series</span>
-                        <button onclick="window.deleteHistory('${l.id}')" class="text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity">✕</button>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        ${l.sets ? l.sets.map((set, idx) => `
+                            <div class="bg-slate-950/50 px-3 py-2 rounded-xl border border-white/5 flex justify-between items-center">
+                                <span class="text-[10px] font-black text-slate-600">S${idx + 1}</span>
+                                <span class="text-[10px] font-bold">${set.weight}kg <span class="text-indigo-500">x</span> ${set.reps}</span>
+                            </div>
+                        `).join('') : ''}
                     </div>
                 </div>`).join('');
         };
 
         window.deleteHistory = async (id) => { if(confirm("¿Eliminar registro?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', user.uid, 'history', id)); };
 
-        // TRAIN SELECTOR
         const renderTrainSelector = () => {
             const list = document.getElementById('train-routines-list');
             list.innerHTML = savedBlocks.map(b => `
-                <div onclick='window.loadAndStart(${JSON.stringify(b.exercises).replace(/'/g, "&apos;")}, "${escapeHTML(b.name)}")' class="routine-card glass p-6 rounded-[2rem] cursor-pointer hover:bg-indigo-600/10 group">
-                    <div class="flex justify-between items-center mb-4">
-                        <span class="bg-indigo-500/20 text-indigo-400 text-[10px] font-black px-3 py-1 rounded-full uppercase">Bloque</span>
-                        <button onclick="event.stopPropagation(); window.deleteBlock('${b.id}')" class="text-slate-600 hover:text-rose-500">✕</button>
-                    </div>
+                <div onclick='window.loadAndStart(${JSON.stringify(b.exercises)}, "${escapeHTML(b.name)}")' class="routine-card glass p-6 rounded-[2rem] cursor-pointer hover:bg-indigo-600/10 group">
                     <h3 class="text-xl font-black group-hover:text-indigo-400 transition-colors">${escapeHTML(b.name)}</h3>
                     <p class="text-slate-500 text-xs mt-1">${b.exercises.length} ejercicios</p>
                 </div>`).join('');
@@ -290,24 +274,18 @@
 
         window.startFreeWorkout = () => window.loadAndStart([], "Sesión Libre");
 
-        // FUNCIONALIDAD: Añadir serie dinámica
         window.addSetToExercise = (exIdx) => {
             const exercise = activeSession[exIdx];
             const lastSet = exercise.actual[exercise.actual.length - 1];
-            exercise.actual.push({
-                weight: lastSet ? lastSet.weight : "",
-                reps: lastSet ? lastSet.reps : 10,
-                done: false
-            });
+            exercise.actual.push({ weight: lastSet?.weight || "", reps: lastSet?.reps || 10, done: false });
             renderActiveSession();
         };
 
         const renderActiveSession = () => {
             const container = document.getElementById('active-session-container');
             container.innerHTML = activeSession.map((ex, exIdx) => {
-                // Obtenemos los datos de la sesión anterior si existen
                 const prev = lastPerformance[ex.name];
-                const prevText = prev ? `Anterior: ${prev[0]?.weight || 0}kg x ${prev[0]?.reps || 0}` : 'Sin registros';
+                const prevText = prev ? `Ult: ${prev[0]?.weight || 0}kg x ${prev[0]?.reps || 0}` : 'Nuevo';
 
                 return `
                 <div class="glass p-6 rounded-[2.5rem] space-y-4">
@@ -316,39 +294,22 @@
                         <span class="text-[9px] font-black text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded-lg uppercase tracking-widest">${prevText}</span>
                     </div>
                     <div class="space-y-2">
-                        ${ex.actual.map((s, sIdx) => {
-                            // Si tenemos registros previos, podemos mostrar sugerencia en el placeholder
-                            const prevWeight = (prev && prev[sIdx]) ? prev[sIdx].weight : "";
-                            const prevReps = (prev && prev[sIdx]) ? prev[sIdx].reps : "";
-
-                            return `
-                            <div class="flex items-center gap-3 p-3 rounded-2xl ${s.done ? 'bg-emerald-500/10 border-emerald-500/30 border' : 'bg-slate-950 border-white/5 border'}">
+                        ${ex.actual.map((s, sIdx) => `
+                            <div class="flex items-center gap-3 p-3 rounded-2xl ${s.done ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-slate-950 border-white/5 border'}">
                                 <button onclick="window.toggleSet(${exIdx}, ${sIdx})" class="w-10 h-10 rounded-xl font-black ${s.done ? 'bg-emerald-500 text-white' : 'bg-slate-800 text-slate-500'}">
                                     ${s.done ? '✓' : sIdx+1}
                                 </button>
                                 <div class="flex-1 grid grid-cols-2 gap-2">
-                                    <div class="bg-slate-900/50 p-2 rounded-xl flex items-center gap-1">
-                                        <input type="number" placeholder="${prevWeight || 'KG'}" value="${s.weight}" oninput="window.updateSet(${exIdx}, ${sIdx}, 'weight', this.value)" class="w-full bg-transparent text-center font-bold outline-none text-xs">
-                                        <span class="text-[8px] text-slate-600 font-black">KG</span>
-                                    </div>
-                                    <div class="bg-slate-900/50 p-2 rounded-xl flex items-center gap-1">
-                                        <input type="number" placeholder="${prevReps || 'REPS'}" value="${s.reps}" oninput="window.updateSet(${exIdx}, ${sIdx}, 'reps', this.value)" class="w-full bg-transparent text-center font-bold outline-none text-xs">
-                                        <span class="text-[8px] text-slate-600 font-black">REPS</span>
-                                    </div>
+                                    <input type="number" placeholder="KG" value="${s.weight}" oninput="window.updateSet(${exIdx}, ${sIdx}, 'weight', this.value)" class="bg-slate-900 p-2 rounded-xl text-center font-bold outline-none text-xs">
+                                    <input type="number" placeholder="REPS" value="${s.reps}" oninput="window.updateSet(${exIdx}, ${sIdx}, 'reps', this.value)" class="bg-slate-900 p-2 rounded-xl text-center font-bold outline-none text-xs">
                                 </div>
-                            </div>`}).join('')}
+                            </div>`).join('')}
                     </div>
-                    <button onclick="window.addSetToExercise(${exIdx})" class="w-full py-3 border border-dashed border-white/10 rounded-xl text-[10px] font-black text-slate-500 uppercase tracking-widest hover:border-indigo-500 hover:text-indigo-400 transition-all">
-                        + Añadir Serie
-                    </button>
+                    <button onclick="window.addSetToExercise(${exIdx})" class="w-full py-3 border border-dashed border-white/10 rounded-xl text-[10px] font-black text-slate-500 uppercase">+ Añadir Serie</button>
                 </div>`}).join('');
         };
 
-        window.toggleSet = (ei, si) => {
-            const s = activeSession[ei].actual[si]; s.done = !s.done;
-            if(s.done) window.startTimer(90);
-            renderActiveSession();
-        };
+        window.toggleSet = (ei, si) => { activeSession[ei].actual[si].done = !activeSession[ei].actual[si].done; renderActiveSession(); };
         window.updateSet = (ei, si, k, v) => { activeSession[ei].actual[si][k] = v; };
 
         window.saveFullSession = async () => {
@@ -363,14 +324,8 @@
             window.cancelSession();
         };
 
-        window.cancelSession = () => {
-            activeSession = null;
-            document.getElementById('routine-selector').classList.remove('hidden');
-            document.getElementById('active-session-ui').classList.add('hidden');
-            window.switchTab('dashboard');
-        };
+        window.cancelSession = () => { activeSession = null; document.getElementById('routine-selector').classList.remove('hidden'); document.getElementById('active-session-ui').classList.add('hidden'); window.switchTab('dashboard'); };
 
-        // RUTINAS LOGIC
         window.saveRoutineBlock = async () => {
             const name = document.getElementById('routine-name-input').value.trim();
             if(!name || myPlannedRoutine.length === 0) return window.showToast("Faltan datos");
@@ -378,71 +333,30 @@
             myPlannedRoutine = []; window.updatePlanUI(); window.showToast("BLOQUE GUARDADO");
         };
 
-        window.deleteBlock = async (id) => { if(confirm("¿Borrar rutina?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', user.uid, 'blocks', id)); };
-
         const renderLibrary = (f = "") => {
-            const PRE = {"Empuje":["Press Banca","Militar"],"Tracción":["Dominadas","Remo"],"Pierna":["Sentadilla","Prensa"]};
             const list = document.getElementById('library-list'); list.innerHTML = "";
-            const cats = { ...PRE, "Mis Ejercicios": customExercises };
+            const cats = { ...GLOBAL_LIBRARY, "Mis Ejercicios": customExercises };
             Object.entries(cats).forEach(([cat, exs]) => {
-                const isCustom = cat === "Mis Ejercicios";
-                const filtered = exs.filter(e => (isCustom ? e.name : e).toLowerCase().includes(f.toLowerCase()));
+                const filtered = exs.filter(e => (cat === "Mis Ejercicios" ? e.name : e).toLowerCase().includes(f.toLowerCase()));
                 if(!filtered.length) return;
-                list.innerHTML += `<p class="text-[8px] font-black text-slate-600 uppercase mb-2 mt-4">${escapeHTML(cat)}</p>` + 
-                    filtered.map(ex => `
-                        <div class="bg-white/5 p-3 rounded-xl text-xs flex justify-between items-center mb-1">
-                            <span onclick="window.addToPlan('${escapeHTML(isCustom?ex.name:ex)}')" class="cursor-pointer">${escapeHTML(isCustom?ex.name:ex)}</span>
-                            <div class="flex gap-4">
-                                ${isCustom ? `<button onclick="window.deleteCustomEx('${ex.id}')" class="text-rose-500">✕</button>` : ''}
-                                <button onclick="window.addToPlan('${escapeHTML(isCustom?ex.name:ex)}')" class="text-indigo-500 font-black">+</button>
-                            </div>
-                        </div>`).join('');
+                list.innerHTML += `<p class="text-[8px] font-black text-slate-600 uppercase mb-2 mt-4">${cat}</p>` + 
+                    filtered.map(ex => `<div onclick="window.addToPlan('${escapeHTML(cat === "Mis Ejercicios" ? ex.name : ex)}')" class="bg-white/5 p-3 rounded-xl text-xs flex justify-between items-center mb-1 cursor-pointer"><span>${escapeHTML(cat === "Mis Ejercicios" ? ex.name : ex)}</span><span class="text-indigo-500">+</span></div>`).join('');
             });
         };
 
         window.addToPlan = (name) => { myPlannedRoutine.push({ name, sets: 3, reps: 10 }); window.updatePlanUI(); };
-        window.removePlanItem = (i) => { myPlannedRoutine.splice(i,1); window.updatePlanUI(); };
         window.clearRoutine = () => { myPlannedRoutine = []; window.updatePlanUI(); };
-
         window.updatePlanUI = () => {
             const list = document.getElementById('routine-config-list');
             document.getElementById('routine-save-controls').classList.toggle('hidden', !myPlannedRoutine.length);
-            list.innerHTML = myPlannedRoutine.map((it, idx) => `
-                <div class="bg-white/5 p-4 rounded-xl flex justify-between items-center">
-                    <span class="text-xs font-bold">${escapeHTML(it.name)}</span>
-                    <div class="flex gap-3">
-                        <input type="number" value="${it.sets}" onchange="myPlannedRoutine[${idx}].sets=parseInt(this.value)" class="w-8 bg-slate-900 text-center text-indigo-400 font-bold rounded">
-                        <button onclick="window.removePlanItem(${idx})" class="text-rose-500">✕</button>
-                    </div>
-                </div>`).join('');
+            list.innerHTML = myPlannedRoutine.map((it, idx) => `<div class="bg-white/5 p-4 rounded-xl flex justify-between items-center"><span class="text-xs font-bold">${escapeHTML(it.name)}</span><div class="flex gap-3"><input type="number" value="${it.sets}" onchange="myPlannedRoutine[${idx}].sets=parseInt(this.value)" class="w-8 bg-slate-900 text-center text-indigo-400 font-bold rounded"></div></div>`).join('');
         };
 
-        window.createCustomExercise = async () => {
-            const n = document.getElementById('custom-ex-name').value.trim();
-            if(n) await addDoc(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'custom_ex'), { name: n });
-            document.getElementById('custom-ex-name').value = "";
-        };
-
-        window.deleteCustomEx = async (id) => { await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', user.uid, 'custom_ex', id)); };
-
-        // UTILS
         window.switchTab = (t) => {
             ['dashboard', 'train', 'routines'].forEach(s => {
                 document.getElementById(`section-${s}`).classList.toggle('hidden', s !== t);
                 document.getElementById(`tab-${s}`).classList.toggle('active', s === t);
             });
-        };
-
-        window.startTimer = (sec) => {
-            clearInterval(window.tInt); 
-            const d = document.getElementById('rest-timer-display'); 
-            d.classList.remove('hidden');
-            let r = sec; 
-            window.tInt = setInterval(() => {
-                const m=Math.floor(r/60), s=r%60; 
-                document.getElementById('timer-seconds').textContent = `${m}:${s.toString().padStart(2,'0')}`;
-                if(r-- <= 0) { clearInterval(window.tInt); d.classList.add('hidden'); }
-            }, 1000);
         };
 
         window.showToast = (m) => {
