@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Gym OS Pro 2026 - Master Analytics</title>
+    <title>Gym OS Pro 2026 - Ultimate Edition</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -18,6 +18,7 @@
         .nav-tab.active { color: white; border-bottom: 3px solid var(--brand); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         canvas { max-height: 220px !important; }
+        input[type="number"]::-webkit-inner-spin-button { display: none; }
     </style>
 </head>
 <body class="min-h-screen pb-32">
@@ -53,7 +54,7 @@
         <section id="section-dashboard" class="space-y-6">
             <div class="glass p-6 rounded-[2rem] space-y-4">
                 <div class="flex justify-between items-center">
-                    <h4 class="text-[10px] font-black text-slate-500 uppercase">Evolución de Cargas</h4>
+                    <h4 class="text-[10px] font-black text-slate-500 uppercase">Progreso por Ejercicio</h4>
                     <select id="chart-exercise-select" onchange="window.updateProgressChart()" class="bg-slate-900 text-[10px] font-black uppercase p-2 rounded-lg outline-none border border-white/5"></select>
                 </div>
                 <canvas id="progressChart"></canvas>
@@ -75,16 +76,16 @@
             </div>
 
             <div class="space-y-4">
-                <h3 class="text-lg font-black px-2">Historial de Sesiones</h3>
+                <h3 class="text-lg font-black px-2">Historial Detallado (Series/Peso)</h3>
                 <div id="workout-history" class="grid gap-4"></div>
             </div>
         </section>
 
         <section id="section-train" class="hidden space-y-6">
             <div id="routine-selector" class="space-y-6">
-                <h2 class="text-2xl font-black">Elige un Bloque</h2>
+                <h2 class="text-2xl font-black">Mis Rutinas</h2>
                 <div id="train-routines-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-                <button onclick="window.startFreeWorkout()" class="w-full py-5 border-2 border-dashed border-white/10 rounded-[2rem] text-slate-500 font-bold">+ Sesión Libre</button>
+                <button onclick="window.startFreeWorkout()" class="w-full py-5 border-2 border-dashed border-white/10 rounded-[2rem] text-slate-500 font-bold hover:border-indigo-500">+ Sesión Libre</button>
             </div>
 
             <div id="active-session-ui" class="hidden space-y-6">
@@ -97,7 +98,7 @@
                 </div>
                 <div id="active-session-container" class="space-y-6"></div>
                 <div class="pb-20">
-                    <button onclick="window.saveFullSession()" class="w-full py-6 bg-indigo-600 text-white font-black rounded-[2rem] shadow-xl">GUARDAR ENTRENAMIENTO</button>
+                    <button onclick="window.saveFullSession()" class="w-full py-6 bg-indigo-600 text-white font-black rounded-[2rem] shadow-xl">GUARDAR SESIÓN</button>
                 </div>
             </div>
         </section>
@@ -105,17 +106,20 @@
         <section id="section-routines" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div class="lg:col-span-5 space-y-6">
                 <div class="glass p-6 rounded-[2rem]">
-                    <h3 class="text-lg font-black mb-4">Librería</h3>
-                    <input type="text" id="lib-search" placeholder="Buscar ejercicio..." class="w-full bg-slate-900 p-4 rounded-xl text-sm mb-4 outline-none">
-                    <div id="library-list" class="h-64 overflow-y-auto no-scrollbar space-y-4"></div>
+                    <h3 class="text-lg font-black mb-4">Librería Completa</h3>
+                    <input type="text" id="lib-search" placeholder="Buscar ejercicio..." class="w-full bg-slate-900 p-4 rounded-xl text-sm mb-4 outline-none border border-white/5 focus:border-indigo-500">
+                    <div id="library-list" class="h-[500px] overflow-y-auto no-scrollbar space-y-6"></div>
                 </div>
             </div>
             <div class="lg:col-span-7">
                 <div class="glass p-8 rounded-[2.5rem] sticky top-24">
-                    <h3 class="text-xl font-black mb-6">Configurar Bloque</h3>
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-black">Creador de Bloques</h3>
+                        <button onclick="window.clearRoutine()" class="text-[10px] font-black text-rose-500 uppercase underline">Limpiar</button>
+                    </div>
                     <div id="routine-config-list" class="space-y-3 mb-6"></div>
                     <div id="routine-save-controls" class="hidden space-y-4">
-                        <input type="text" id="routine-name-input" placeholder="Nombre (Ej: Tirón A)" class="w-full bg-slate-900 p-5 rounded-2xl outline-none">
+                        <input type="text" id="routine-name-input" placeholder="Nombre de la rutina (Ej: Empuje A)" class="w-full bg-slate-900 p-5 rounded-2xl outline-none border border-indigo-500/20 focus:border-indigo-500">
                         <button onclick="window.saveRoutineBlock()" class="w-full py-4 bg-emerald-600 font-black rounded-xl uppercase text-xs">Guardar Bloque</button>
                     </div>
                 </div>
@@ -130,7 +134,6 @@
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, query, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Configuración de Firebase (Se mantiene la del archivo original)
         const firebaseConfig = {
             apiKey: "AIzaSyB5TTnMn1co3GA_oX3jrZ5KZ8KzRbXbhGQ",
             authDomain: "gym-pro-4588d.firebaseapp.com",
@@ -145,11 +148,20 @@
         const db = getFirestore(fb);
         const DB_KEY = 'gym-pro-v2026-master';
 
+        const GLOBAL_LIBRARY = {
+            "Pecho": ["Press de Banca (Barra)", "Press Inclinado (Mancuerna)", "Aperturas con Cable", "Fondos de Pecho", "Press Declinado", "Cruce de Poleas"],
+            "Espalda": ["Dominadas", "Jalón al Pecho", "Remo con Barra", "Remo Gironda", "Pull-over", "Peso Muerto", "Hiperextensiones"],
+            "Hombros": ["Press Militar", "Elevaciones Laterales", "Facepull", "Pájaros (Posterior)", "Press Arnold", "Elevaciones Frontales"],
+            "Piernas": ["Sentadillas Libres", "Prensa de Piernas", "Extensiones de Cuádriceps", "Curl Femoral", "Zancadas", "Peso Muerto Rumano", "Gemelo de Pie"],
+            "Brazos": ["Curl de Bíceps (Barra)", "Curl Martillo", "Press Francés", "Extensión Tríceps Polea", "Curl Predicador", "Fondos en Paralelas"],
+            "Core": ["Plancha Abdominal", "Crunch en Polea", "Elevación de Piernas", "Rueda Abdominal", "Giros Rusos"]
+        };
+
         let user = null, activeSession = null, myPlannedRoutine = [], customExercises = [], savedBlocks = [], allLogs = [], myChart = null, lastPerformance = {};
 
         const escapeHTML = (str) => String(str || "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
 
-        // GESTIÓN DE AUTENTICACIÓN
+        // AUTH
         window.ejecutarLogin = async (mode) => {
             const e = document.getElementById('login-email').value, p = document.getElementById('login-pass').value;
             try {
@@ -160,58 +172,46 @@
         window.cerrarSesion = () => signOut(auth).then(() => window.location.reload());
         onAuthStateChanged(auth, u => { user = u; document.getElementById('login-overlay').classList.toggle('hidden', !!u); if (u) initSync(); });
 
-        // SINCRONIZACIÓN DE DATOS
+        // SYNC
         const initSync = () => {
             onSnapshot(query(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'history'), orderBy('timestamp', 'desc')), snap => {
                 allLogs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                
-                // Guardamos el último rendimiento para mostrarlo como "Anterior" al entrenar
                 const tempPerf = {};
                 [...allLogs].reverse().forEach(log => { tempPerf[log.exercise] = log.sets; });
                 lastPerformance = tempPerf;
-
                 renderDashboard();
                 updateExerciseSelect();
             });
-            onSnapshot(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'custom_ex'), snap => {
-                customExercises = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                renderLibrary();
-            });
-            onSnapshot(query(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'blocks'), orderBy('createdAt', 'desc')), snap => {
+            onSnapshot(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'blocks'), snap => {
                 savedBlocks = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 renderTrainSelector();
             });
+            renderLibrary();
         };
 
-        // RENDERIZADO DEL PANEL CON DESGLOSE DE SERIES
+        // RENDER PANEL CON PESOS DESGLOSADOS
         const renderDashboard = () => {
-            let totalVol = 0, totalSets = 0; const uniqueDays = new Set();
+            let v = 0, s = 0; const days = new Set();
             allLogs.forEach(l => { 
-                uniqueDays.add(l.date); 
-                l.sets?.forEach(set => { totalVol += (set.weight * set.reps); totalSets++; }); 
+                days.add(l.date); 
+                l.sets?.forEach(set => { v += (set.weight * set.reps); s++; }); 
             });
-            
-            document.getElementById('stat-volume').textContent = Math.round(totalVol).toLocaleString();
-            document.getElementById('stat-sets').textContent = totalSets;
-            document.getElementById('streak-count').textContent = `🔥 ${uniqueDays.size}`;
+            document.getElementById('stat-volume').textContent = Math.round(v).toLocaleString();
+            document.getElementById('stat-sets').textContent = s;
+            document.getElementById('streak-count').textContent = `🔥 ${days.size}`;
 
-            // Historial con el desglose solicitado (cada serie con su peso y reps)
             document.getElementById('workout-history').innerHTML = allLogs.slice(0, 15).map(l => `
                 <div class="glass p-5 rounded-[2rem] space-y-3 group border border-white/5">
                     <div class="flex justify-between items-start">
                         <div>
-                            <p class="text-sm font-black text-indigo-400 uppercase tracking-tight">${escapeHTML(l.exercise)}</p>
-                            <p class="text-[9px] text-slate-500 font-bold uppercase">${escapeHTML(l.date)}</p>
+                            <p class="text-sm font-black text-indigo-400 uppercase">${escapeHTML(l.exercise)}</p>
+                            <p class="text-[9px] text-slate-500 font-bold">${escapeHTML(l.date)}</p>
                         </div>
-                        <div class="flex items-center gap-4">
-                            <span class="text-[10px] font-black text-indigo-500/80 bg-indigo-500/10 px-2 py-1 rounded-lg uppercase">${l.sets ? l.sets.length : 0} SERIES</span>
-                            <button onclick="window.deleteHistory('${l.id}')" class="text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity p-1">✕</button>
-                        </div>
+                        <button onclick="window.deleteHistory('${l.id}')" class="text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity">✕</button>
                     </div>
-                    
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 pt-2 border-t border-white/5">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 border-t border-white/5 pt-3">
                         ${l.sets?.map((set, idx) => `
-                            <div class="bg-slate-950/50 p-2.5 rounded-xl border border-white/5 flex justify-between items-center">
+                            <div class="bg-slate-950/50 p-2 rounded-xl border border-white/5 flex justify-between items-center">
                                 <span class="text-[8px] font-black text-slate-600 uppercase">S${idx+1}</span>
                                 <span class="text-[10px] font-bold">${set.weight}kg <span class="text-indigo-500">x</span> ${set.reps}</span>
                             </div>
@@ -220,7 +220,7 @@
                 </div>`).join('');
         };
 
-        // LÓGICA DE GRÁFICAS DE PROGRESO
+        // CHART LOGIC
         const updateExerciseSelect = () => {
             const select = document.getElementById('chart-exercise-select');
             const exercises = [...new Set(allLogs.map(l => l.exercise))];
@@ -231,11 +231,10 @@
 
         window.updateProgressChart = () => {
             const exName = document.getElementById('chart-exercise-select').value;
-            if (!exName) return;
-
+            if (!exName || !allLogs.length) return;
             const filtered = allLogs.filter(l => l.exercise === exName).reverse();
-            const labels = filtered.map(l => l.date.split('-').slice(1).reverse().join('/'));
-            const dataMaxWeight = filtered.map(l => Math.max(...l.sets.map(s => s.weight)));
+            const labels = filtered.map(l => l.date.split('-').reverse().slice(0,2).join('/'));
+            const data = filtered.map(l => Math.max(...l.sets.map(s => s.weight)));
 
             if (myChart) myChart.destroy();
             const ctx = document.getElementById('progressChart').getContext('2d');
@@ -244,15 +243,13 @@
                 data: {
                     labels,
                     datasets: [{
-                        label: 'Peso Máximo (kg)',
-                        data: dataMaxWeight,
+                        data,
                         borderColor: '#6366f1',
                         backgroundColor: 'rgba(99, 102, 241, 0.1)',
                         fill: true,
                         tension: 0.4,
                         borderWidth: 3,
-                        pointRadius: 4,
-                        pointBackgroundColor: '#6366f1'
+                        pointRadius: 4
                     }]
                 },
                 options: {
@@ -260,14 +257,70 @@
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b', font: { size: 10, weight: 'bold' } } },
-                        x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 9, weight: 'bold' } } }
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b', font: { size: 10 } } },
+                        x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 9 } } }
                     }
                 }
             });
         };
 
-        // FUNCIONES DE ENTRENAMIENTO
+        // LIBRERIA RESTAURADA Y AMPLIADA
+        const renderLibrary = (filter = "") => {
+            const list = document.getElementById('library-list');
+            list.innerHTML = "";
+            Object.entries(GLOBAL_LIBRARY).forEach(([cat, exs]) => {
+                const filtered = exs.filter(e => e.toLowerCase().includes(filter.toLowerCase()));
+                if (!filtered.length) return;
+                
+                const catDiv = document.createElement('div');
+                catDiv.innerHTML = `<p class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-3">${cat}</p>`;
+                filtered.forEach(ex => {
+                    const item = document.createElement('div');
+                    item.className = "bg-white/5 p-4 rounded-2xl flex justify-between items-center cursor-pointer hover:bg-white/10 transition-colors mb-2";
+                    item.onclick = () => window.addToPlan(ex);
+                    item.innerHTML = `<span class="text-sm font-bold">${escapeHTML(ex)}</span><span class="text-indigo-500 font-black">+</span>`;
+                    catDiv.appendChild(item);
+                });
+                list.appendChild(catDiv);
+            });
+        };
+
+        // RUTINAS
+        window.addToPlan = (name) => {
+            myPlannedRoutine.push({ name, sets: 3, reps: 10 });
+            window.updatePlanUI();
+        };
+
+        window.updatePlanUI = () => {
+            const list = document.getElementById('routine-config-list');
+            document.getElementById('routine-save-controls').classList.toggle('hidden', !myPlannedRoutine.length);
+            list.innerHTML = myPlannedRoutine.map((it, idx) => `
+                <div class="bg-white/5 p-4 rounded-xl flex justify-between items-center border border-white/5">
+                    <span class="text-xs font-bold">${escapeHTML(it.name)}</span>
+                    <div class="flex items-center gap-2">
+                        <input type="number" value="${it.sets}" onchange="myPlannedRoutine[${idx}].sets=parseInt(this.value)" class="w-10 bg-slate-950 text-center text-indigo-400 font-bold rounded p-1 text-xs">
+                        <button onclick="myPlannedRoutine.splice(${idx},1); window.updatePlanUI()" class="text-rose-500 text-lg">×</button>
+                    </div>
+                </div>`).join('');
+        };
+
+        window.saveRoutineBlock = async () => {
+            const name = document.getElementById('routine-name-input').value.trim();
+            if(!name || !myPlannedRoutine.length) return window.showToast("Nombre o ejercicios vacíos");
+            await addDoc(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'blocks'), { name, exercises: myPlannedRoutine, createdAt: serverTimestamp() });
+            myPlannedRoutine = []; window.updatePlanUI(); window.showToast("BLOQUE GUARDADO");
+        };
+
+        // ENTRENAR
+        const renderTrainSelector = () => {
+            const list = document.getElementById('train-routines-list');
+            list.innerHTML = savedBlocks.map(b => `
+                <div onclick='window.loadAndStart(${JSON.stringify(b.exercises)}, "${escapeHTML(b.name)}")' class="glass p-6 rounded-[2rem] cursor-pointer hover:bg-indigo-600/10 transition-all border border-white/5">
+                    <h3 class="text-xl font-black">${escapeHTML(b.name)}</h3>
+                    <p class="text-slate-500 text-[10px] mt-1 font-bold uppercase tracking-widest">${b.exercises.length} EJERCICIOS</p>
+                </div>`).join('');
+        };
+
         window.loadAndStart = (exs, name) => {
             document.getElementById('routine-selector').classList.add('hidden');
             document.getElementById('active-session-ui').classList.remove('hidden');
@@ -280,13 +333,12 @@
             const container = document.getElementById('active-session-container');
             container.innerHTML = activeSession.map((ex, exIdx) => {
                 const prev = lastPerformance[ex.name];
-                const prevLabel = prev ? `Ant: ${prev[0]?.weight}kg x ${prev[0]?.reps}` : 'Nuevo';
-                
+                const prevLabel = prev ? `Anterior: ${prev[0]?.weight}kg x ${prev[0]?.reps}` : 'Nuevo Ejercicio';
                 return `
-                <div class="glass p-6 rounded-[2.5rem] space-y-4">
+                <div class="glass p-6 rounded-[2.5rem] space-y-4 border border-white/5">
                     <div class="flex justify-between items-center">
                         <h4 class="font-black text-white uppercase text-sm">${escapeHTML(ex.name)}</h4>
-                        <span class="text-[9px] font-black text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded-lg">${prevLabel}</span>
+                        <span class="text-[8px] font-black text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded-lg uppercase">${prevLabel}</span>
                     </div>
                     <div class="space-y-2">
                         ${ex.actual.map((s, sIdx) => `
@@ -314,37 +366,27 @@
                 sets: ex.actual.filter(s => s.done).map(s => ({ weight: parseFloat(s.weight)||0, reps: parseInt(s.reps)||0 })),
                 date: document.getElementById('workout-date').value
             })).filter(e => e.sets.length > 0);
-            
             for(const e of data) await addDoc(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'history'), { ...e, timestamp: serverTimestamp() });
-            window.showToast("SESIÓN GUARDADA CORRECTAMENTE");
+            window.showToast("SESIÓN GUARDADA");
             window.cancelSession();
         };
 
-        // UTILIDADES Y RUTINAS
-        const renderTrainSelector = () => {
-            const list = document.getElementById('train-routines-list');
-            list.innerHTML = savedBlocks.map(b => `
-                <div onclick='window.loadAndStart(${JSON.stringify(b.exercises)}, "${escapeHTML(b.name)}")' class="glass p-6 rounded-[2rem] cursor-pointer hover:bg-indigo-600/10 transition-all">
-                    <h3 class="text-xl font-black">${escapeHTML(b.name)}</h3>
-                    <p class="text-slate-500 text-xs mt-1 uppercase font-bold">${b.exercises.length} ejercicios</p>
-                </div>`).join('');
-        };
-
-        window.startFreeWorkout = () => window.loadAndStart([], "Sesión Libre");
-        window.cancelSession = () => { activeSession = null; document.getElementById('routine-selector').classList.remove('hidden'); document.getElementById('active-session-ui').classList.add('hidden'); window.switchTab('dashboard'); };
-
+        // UTILS
         window.switchTab = (t) => {
             ['dashboard', 'train', 'routines'].forEach(s => {
                 document.getElementById(`section-${s}`).classList.toggle('hidden', s !== t);
                 document.getElementById(`tab-${s}`).classList.toggle('active', s === t);
             });
         };
-
         window.showToast = (m) => { const t = document.getElementById('toast'); t.textContent = m; t.classList.remove('opacity-0'); setTimeout(() => t.classList.add('opacity-0'), 2000); };
-        window.deleteHistory = async (id) => { if(confirm("¿Eliminar este registro?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', user.uid, 'history', id)); };
+        window.deleteHistory = async (id) => { if(confirm("¿Eliminar?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', user.uid, 'history', id)); };
+        window.cancelSession = () => { activeSession = null; document.getElementById('routine-selector').classList.remove('hidden'); document.getElementById('active-session-ui').classList.add('hidden'); window.switchTab('dashboard'); };
+        window.startFreeWorkout = () => window.loadAndStart([], "Sesión Libre");
+        window.clearRoutine = () => { myPlannedRoutine = []; window.updatePlanUI(); };
 
         window.onload = () => {
             document.getElementById('workout-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('lib-search').addEventListener('input', (e) => renderLibrary(e.target.value));
         };
     </script>
 </body>
