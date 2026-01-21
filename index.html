@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Gym OS Pro</title>
+    <title>Gym OS Pro 2026</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -26,6 +26,23 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .glass { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
         .nav-tab.active { color: white; border-bottom: 3px solid var(--brand); }
+        
+        /* MODIFICACIÓN DE LA BARRA DE DESPLAZAMIENTO (Scrollbar) */
+        ::-webkit-scrollbar {
+            width: 6px; /* Más fina */
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent; /* Fondo invisible */
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.2); /* Color índigo muy suave */
+            border-radius: 20px;
+            border: 2px solid var(--bg); /* Crea un efecto de margen para que no ocupe todo el ancho */
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(99, 102, 241, 0.5); /* Se ilumina al pasar el dedo/ratón */
+        }
+
         .no-scrollbar::-webkit-scrollbar { display: none; }
         canvas { max-height: 200px !important; }
         input[type="number"]::-webkit-inner-spin-button { display: none; }
@@ -181,7 +198,6 @@
 
         const escapeHTML = (s) => String(s || "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
 
-        // AUTH
         window.ejecutarLogin = async (mode) => {
             const e = document.getElementById('login-email').value, p = document.getElementById('login-pass').value;
             try {
@@ -196,7 +212,6 @@
             if (u) initSync(); 
         });
 
-        // SYNC
         const initSync = () => {
             onSnapshot(query(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'history'), orderBy('timestamp', 'desc')), snap => {
                 allLogs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -213,7 +228,6 @@
             });
         };
 
-        // DASHBOARD RENDER (CON BORRADO)
         const renderDashboard = () => {
             let v = 0, s = 0; const days = new Set();
             allLogs.forEach(l => { 
@@ -238,7 +252,6 @@
             if(allLogs.length > 0) window.updateProgressChart();
         };
 
-        // LIBRERÍA (CON BORRADO DE EJERCICIOS PROPIOS)
         const renderLibrary = (filter = "") => {
             const list = document.getElementById('library-list');
             list.innerHTML = "";
@@ -273,7 +286,6 @@
             });
         };
 
-        // SELECTOR DE ENTRENAMIENTO (CON BORRADO DE RUTINAS)
         const renderTrainSelector = () => {
             const list = document.getElementById('train-routines-list');
             list.innerHTML = savedBlocks.map(b => `
@@ -286,7 +298,6 @@
                 </div>`).join('');
         };
 
-        // --- FUNCIONES GLOBALES ---
         window.switchTab = (t) => {
             ['dashboard', 'train', 'routines'].forEach(s => {
                 document.getElementById(`section-${s}`).classList.toggle('hidden', s !== t);
@@ -320,7 +331,6 @@
             myPlannedRoutine = []; window.updatePlanUI(); window.showToast("RUTINA CREADA");
         };
 
-        // ENTRENAMIENTO ACTIVO (CORRECCIÓN DE TICKS)
         window.loadAndStart = (exs, name) => {
             document.getElementById('routine-selector').classList.add('hidden');
             document.getElementById('active-session-ui').classList.remove('hidden');
@@ -376,12 +386,10 @@
             document.getElementById('active-session-ui').classList.add('hidden'); 
         };
 
-        // ELIMINACIÓN DE DATOS
         window.deleteHistory = async (id) => { if(confirm("¿Eliminar registro?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', user.uid, 'history', id)); };
         window.deleteRoutineBlock = async (id) => { if(confirm("¿Eliminar bloque?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', user.uid, 'blocks', id)); };
         window.deleteCustomEx = async (id) => { if(confirm("¿Eliminar de librería?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', user.uid, 'custom_ex', id)); };
 
-        // GRÁFICA
         window.updateProgressChart = () => {
             const exName = document.getElementById('chart-exercise-select').value;
             if (!exName || !allLogs.length) return;
