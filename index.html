@@ -1,177 +1,246 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Gym OS Pro 2026</title>
+    <title>GymOS Elite 2026</title>
     
+    <!-- PWA & iOS Optimization -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="GymOS Pro">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2964/2964514.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
     
     <style>
-        :root { --brand: #6366f1; --bg: #020617; }
+        :root { 
+            --brand: #8b5cf6; 
+            --brand-light: #a78bfa;
+            --bg: #030712; 
+            --glass: rgba(17, 24, 39, 0.7);
+        }
         
-        /* RESET GENERAL Y ELIMINACIÓN DE BARRA LATERAL */
-        * {
-            -ms-overflow-style: none;  /* IE y Edge */
-            scrollbar-width: none;     /* Firefox */
-        }
-        *::-webkit-scrollbar {
-            display: none;             /* Chrome, Safari y Opera (Elimina la barra) */
-        }
+        * { -webkit-tap-highlight-color: transparent; scrollbar-width: none; }
+        *::-webkit-scrollbar { display: none; }
 
         body { 
-            background: var(--bg); 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            color: #f8fafc; 
-            padding-top: env(safe-area-inset-top);
-            animation: fadeIn 0.4s ease-out;
-            overflow-x: hidden;
+            background-color: var(--bg);
+            background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #030712 100%);
+            font-family: 'Inter', sans-serif;
+            color: #f3f4f6;
+            min-height: 100vh;
         }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .font-heading { font-family: 'Plus Jakarta Sans', sans-serif; }
         
-        .glass { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        .nav-tab.active { color: white; border-bottom: 3px solid var(--brand); }
-        
-        canvas { max-height: 200px !important; }
-        input[type="number"]::-webkit-inner-spin-button { display: none; }
-        
-        /* Optimización de inputs para iOS */
-        input, select, button { font-size: 16px !important; } 
+        .glass { 
+            background: var(--glass); 
+            backdrop-filter: blur(24px); 
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .premium-card {
+            background: linear-gradient(145deg, rgba(31, 41, 55, 0.6), rgba(17, 24, 39, 0.8));
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .premium-card:active { transform: scale(0.98); }
+
+        .nav-tab.active { color: var(--brand-light); }
+        .nav-tab.active svg { filter: drop-shadow(0 0 8px var(--brand)); }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .animate-up { animation: slideUp 0.4s ease-out forwards; }
+
+        /* Timer Circle Animation */
+        .timer-ring { transition: stroke-dashoffset 0.3s linear; }
     </style>
 </head>
-<body class="min-h-screen pb-32">
+<body class="pb-24 overflow-x-hidden">
 
-    <div id="login-overlay" class="fixed inset-0 z-[1000] bg-slate-950 flex items-center justify-center px-6">
-        <div class="glass p-8 rounded-[2.5rem] w-full max-w-md text-center">
-            <div class="flex justify-center mb-6">
-                <div class="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-xl shadow-indigo-500/20">
-                    <svg viewBox="0 0 24 24" class="w-10 h-10 text-white fill-current"><path d="M20.57 14.86L22 13.43L20.57 12L17 15.57L8.43 7L12 3.43L10.57 2L9.14 3.43L7.71 2L5.57 4.14L4.14 2.71L2.71 4.14L4.14 5.57L2 7.71L3.43 9.14L2 10.57L3.43 12L7 8.43L15.57 17L12 20.57L13.43 22L14.86 20.57L16.29 22L18.43 19.86L19.86 21.29L21.29 19.86L19.86 18.43L22 16.29L20.57 14.86Z"/></svg>
+    <!-- LOGIN OVERLAY -->
+    <div id="login-overlay" class="fixed inset-0 z-[2000] bg-slate-950 flex items-center justify-center px-8">
+        <div class="w-full max-w-sm space-y-8 text-center">
+            <div class="relative inline-block">
+                <div class="absolute -inset-4 bg-violet-500/20 blur-2xl rounded-full"></div>
+                <div class="relative w-20 h-20 bg-violet-600 rounded-3xl flex items-center justify-center rotate-3">
+                    <svg viewBox="0 0 24 24" class="w-12 h-12 text-white fill-current"><path d="M20.57 14.86L22 13.43L20.57 12L17 15.57L8.43 7L12 3.43L10.57 2L9.14 3.43L7.71 2L5.57 4.14L4.14 2.71L2.71 4.14L4.14 5.57L2 7.71L3.43 9.14L2 10.57L3.43 12L7 8.43L15.57 17L12 20.57L13.43 22L14.86 20.57L16.29 22L18.43 19.86L19.86 21.29L21.29 19.86L19.86 18.43L22 16.29L20.57 14.86Z"/></svg>
                 </div>
             </div>
-            <h2 class="text-3xl font-black mb-8 tracking-tighter text-indigo-500 uppercase italic">GymOS <span class="text-white">Pro</span></h2>
-            <div class="space-y-4">
-                <input type="email" id="login-email" placeholder="Email" class="w-full bg-slate-900 border border-white/5 px-6 py-4 rounded-2xl outline-none focus:border-indigo-500 text-white">
-                <input type="password" id="login-pass" placeholder="Password" class="w-full bg-slate-900 border border-white/5 px-6 py-4 rounded-2xl outline-none focus:border-indigo-500 text-white">
-                <div class="grid grid-cols-2 gap-4">
-                    <button onclick="window.ejecutarLogin('signin')" class="py-4 bg-indigo-600 text-white font-black rounded-2xl">ENTRAR</button>
-                    <button onclick="window.ejecutarLogin('signup')" class="py-4 bg-slate-800 text-white font-black rounded-2xl">REGISTRAR</button>
-                </div>
+            <div>
+                <h1 class="font-heading text-4xl font-black tracking-tighter text-white italic">GYMOS <span class="text-violet-500 underline decoration-violet-500/30">ELITE</span></h1>
+                <p class="text-slate-400 text-sm mt-2 font-light">Performance Tracking de Próxima Generación</p>
+            </div>
+            <div class="space-y-3">
+                <input type="email" id="login-email" placeholder="Email" class="w-full bg-slate-900/50 border border-white/10 px-6 py-4 rounded-2xl outline-none focus:border-violet-500 text-white transition-all">
+                <input type="password" id="login-pass" placeholder="Contraseña" class="w-full bg-slate-900/50 border border-white/10 px-6 py-4 rounded-2xl outline-none focus:border-violet-500 text-white transition-all">
+                <button onclick="window.ejecutarLogin('signin')" class="w-full py-4 btn-primary text-white font-bold rounded-2xl mt-4">ENTRAR</button>
+                <button onclick="window.ejecutarLogin('signup')" class="w-full py-4 text-slate-400 font-bold hover:text-white transition-colors">Crear Cuenta</button>
             </div>
         </div>
     </div>
 
-    <nav class="sticky top-0 z-[500] glass border-b border-white/5 mb-6">
-        <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-                    <svg viewBox="0 0 24 24" class="w-5 h-5 text-white fill-current"><path d="M20.57 14.86L22 13.43L20.57 12L17 15.57L8.43 7L12 3.43L10.57 2L9.14 3.43L7.71 2L5.57 4.14L4.14 2.71L2.71 4.14L4.14 5.57L2 7.71L3.43 9.14L2 10.57L3.43 12L7 8.43L15.57 17L12 20.57L13.43 22L14.86 20.57L16.29 22L18.43 19.86L19.86 21.29L21.29 19.86L19.86 18.43L22 16.29L20.57 14.86Z"/></svg>
-                </div>
-                <h1 class="font-black text-lg tracking-tighter uppercase italic">GymOS <span class="text-indigo-500">Pro</span></h1>
-            </div>
-            <button onclick="window.cerrarSesion()" class="text-[10px] font-black bg-slate-800 px-4 py-2 rounded-lg">SALIR</button>
+    <!-- TOP HEADER -->
+    <header class="p-6 flex justify-between items-end">
+        <div>
+            <p id="header-date" class="text-[10px] font-bold text-violet-400 uppercase tracking-[0.2em] mb-1">--</p>
+            <h2 class="text-2xl font-heading font-black">Hola, Atleta <span class="text-violet-500">.</span></h2>
         </div>
-        <div class="flex justify-center gap-8">
-            <button onclick="window.switchTab('dashboard')" id="tab-dashboard" class="nav-tab active py-4 text-[10px] font-black uppercase tracking-widest text-slate-500">Panel</button>
-            <button onclick="window.switchTab('train')" id="tab-train" class="nav-tab py-4 text-[10px] font-black uppercase tracking-widest text-slate-500">Entrenar</button>
-            <button onclick="window.switchTab('routines')" id="tab-routines" class="nav-tab py-4 text-[10px] font-black uppercase tracking-widest text-slate-500">Rutinas</button>
-        </div>
-    </nav>
+        <button onclick="window.cerrarSesion()" class="w-10 h-10 rounded-full glass flex items-center justify-center text-slate-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+    </header>
 
-    <main class="max-w-6xl mx-auto px-6">
+    <!-- MAIN CONTENT -->
+    <main class="px-6 space-y-8 animate-up">
         
-        <section id="section-dashboard" class="space-y-6">
-            <div class="glass p-6 rounded-[2rem] space-y-4">
-                <div class="flex justify-between items-center">
-                    <h4 class="text-[10px] font-black text-slate-500 uppercase">Evolución</h4>
-                    <select id="chart-exercise-select" onchange="window.updateProgressChart()" class="bg-slate-900 text-[10px] font-black uppercase p-2 rounded-lg outline-none border border-white/5"></select>
+        <!-- DASHBOARD TAB -->
+        <section id="section-dashboard" class="space-y-6 pb-12">
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-2 gap-4">
+                <div class="premium-card p-5 rounded-[2rem]">
+                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Volumen Total</p>
+                    <div class="flex items-baseline gap-1">
+                        <span id="stat-volume" class="text-2xl font-heading font-black">0</span>
+                        <span class="text-[10px] text-slate-500">kg</span>
+                    </div>
                 </div>
-                <canvas id="progressChart"></canvas>
-            </div>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <div class="glass p-5 rounded-3xl border-l-4 border-indigo-500 text-center md:text-left">
-                    <p class="text-[9px] font-black text-slate-500 uppercase">Volumen</p>
-                    <h3 id="stat-volume" class="text-2xl font-black">0</h3>
-                </div>
-                <div class="glass p-5 rounded-3xl border-l-4 border-emerald-500 text-center md:text-left">
-                    <p class="text-[9px] font-black text-slate-500 uppercase">Series</p>
-                    <h3 id="stat-sets" class="text-2xl font-black">0</h3>
-                </div>
-                <div class="glass p-5 rounded-3xl border-l-4 border-amber-500 col-span-2 md:col-span-1 text-center">
-                    <p class="text-[9px] font-black text-slate-500 uppercase">Días</p>
-                    <h3 id="streak-count" class="text-2xl font-black">🔥 0</h3>
+                <div class="premium-card p-5 rounded-[2rem]">
+                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Fuerza 1RM</p>
+                    <div class="flex items-baseline gap-1">
+                        <span id="stat-1rm" class="text-2xl font-heading font-black">--</span>
+                        <span class="text-[10px] text-slate-500">kg</span>
+                    </div>
                 </div>
             </div>
-            <div class="space-y-4">
-                <h3 class="text-lg font-black px-2">Historial</h3>
-                <div id="workout-history" class="grid gap-3"></div>
+
+            <!-- Chart Card -->
+            <div class="glass p-6 rounded-[2.5rem] relative overflow-hidden">
+                <div class="flex justify-between items-center mb-6 relative z-10">
+                    <h3 class="text-sm font-bold">Progreso</h3>
+                    <select id="chart-exercise-select" onchange="window.updateProgressChart()" class="bg-slate-800/50 text-[10px] font-bold py-1 px-3 rounded-full border border-white/5 outline-none"></select>
+                </div>
+                <div class="h-[200px]">
+                    <canvas id="progressChart"></canvas>
+                </div>
             </div>
+
+            <h3 class="text-lg font-heading font-black pt-4">Actividad Reciente</h3>
+            <div id="workout-history" class="space-y-3"></div>
         </section>
 
-        <section id="section-train" class="hidden space-y-6">
-            <div id="routine-selector" class="space-y-6">
-                <div id="train-routines-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-                <button onclick="window.startFreeWorkout()" class="w-full py-5 border-2 border-dashed border-white/10 rounded-[2rem] text-slate-500 font-bold">+ Entrenamiento Libre</button>
+        <!-- TRAIN TAB -->
+        <section id="section-train" class="hidden space-y-6 pb-12">
+            <div id="routine-selector" class="space-y-4">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-lg font-heading font-black">Mis Rutinas</h3>
+                    <span id="streak-count" class="bg-amber-500/10 text-amber-500 text-[10px] font-black px-3 py-1 rounded-full italic">🔥 0 DÍAS</span>
+                </div>
+                <div id="train-routines-list" class="grid gap-4"></div>
+                <button onclick="window.startFreeWorkout()" class="w-full py-5 border-2 border-dashed border-white/10 rounded-[2rem] text-slate-500 font-bold hover:border-violet-500/50 hover:text-violet-400 transition-all">+ Sesión Libre</button>
             </div>
 
+            <!-- Active Session Interface -->
             <div id="active-session-ui" class="hidden space-y-6">
-                <div class="glass p-6 rounded-[2rem] flex justify-between items-center">
+                <div class="glass p-6 rounded-[2.5rem] flex justify-between items-center sticky top-4 z-50">
                     <div>
-                        <h2 id="active-routine-name" class="font-black text-xl text-indigo-400 uppercase">--</h2>
-                        <input type="date" id="workout-date" class="bg-transparent text-slate-500 font-bold outline-none text-xs">
+                        <h2 id="active-routine-name" class="font-heading font-black text-xl text-white uppercase tracking-tighter italic">--</h2>
+                        <span id="session-timer" class="text-violet-400 font-mono text-xs font-bold">00:00</span>
                     </div>
-                    <button onclick="window.cancelSession()" class="text-rose-500 bg-rose-500/10 p-3 rounded-xl">✕</button>
+                    <button onclick="window.confirmCancelSession()" class="bg-rose-500/20 text-rose-500 p-3 rounded-2xl hover:bg-rose-500 hover:text-white transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2.5"/></svg>
+                    </button>
                 </div>
                 <div id="active-session-container" class="space-y-6"></div>
-                <button onclick="window.saveFullSession()" class="w-full py-6 bg-indigo-600 text-white font-black rounded-[2rem] mb-20">FINALIZAR SESIÓN</button>
+                <button onclick="window.saveFullSession()" class="w-full py-6 btn-primary text-white font-black rounded-[2.5rem] shadow-2xl shadow-violet-600/20 mb-32">FINALIZAR Y GUARDAR</button>
             </div>
         </section>
 
-        <section id="section-routines" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <div class="lg:col-span-5 space-y-6">
-                <div class="glass p-6 rounded-[2rem]">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-black">Ejercicios</h3>
-                        <button onclick="window.toggleCustomInput()" class="bg-indigo-600 w-8 h-8 rounded-lg font-black">+</button>
-                    </div>
-                    
-                    <div id="custom-ex-input" class="hidden mb-4 p-4 bg-slate-900 rounded-2xl border border-indigo-500/30">
-                        <input type="text" id="new-ex-name" placeholder="Nombre del ejercicio..." class="w-full bg-transparent outline-none text-sm mb-3 text-white">
-                        <button onclick="window.addCustomExercise()" class="w-full bg-indigo-600 py-2 rounded-xl text-[10px] font-black uppercase">Guardar en Librería</button>
-                    </div>
-
-                    <input type="text" id="lib-search" placeholder="Buscar..." class="w-full bg-slate-900 p-4 rounded-xl text-sm mb-4 outline-none border border-white/5">
-                    <div id="library-list" class="space-y-4"></div>
+        <!-- ROUTINES TAB -->
+        <section id="section-routines" class="hidden space-y-6 pb-12">
+            <div class="glass p-6 rounded-[2.5rem]">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-heading font-black tracking-tight">Constructor</h3>
+                    <button onclick="window.toggleCustomInput()" class="bg-violet-600 w-10 h-10 rounded-2xl font-black text-xl shadow-lg shadow-violet-600/30">+</button>
                 </div>
+                
+                <div id="custom-ex-input" class="hidden mb-6 p-5 bg-slate-900/80 rounded-3xl border border-violet-500/30 animate-up">
+                    <input type="text" id="new-ex-name" placeholder="Ej: Press Arnold" class="w-full bg-transparent outline-none text-white font-bold mb-4">
+                    <button onclick="window.addCustomExercise()" class="w-full bg-violet-600 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest">Añadir a Librería</button>
+                </div>
+
+                <div class="relative mb-6">
+                    <input type="text" id="lib-search" placeholder="Buscar ejercicio..." class="w-full bg-slate-950/50 p-4 pl-12 rounded-2xl text-sm outline-none border border-white/5 focus:border-violet-500 transition-all">
+                    <svg class="w-5 h-5 absolute left-4 top-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2"/></svg>
+                </div>
+
+                <div id="library-list" class="space-y-2 max-h-[40vh] overflow-y-auto pr-2"></div>
             </div>
-            
-            <div class="lg:col-span-7">
-                <div class="glass p-8 rounded-[2.5rem] sticky top-24">
-                    <h3 class="text-xl font-black mb-6">Nuevo Bloque</h3>
-                    <div id="routine-config-list" class="space-y-3 mb-6"></div>
-                    <div id="routine-save-controls" class="hidden space-y-4">
-                        <input type="text" id="routine-name-input" placeholder="Nombre: Ej. Empuje A" class="w-full bg-slate-900 p-5 rounded-2xl outline-none">
-                        <button onclick="window.saveRoutineBlock()" class="w-full py-4 bg-emerald-600 font-black rounded-xl uppercase">Crear Rutina</button>
-                    </div>
+
+            <!-- Current Plan -->
+            <div id="routine-planner" class="glass p-6 rounded-[2.5rem] hidden animate-up">
+                <h3 class="text-sm font-black text-slate-500 uppercase tracking-widest mb-4">Nuevo Bloque</h3>
+                <div id="routine-config-list" class="space-y-3 mb-6"></div>
+                <div class="space-y-4">
+                    <input type="text" id="routine-name-input" placeholder="Nombre de la Rutina" class="w-full bg-slate-950/50 p-5 rounded-2xl outline-none font-bold text-white border border-white/5 focus:border-emerald-500 transition-all">
+                    <button onclick="window.saveRoutineBlock()" class="w-full py-5 bg-emerald-600 text-white font-black rounded-2xl uppercase tracking-widest">Crear Rutina</button>
                 </div>
             </div>
         </section>
     </main>
 
-    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 glass px-8 py-3 rounded-xl opacity-0 transition-all duration-500 z-[9999] font-black text-[10px] uppercase text-white pointer-events-none"></div>
+    <!-- FLOATING TIMER (REST) -->
+    <div id="rest-timer-overlay" class="fixed bottom-28 left-6 right-6 z-[1000] hidden">
+        <div class="glass p-4 rounded-3xl flex items-center justify-between border-violet-500/30 bg-violet-950/20">
+            <div class="flex items-center gap-4">
+                <div class="relative w-12 h-12">
+                    <svg class="w-full h-full -rotate-90">
+                        <circle cx="24" cy="24" r="20" stroke="currentColor" stroke-width="3" fill="transparent" class="text-white/10" />
+                        <circle id="timer-progress" cx="24" cy="24" r="20" stroke="currentColor" stroke-width="3" fill="transparent" class="text-violet-500 timer-ring" stroke-dasharray="125.6" stroke-dashoffset="0" />
+                    </svg>
+                    <span id="rest-timer-sec" class="absolute inset-0 flex items-center justify-center text-[10px] font-black">60</span>
+                </div>
+                <div>
+                    <p class="text-[10px] font-black uppercase text-violet-400">Descanso activo</p>
+                    <p class="text-xs text-slate-400">Prepárate para la siguiente serie</p>
+                </div>
+            </div>
+            <button onclick="window.stopRestTimer()" class="p-2 text-slate-400 font-black">SALTAR</button>
+        </div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <nav class="fixed bottom-0 inset-x-0 glass border-t border-white/5 px-8 pt-4 pb-8 z-[1500] flex justify-between items-center">
+        <button onclick="window.switchTab('dashboard')" id="tab-dashboard" class="nav-tab active flex flex-col items-center gap-1 transition-all">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M13 3v6h8V3h-8zm6 4h-4V5h4v2zm-6 14h8v-6h-8v6zm6-4h-4v2h4v-2zM3 21h8v-6H3v6zm6-4v2H5v-2h4zM3 3v6h8V3H3zm6 4H5V5h4v2z"/></svg>
+            <span class="text-[8px] font-black uppercase tracking-tighter">Panel</span>
+        </button>
+        <button onclick="window.switchTab('train')" id="tab-train" class="nav-tab flex flex-col items-center gap-1 transition-all">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M20.57 14.86L22 13.43L20.57 12L17 15.57L8.43 7L12 3.43L10.57 2L9.14 3.43L7.71 2L5.57 4.14L4.14 2.71L2.71 4.14L4.14 5.57L2 7.71L3.43 9.14L2 10.57L3.43 12L7 8.43L15.57 17L12 20.57L13.43 22L14.86 20.57L16.29 22L18.43 19.86L19.86 21.29L21.29 19.86L19.86 18.43L22 16.29L20.57 14.86Z"/></svg>
+            <span class="text-[8px] font-black uppercase tracking-tighter">Entrenar</span>
+        </button>
+        <button onclick="window.switchTab('routines')" id="tab-routines" class="nav-tab flex flex-col items-center gap-1 transition-all">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+            <span class="text-[8px] font-black uppercase tracking-tighter">Rutinas</span>
+        </button>
+    </nav>
+
+    <div id="toast" class="fixed top-12 left-1/2 -translate-x-1/2 glass px-6 py-3 rounded-2xl opacity-0 transition-all duration-500 z-[9999] font-bold text-xs uppercase tracking-widest text-white pointer-events-none"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, query, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, query, orderBy, deleteDoc, doc, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        // CONFIGURACIÓN DE FIREBASE (Reemplazar con tus datos reales)
         const firebaseConfig = {
             apiKey: "AIzaSyB5TTnMn1co3GA_oX3jrZ5KZ8KzRbXbhGQ",
             authDomain: "gym-pro-4588d.firebaseapp.com",
@@ -184,19 +253,19 @@
         const fb = initializeApp(firebaseConfig);
         const auth = getAuth(fb);
         const db = getFirestore(fb);
-        const DB_KEY = 'gym-pro-v2026-master';
+        const DB_KEY = 'elite_v2026';
+
+        // ESTADO GLOBAL
+        let user = null, activeSession = null, myPlannedRoutine = [], customExercises = [], savedBlocks = [], allLogs = [], myChart = null;
+        let sessionStartTime = null, sessionTimerInterval = null, restTimerInterval = null;
 
         const GLOBAL_LIBRARY = {
-            "Pecho": ["Press Banca", "Press Inclinado", "Aperturas"],
-            "Espalda": ["Dominadas", "Remo", "Jalón al Pecho"],
-            "Pierna": ["Sentadilla", "Prensa", "Extensiones"],
-            "Hombro": ["Press Militar", "Elevaciones Laterales"]
+            "Empuje": ["Press Banca", "Press Militar", "Press Inclinado", "Extensiones Tríceps"],
+            "Tracción": ["Dominadas", "Remo con Barra", "Jalón al Pecho", "Curl de Bíceps"],
+            "Pierna": ["Sentadilla", "Prensa", "Peso Muerto Rumano", "Zancadas"]
         };
 
-        let user = null, activeSession = null, myPlannedRoutine = [], customExercises = [], savedBlocks = [], allLogs = [], myChart = null;
-
-        const escapeHTML = (s) => String(s || "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
-
+        // AUTH & SYNC
         window.ejecutarLogin = async (mode) => {
             const e = document.getElementById('login-email').value, p = document.getElementById('login-pass').value;
             try {
@@ -204,184 +273,18 @@
                 else await createUserWithEmailAndPassword(auth, e, p);
             } catch (err) { window.showToast(err.message); }
         };
+
         window.cerrarSesion = () => signOut(auth).then(() => window.location.reload());
-        onAuthStateChanged(auth, u => { user = u; document.getElementById('login-overlay').classList.toggle('hidden', !!u); if (u) initSync(); });
+        
+        onAuthStateChanged(auth, u => { 
+            user = u; 
+            document.getElementById('login-overlay').classList.toggle('hidden', !!u); 
+            if (u) initSync(); 
+        });
 
         const initSync = () => {
-            onSnapshot(query(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'history'), orderBy('timestamp', 'desc')), snap => {
+            // Sincronizar Historial
+            onSnapshot(query(collection(db, 'users', user.uid, 'history'), orderBy('timestamp', 'desc')), snap => {
                 allLogs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 renderDashboard();
                 updateExerciseSelect();
-            });
-            onSnapshot(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'custom_ex'), snap => {
-                customExercises = snap.docs.map(d => ({ id: d.id, name: d.data().name }));
-                renderLibrary();
-            });
-            onSnapshot(query(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'blocks'), orderBy('createdAt', 'desc')), snap => {
-                savedBlocks = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                renderTrainSelector();
-            });
-        };
-
-        const renderDashboard = () => {
-            let v = 0, s = 0; const days = new Set();
-            allLogs.forEach(l => { days.add(l.date); l.sets?.forEach(set => { v += (set.weight * set.reps); s++; }); });
-            document.getElementById('stat-volume').textContent = Math.round(v).toLocaleString();
-            document.getElementById('stat-sets').textContent = s;
-            document.getElementById('streak-count').textContent = `🔥 ${days.size}`;
-
-            document.getElementById('workout-history').innerHTML = allLogs.slice(0, 10).map(l => `
-                <div class="glass p-4 rounded-2xl flex justify-between items-center group">
-                    <div>
-                        <p class="text-xs font-black text-indigo-400 uppercase">${escapeHTML(l.exercise)}</p>
-                        <p class="text-[8px] text-slate-500 font-bold">${l.date}</p>
-                    </div>
-                    <button onclick="window.deleteHistory('${l.id}')" class="text-rose-500 opacity-0 group-hover:opacity-100 p-2">✕</button>
-                </div>`).join('');
-            if(allLogs.length > 0) window.updateProgressChart();
-        };
-
-        const renderLibrary = (filter = "") => {
-            const list = document.getElementById('library-list');
-            list.innerHTML = ""; const f = filter.toLowerCase();
-
-            if(customExercises.length > 0) {
-                const mine = customExercises.filter(e => e.name.toLowerCase().includes(f));
-                if(mine.length > 0) {
-                    list.innerHTML += `<p class="text-[8px] font-black text-amber-500 uppercase mb-2">★ Mis Ejercicios</p>`;
-                    mine.forEach(ex => {
-                        list.innerHTML += `<div class="bg-white/5 p-4 rounded-xl flex justify-between items-center mb-2">
-                            <span class="text-sm font-bold cursor-pointer" onclick="window.addToPlan('${escapeHTML(ex.name)}')">${escapeHTML(ex.name)}</span>
-                            <button onclick="window.deleteCustomEx('${ex.id}')" class="text-rose-500">✕</button>
-                        </div>`;
-                    });
-                }
-            }
-
-            Object.entries(GLOBAL_LIBRARY).forEach(([cat, exs]) => {
-                const filtered = exs.filter(e => e.toLowerCase().includes(f));
-                if(filtered.length > 0) {
-                    list.innerHTML += `<p class="text-[8px] font-black text-indigo-500 uppercase mb-2 mt-4">${cat}</p>`;
-                    filtered.forEach(ex => {
-                        list.innerHTML += `<div onclick="window.addToPlan('${ex}')" class="bg-white/5 p-4 rounded-xl flex justify-between items-center mb-2 cursor-pointer">
-                            <span class="text-sm font-bold">${ex}</span><span class="text-indigo-500 font-black">+</span>
-                        </div>`;
-                    });
-                }
-            });
-        };
-
-        const renderTrainSelector = () => {
-            document.getElementById('train-routines-list').innerHTML = savedBlocks.map(b => `
-                <div class="glass p-6 rounded-[2rem] border border-white/5 relative group">
-                    <div onclick='window.loadAndStart(${JSON.stringify(b.exercises)}, "${escapeHTML(b.name)}")' class="cursor-pointer">
-                        <h3 class="text-lg font-black uppercase">${escapeHTML(b.name)}</h3>
-                        <p class="text-slate-500 text-[10px] font-bold">${b.exercises.length} EJERCICIOS</p>
-                    </div>
-                    <button onclick="window.deleteRoutineBlock('${b.id}')" class="absolute top-4 right-4 text-rose-500 opacity-0 group-hover:opacity-100">✕</button>
-                </div>`).join('');
-        };
-
-        window.switchTab = (t) => {
-            ['dashboard', 'train', 'routines'].forEach(s => {
-                document.getElementById(`section-${s}`).classList.toggle('hidden', s !== t);
-                document.getElementById(`tab-${s}`).classList.toggle('active', s === t);
-            });
-        };
-
-        window.toggleCustomInput = () => document.getElementById('custom-ex-input').classList.toggle('hidden');
-        window.addCustomExercise = async () => {
-            const name = document.getElementById('new-ex-name').value.trim();
-            if(name) await addDoc(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'custom_ex'), { name });
-            document.getElementById('new-ex-name').value = ""; window.toggleCustomInput();
-        };
-
-        window.addToPlan = (name) => { myPlannedRoutine.push({ name }); window.updatePlanUI(); };
-        window.updatePlanUI = () => {
-            const list = document.getElementById('routine-config-list');
-            document.getElementById('routine-save-controls').classList.toggle('hidden', !myPlannedRoutine.length);
-            list.innerHTML = myPlannedRoutine.map((it, idx) => `
-                <div class="bg-white/5 p-4 rounded-xl flex justify-between items-center">
-                    <span class="text-xs font-bold uppercase">${escapeHTML(it.name)}</span>
-                    <button onclick="myPlannedRoutine.splice(${idx},1); window.updatePlanUI()" class="text-rose-500">✕</button>
-                </div>`).join('');
-        };
-
-        window.saveRoutineBlock = async () => {
-            const name = document.getElementById('routine-name-input').value.trim();
-            if(!name) return;
-            await addDoc(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'blocks'), { name, exercises: myPlannedRoutine, createdAt: serverTimestamp() });
-            myPlannedRoutine = []; window.updatePlanUI(); window.showToast("RUTINA CREADA");
-        };
-
-        window.loadAndStart = (exs, name) => {
-            document.getElementById('routine-selector').classList.add('hidden');
-            document.getElementById('active-session-ui').classList.remove('hidden');
-            document.getElementById('active-routine-name').textContent = name;
-            activeSession = exs.map(e => ({ name: e.name, actual: Array.from({length: 3}, () => ({weight:"", reps: 10, done: false})) }));
-            window.renderActiveSession();
-        };
-
-        window.renderActiveSession = () => {
-            document.getElementById('active-session-container').innerHTML = activeSession.map((ex, exIdx) => `
-                <div class="glass p-6 rounded-[2.5rem] space-y-4">
-                    <h4 class="font-black text-indigo-400 uppercase text-xs">${escapeHTML(ex.name)}</h4>
-                    <div class="space-y-2">
-                        ${ex.actual.map((s, sIdx) => `
-                            <div class="flex items-center gap-3 p-3 rounded-2xl bg-slate-950/50">
-                                <button onclick="window.toggleSet(${exIdx}, ${sIdx})" class="w-10 h-10 rounded-xl font-black ${s.done ? 'bg-emerald-500 text-white shadow-lg' : 'bg-slate-800 text-slate-500'}">
-                                    ${s.done ? '✓' : sIdx+1}
-                                </button>
-                                <div class="flex-1 grid grid-cols-2 gap-2">
-                                    <input type="number" placeholder="KG" value="${s.weight}" oninput="window.updateSet(${exIdx}, ${sIdx}, 'weight', this.value)" class="bg-slate-900 p-2 rounded-xl text-center font-bold text-xs outline-none text-white">
-                                    <input type="number" placeholder="REPS" value="${s.reps}" oninput="window.updateSet(${exIdx}, ${sIdx}, 'reps', this.value)" class="bg-slate-900 p-2 rounded-xl text-center font-bold text-xs outline-none text-white">
-                                </div>
-                            </div>`).join('')}
-                    </div>
-                </div>`).join('');
-        };
-
-        window.toggleSet = (ei, si) => { activeSession[ei].actual[si].done = !activeSession[ei].actual[si].done; window.renderActiveSession(); };
-        window.updateSet = (ei, si, k, v) => { activeSession[ei].actual[si][k] = v; };
-
-        window.saveFullSession = async () => {
-            const data = activeSession.map(ex => ({ exercise: ex.name, sets: ex.actual.filter(s => s.done).map(s => ({ weight: parseFloat(s.weight)||0, reps: parseInt(s.reps)||0 })), date: document.getElementById('workout-date').value })).filter(e => e.sets.length > 0);
-            for(const e of data) await addDoc(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'history'), { ...e, timestamp: serverTimestamp() });
-            window.showToast("GUARDADO"); window.cancelSession();
-        };
-
-        window.cancelSession = () => { activeSession = null; document.getElementById('routine-selector').classList.remove('hidden'); document.getElementById('active-session-ui').classList.add('hidden'); };
-        window.deleteHistory = async (id) => { if(confirm("¿Eliminar?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', user.uid, 'history', id)); };
-        window.deleteRoutineBlock = async (id) => { if(confirm("¿Eliminar rutina?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', user.uid, 'blocks', id)); };
-        window.deleteCustomEx = async (id) => { if(confirm("¿Eliminar de librería?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', user.uid, 'custom_ex', id)); };
-
-        window.updateProgressChart = () => {
-            const exName = document.getElementById('chart-exercise-select').value;
-            if (!exName || !allLogs.length) return;
-            const filtered = allLogs.filter(l => l.exercise === exName).reverse();
-            const labels = filtered.map(l => l.date.split('-').slice(1).join('/'));
-            const data = filtered.map(l => Math.max(...(l.sets?.map(s => s.weight) || [0])));
-            if (myChart) myChart.destroy();
-            myChart = new Chart(document.getElementById('progressChart'), {
-                type: 'line',
-                data: { labels, datasets: [{ data, borderColor: '#6366f1', tension: 0.4, fill: true, backgroundColor: 'rgba(99, 102, 241, 0.1)' }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false } } }
-            });
-        };
-
-        const updateExerciseSelect = () => {
-            const select = document.getElementById('chart-exercise-select');
-            const exs = [...new Set(allLogs.map(l => l.exercise))];
-            select.innerHTML = exs.map(e => `<option value="${e}">${e}</option>`).join('');
-        };
-
-        window.startFreeWorkout = () => window.loadAndStart([], "Sesión Libre");
-        window.showToast = (m) => { const t = document.getElementById('toast'); t.textContent = m; t.classList.remove('opacity-0'); setTimeout(() => t.classList.add('opacity-0'), 2000); };
-        
-        window.onload = () => { 
-            document.getElementById('workout-date').value = new Date().toISOString().split('T')[0];
-            document.getElementById('lib-search').addEventListener('input', e => renderLibrary(e.target.value));
-        };
-    </script>
-</body>
-</html>
