@@ -1,3 +1,5 @@
+--- START OF FILE Paste January 22, 2026 - 02:15PM ---
+
 <!DOCTYPE html>
 <html lang="es" class="dark">
 <head>
@@ -35,7 +37,6 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
         .animate-up { animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
-        .animate-fade { animation: fadeIn 0.2s ease-out forwards; }
         
         input[type="number"]::-webkit-inner-spin-button { display: none; }
         input:focus { border-color: var(--brand) !important; }
@@ -43,7 +44,6 @@
         /* Modal transitions */
         .modal-enter { transform: translateY(100%); }
         .modal-enter-active { transform: translateY(0); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
-        .modal-exit { transform: translateY(100%); transition: transform 0.3s ease-in; }
     </style>
 </head>
 <body class="pb-32 selection:bg-indigo-500 selection:text-white">
@@ -245,7 +245,6 @@
         const db = getFirestore(fb);
         const DB_KEY = 'gym-pro-v2026-master';
 
-        // Estructura de Biblioteca Base
         const GLOBAL_LIBRARY = {
             "Pectoral": ["Press Banca", "Press Inclinado", "Aperturas", "Fondos en Paralelas", "Cruce de Poleas"],
             "Espalda": ["Dominadas", "Jalón al Pecho", "Remo con Barra", "Remo Gironda", "Pull Over"],
@@ -254,21 +253,18 @@
             "Brazos": ["Curl con Barra", "Curl Martillo", "Press Francés", "Extensiones Tríceps Polea"]
         };
 
-        // Estado Global
         let user = null;
-        let activeSession = null; // { name, exercises: [{name, sets, actual: []}] }
+        let activeSession = null; 
         let customExercises = [];
         let savedBlocks = [];
         let allLogs = [];
         let myChart = null;
 
-        // Estado del Selector (Picker)
-        let pickerContext = null; // 'session', 'planner', 'add_to_active'
-        let pickerSelection = new Set(); // Set de nombres de ejercicios seleccionados
+        let pickerContext = null; 
+        let pickerSelection = new Set(); 
 
         const escapeHTML = (s) => String(s || "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
 
-        // --- AUTH ---
         window.ejecutarLogin = async (mode) => {
             const e = document.getElementById('login-email').value, p = document.getElementById('login-pass').value;
             if(!e || !p) return window.showToast("Faltan datos", "error");
@@ -290,27 +286,22 @@
         });
 
         const initSync = () => {
-            // Sincronizar Historial
             onSnapshot(query(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'history'), orderBy('timestamp', 'desc')), snap => {
                 allLogs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 renderDashboard();
                 updateExerciseSelect();
             });
-            // Sincronizar Ejercicios Custom
             onSnapshot(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'custom_ex'), snap => {
                 customExercises = snap.docs.map(d => ({ id: d.id, name: d.data().name }));
-                // Si el picker está abierto, refrescar
                 if(!document.getElementById('universal-picker').classList.contains('hidden')) renderPickerList();
             });
-            // Sincronizar Rutinas Guardadas
             onSnapshot(query(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'blocks'), orderBy('createdAt', 'desc')), snap => {
                 savedBlocks = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                renderTrainSelector(); // Renderiza las tarjetas grandes en "Entrenar"
-                renderPlannerSavedList(); // Renderiza la lista en "Rutinas"
+                renderTrainSelector(); 
+                renderPlannerSavedList(); 
             });
         };
 
-        // --- DASHBOARD ---
         const renderDashboard = () => {
             let v = 0; const days = new Set();
             allLogs.forEach(l => { 
@@ -331,10 +322,10 @@
             if(allLogs.length > 0) window.updateProgressChart();
         };
 
-        // --- LOGIC: UNIVERSAL PICKER ---
+        // --- PICKER LOGIC FIXED ---
         window.openUniversalPicker = (context) => {
             pickerContext = context;
-            pickerSelection.clear(); // Empezar limpio
+            pickerSelection.clear(); 
             
             const picker = document.getElementById('universal-picker');
             const actionBar = document.getElementById('picker-action-bar');
@@ -343,7 +334,6 @@
             picker.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
 
-            // Configurar UI según contexto
             if(context === 'planner') {
                 actionBar.classList.add('hidden');
                 plannerBar.classList.remove('hidden');
@@ -351,7 +341,6 @@
             } else {
                 actionBar.classList.remove('hidden');
                 plannerBar.classList.add('hidden');
-                // Botón confirma texto
                 const btn = document.getElementById('picker-confirm-btn');
                 btn.textContent = context === 'add_to_active' ? "AÑADIR A SESIÓN" : "COMENZAR SESIÓN";
                 btn.onclick = context === 'add_to_active' ? window.confirmAddToActive : window.startFreeSessionFromPicker;
@@ -367,18 +356,26 @@
             document.getElementById('custom-ex-input').classList.add('hidden');
         };
 
+        // FIXED: Using appendChild instead of innerHTML += to preserve Event Listeners
         const renderPickerList = (filter = "") => {
             const list = document.getElementById('picker-list');
-            list.innerHTML = ""; 
+            list.innerHTML = ""; // Clear existing
             const f = filter.toLowerCase();
 
+            // Helper to create header
+            const createHeader = (text) => {
+                const h = document.createElement('h4');
+                h.className = "text-[10px] font-black text-slate-500 uppercase tracking-widest mt-4 mb-2 sticky top-0 bg-[#060b1e] py-2 z-10";
+                h.textContent = text;
+                return h;
+            };
+
             // 1. Custom Exercises
-            if(customExercises.length > 0) {
-                list.innerHTML += `<h4 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-2 mb-2 sticky top-0 bg-[#060b1e] py-2 z-10">Mis Ejercicios</h4>`;
-                customExercises.forEach(ex => {
-                    if(ex.name.toLowerCase().includes(f)) {
-                        list.appendChild(createPickerItem(ex.name, true, ex.id));
-                    }
+            const visibleCustom = customExercises.filter(e => e.name.toLowerCase().includes(f));
+            if(visibleCustom.length > 0) {
+                list.appendChild(createHeader("Mis Ejercicios"));
+                visibleCustom.forEach(ex => {
+                    list.appendChild(createPickerItem(ex.name, true, ex.id));
                 });
             }
 
@@ -386,8 +383,10 @@
             Object.entries(GLOBAL_LIBRARY).forEach(([category, exercises]) => {
                 const visibleEx = exercises.filter(e => e.toLowerCase().includes(f));
                 if(visibleEx.length > 0) {
-                    list.innerHTML += `<h4 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-4 mb-2 sticky top-0 bg-[#060b1e] py-2 z-10">${category}</h4>`;
-                    visibleEx.forEach(name => list.appendChild(createPickerItem(name, false)));
+                    list.appendChild(createHeader(category));
+                    visibleEx.forEach(name => {
+                        list.appendChild(createPickerItem(name, false));
+                    });
                 }
             });
         };
@@ -396,6 +395,8 @@
             const div = document.createElement('div');
             const isSelected = pickerSelection.has(name);
             div.className = `p-4 rounded-xl flex justify-between items-center mb-1 cursor-pointer transition-all border ${isSelected ? 'bg-indigo-600/20 border-indigo-500' : 'bg-slate-900 border-transparent hover:bg-slate-800'}`;
+            
+            // Event Listener attached directly to the element
             div.onclick = () => window.togglePickerSelection(name);
             
             div.innerHTML = `
@@ -413,20 +414,19 @@
         window.togglePickerSelection = (name) => {
             if(pickerSelection.has(name)) pickerSelection.delete(name);
             else pickerSelection.add(name);
+            // Re-render only list to update visuals, keep focus if needed
             renderPickerList(document.getElementById('picker-search').value);
             updatePickerUI();
         };
 
         const updatePickerUI = () => {
             const count = pickerSelection.size;
-            // Update counts in UI
             if(pickerContext !== 'planner') {
                 document.getElementById('picker-count').textContent = count;
                 const btn = document.getElementById('picker-confirm-btn');
                 btn.disabled = count === 0;
                 btn.classList.toggle('opacity-50', count === 0);
             } else {
-                // Planner logic preview
                 const preview = document.getElementById('planner-preview');
                 preview.innerHTML = Array.from(pickerSelection).map(n => 
                     `<span class="text-[9px] bg-indigo-900/50 text-indigo-300 px-2 py-1 rounded-md border border-indigo-500/20">${escapeHTML(n)}</span>`
@@ -436,7 +436,6 @@
 
         window.clearPickerSelection = () => { pickerSelection.clear(); renderPickerList(); updatePickerUI(); };
 
-        // --- LOGIC: CREATE SESSION (FROM PICKER) ---
         window.startFreeSessionFromPicker = () => {
             if(pickerSelection.size === 0) return;
             const exercises = Array.from(pickerSelection).map(name => ({ name, sets: 3 }));
@@ -447,7 +446,6 @@
         window.confirmAddToActive = () => {
             if(!activeSession) return;
             pickerSelection.forEach(name => {
-                // Evitar duplicados si se desea, por ahora permitimos
                 activeSession.push({
                     name: name,
                     actual: [{weight:"", reps: "", done: false}]
@@ -458,12 +456,11 @@
             window.showToast("Ejercicios añadidos");
         };
 
-        // --- LOGIC: PLANNER ---
         window.saveRoutineBlock = async () => {
             const name = document.getElementById('routine-name-input').value.trim();
             if(!name || pickerSelection.size === 0) return window.showToast("Pon nombre y selecciona ejercicios", "error");
             
-            const exercises = Array.from(pickerSelection).map(n => ({ name: n, sets: 3 })); // Default 3 sets
+            const exercises = Array.from(pickerSelection).map(n => ({ name: n, sets: 3 }));
             
             await addDoc(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'blocks'), { 
                 name, exercises, createdAt: serverTimestamp() 
@@ -474,7 +471,6 @@
             window.switchTab('train');
         };
 
-        // --- LOGIC: TRAIN & ACTIVE SESSION ---
         const renderTrainSelector = () => {
             document.getElementById('train-routines-list').innerHTML = savedBlocks.map(b => `
                 <div class="premium-card p-6 rounded-[2rem] relative group animate-up transition-transform hover:scale-[1.01]">
@@ -501,21 +497,15 @@
         };
 
         window.loadAndStart = (exs, name) => {
-            // Setup active session data
             activeSession = exs.map(e => ({ 
                 name: e.name, 
                 actual: Array.from({length: parseInt(e.sets) || 3}, () => ({weight:"", reps: "", done: false})) 
             }));
             
             document.getElementById('active-routine-name').textContent = name;
-            
-            // Switch UI
             document.getElementById('routine-selector').classList.add('hidden');
             document.getElementById('active-session-ui').classList.remove('hidden');
-            
-            // Scroll to top
             window.scrollTo({top: 0, behavior: 'smooth'});
-            
             window.renderActiveSession();
         };
 
@@ -552,7 +542,6 @@
         };
 
         window.addSetToExercise = (ei) => { 
-            // Copiar valores de la anterior si existen
             const prev = activeSession[ei].actual[activeSession[ei].actual.length - 1];
             activeSession[ei].actual.push({weight: prev ? prev.weight : "", reps: prev ? prev.reps : "", done: false}); 
             window.renderActiveSession(); 
@@ -570,7 +559,6 @@
 
         window.saveFullSession = async () => {
             if(!activeSession || activeSession.length === 0) return;
-
             const date = document.getElementById('workout-date').value;
             const validData = activeSession.map(ex => ({ 
                 exercise: ex.name, 
@@ -580,30 +568,19 @@
 
             if(validData.length === 0) return window.showToast("Completa al menos una serie", "error");
 
-            // Batch save simulado
             try {
                 const promises = validData.map(e => addDoc(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'history'), { ...e, timestamp: serverTimestamp() }));
                 await Promise.all(promises);
                 window.showToast("ENTRENAMIENTO GUARDADO"); 
                 window.cancelSession();
-            } catch(e) {
-                window.showToast("Error al guardar", "error");
-            }
+            } catch(e) { window.showToast("Error al guardar", "error"); }
         };
 
-        // --- CHART & UTILS ---
         window.updateProgressChart = () => {
             const exName = document.getElementById('chart-exercise-select').value;
             if (!exName || !allLogs.length) return;
-            
-            // Formula Epley para 1RM estimado: Weight * (1 + Reps/30)
             const filtered = allLogs.filter(l => l.exercise === exName).sort((a,b) => new Date(a.date) - new Date(b.date));
-            const labels = filtered.map(l => {
-                const d = new Date(l.date);
-                return `${d.getDate()}/${d.getMonth()+1}`;
-            });
-            
-            // Calculamos el mejor 1RM de cada sesión
+            const labels = filtered.map(l => { const d = new Date(l.date); return `${d.getDate()}/${d.getMonth()+1}`; });
             const data = filtered.map(l => {
                 const bestSet = l.sets.reduce((max, s) => {
                     const oneRM = s.weight * (1 + s.reps/30);
@@ -614,41 +591,17 @@
 
             if (myChart) myChart.destroy();
             const ctx = document.getElementById('progressChart').getContext('2d');
-            
             const gradient = ctx.createLinearGradient(0, 0, 0, 300);
             gradient.addColorStop(0, '#6366f1');
             gradient.addColorStop(1, 'rgba(99, 102, 241, 0)');
 
             myChart = new Chart(ctx, {
                 type: 'line',
-                data: {
-                    labels,
-                    datasets: [{
-                        label: '1RM Estimado (kg)',
-                        data,
-                        borderColor: '#818cf8',
-                        borderWidth: 3,
-                        pointBackgroundColor: '#fff',
-                        pointBorderColor: '#6366f1',
-                        pointRadius: 4,
-                        tension: 0.3,
-                        fill: true,
-                        backgroundColor: gradient
-                    }]
-                },
+                data: { labels, datasets: [{ label: '1RM Estimado (kg)', data, borderColor: '#818cf8', borderWidth: 3, pointBackgroundColor: '#fff', pointBorderColor: '#6366f1', pointRadius: 4, tension: 0.3, fill: true, backgroundColor: gradient }] },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
-                    scales: {
-                        x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10, family: 'Plus Jakarta Sans' } } },
-                        y: { border: { display: false }, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b', font: { size: 10 } } }
-                    },
-                    interaction: {
-                        mode: 'nearest',
-                        axis: 'x',
-                        intersect: false
-                    }
+                    responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
+                    scales: { x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10, family: 'Plus Jakarta Sans' } } }, y: { border: { display: false }, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b', font: { size: 10 } } } },
+                    interaction: { mode: 'nearest', axis: 'x', intersect: false }
                 }
             });
         };
@@ -657,55 +610,31 @@
             const select = document.getElementById('chart-exercise-select');
             const currentVal = select.value;
             const exs = [...new Set(allLogs.map(l => l.exercise))];
-            
-            // Preservar selección o seleccionar el más reciente
             select.innerHTML = exs.map(e => `<option value="${e}" ${e === currentVal ? 'selected' : ''}>${e}</option>`).join('');
-            
-            if(!currentVal && exs.length > 0) {
-                 select.value = exs[0];
-                 window.updateProgressChart();
-            }
+            if(!currentVal && exs.length > 0) { select.value = exs[0]; window.updateProgressChart(); }
         };
 
         window.switchTab = (t) => {
             ['dashboard', 'train', 'routines'].forEach(s => {
                 const el = document.getElementById(`section-${s}`);
-                if(s === t) {
-                    el.classList.remove('hidden');
-                    // Reiniciar animación
-                    el.classList.remove('animate-up');
-                    void el.offsetWidth; 
-                    el.classList.add('animate-up');
-                } else {
-                    el.classList.add('hidden');
-                }
-                
+                if(s === t) { el.classList.remove('hidden'); el.classList.remove('animate-up'); void el.offsetWidth; el.classList.add('animate-up'); } 
+                else { el.classList.add('hidden'); }
                 const btn = document.getElementById(`tab-${s}`);
-                btn.classList.toggle('active', s === t);
-                btn.classList.toggle('text-slate-500', s !== t);
+                btn.classList.toggle('active', s === t); btn.classList.toggle('text-slate-500', s !== t);
             });
         };
 
-        // --- GENERAL UI HELPERS ---
-        window.cancelSession = () => { 
-            if(confirm("¿Cancelar sesión actual? Se perderá el progreso no guardado.")) {
-                activeSession = null; 
-                document.getElementById('routine-selector').classList.remove('hidden'); 
-                document.getElementById('active-session-ui').classList.add('hidden'); 
-            }
-        };
+        window.cancelSession = () => { if(confirm("¿Cancelar sesión?")) { activeSession = null; document.getElementById('routine-selector').classList.remove('hidden'); document.getElementById('active-session-ui').classList.add('hidden'); } };
         window.deleteHistory = async (id) => { if(confirm("¿Eliminar registro?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', user.uid, 'history', id)); };
         window.deleteRoutineBlock = async (id) => { if(confirm("¿Borrar rutina guardada?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', user.uid, 'blocks', id)); };
-        window.deleteCustomEx = async (id) => { if(confirm("¿Borrar ejercicio personalizado?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', user.uid, 'custom_ex', id)); };
+        window.deleteCustomEx = async (id) => { if(confirm("¿Borrar ejercicio?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', user.uid, 'custom_ex', id)); };
         
         window.toggleCustomInput = () => document.getElementById('custom-ex-input').classList.toggle('hidden');
         window.addCustomExercise = async () => {
             const name = document.getElementById('new-ex-name').value.trim();
             if(name) {
                 await addDoc(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'custom_ex'), { name });
-                document.getElementById('new-ex-name').value = ""; 
-                window.toggleCustomInput();
-                // Forzar re-render del picker
+                document.getElementById('new-ex-name').value = ""; window.toggleCustomInput();
                 setTimeout(() => renderPickerList(document.getElementById('picker-search').value), 100);
             }
         };
