@@ -2,6 +2,7 @@
 <html lang="es" class="dark">
 <head>
     <meta charset="UTF-8">
+    <!-- Viewport ajustado para iPhone: fit=cover y no-scalable -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>GymOS Elite 2026</title>
     
@@ -14,7 +15,8 @@
     
     <style>
         :root { --brand: #6366f1; --bg: #020617; }
-        * { -webkit-tap-highlight-color: transparent; scrollbar-width: none; }
+        /* Prevención de scroll horizontal y mejoras táctiles */
+        * { -webkit-tap-highlight-color: transparent; scrollbar-width: none; touch-action: manipulation; }
         *::-webkit-scrollbar { display: none; }
 
         body { 
@@ -22,32 +24,44 @@
             background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #020617 100%);
             font-family: 'Plus Jakarta Sans', sans-serif; 
             color: #f8fafc; 
-            overflow-x: hidden;
+            overflow-x: hidden; /* CRUCIAL PARA IPHONE */
+            width: 100vw;
+            overscroll-behavior-y: none; /* Evita el rebote elástico en iOS */
         }
 
-        .glass { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .glass { 
+            background: rgba(15, 23, 42, 0.85); 
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px); /* Soporte Safari */
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+        }
+        
         .premium-card { background: linear-gradient(145deg, rgba(30, 41, 59, 0.4), rgba(15, 23, 42, 0.7)); border: 1px solid rgba(255, 255, 255, 0.05); }
 
         .nav-tab.active { color: #818cf8; }
         .nav-tab.active svg { transform: translateY(-2px); transition: transform 0.2s; }
 
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
         .animate-up { animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
         
+        /* Ocultar flechas de input number */
         input[type="number"]::-webkit-inner-spin-button { display: none; }
-        input:focus { border-color: var(--brand) !important; }
+        /* Evitar borde azul por defecto */
+        input:focus { border-color: var(--brand) !important; outline: none; }
+        
+        /* Soporte para el "Notch" y la barra inferior del iPhone */
+        .safe-pb { padding-bottom: calc(90px + env(safe-area-inset-bottom)); }
+        .safe-pt { padding-top: env(safe-area-inset-top); }
         
         /* Modal transitions */
         .modal-enter { transform: translateY(100%); }
         .modal-enter-active { transform: translateY(0); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
     </style>
 </head>
-<body class="pb-32 selection:bg-indigo-500 selection:text-white">
+<body class="safe-pb selection:bg-indigo-500 selection:text-white">
 
     <!-- LOGIN -->
-    <div id="login-overlay" class="fixed inset-0 z-[2000] bg-slate-950 flex items-center justify-center px-8">
+    <div id="login-overlay" class="fixed inset-0 z-[2000] bg-slate-950 flex items-center justify-center px-6">
         <div class="w-full max-w-sm text-center animate-up">
             <div class="w-20 h-20 bg-indigo-600 rounded-[2rem] flex items-center justify-center shadow-2xl shadow-indigo-500/20 mx-auto mb-8 rotate-3">
                 <svg viewBox="0 0 24 24" class="w-12 h-12 text-white fill-current"><path d="M20.57 14.86L22 13.43L20.57 12L17 15.57L8.43 7L12 3.43L10.57 2L9.14 3.43L7.71 2L5.57 4.14L4.14 2.71L2.71 4.14L4.14 5.57L2 7.71L3.43 9.14L2 10.57L3.43 12L7 8.43L15.57 17L12 20.57L13.43 22L14.86 20.57L16.29 22L18.43 19.86L19.86 21.29L21.29 19.86L19.86 18.43L22 16.29L20.57 14.86Z"/></svg>
@@ -55,8 +69,8 @@
             <h1 class="text-4xl font-black tracking-tighter italic mb-2">GYMOS <span class="text-indigo-500">PRO</span></h1>
             <p class="text-slate-400 text-xs font-bold mb-8 uppercase tracking-widest">Training System 2026</p>
             <div class="space-y-4">
-                <input type="email" id="login-email" placeholder="Email" class="w-full bg-slate-900 border border-white/5 px-6 py-4 rounded-2xl outline-none text-white focus:border-indigo-500 transition-colors">
-                <input type="password" id="login-pass" placeholder="Password" class="w-full bg-slate-900 border border-white/5 px-6 py-4 rounded-2xl outline-none text-white focus:border-indigo-500 transition-colors">
+                <input type="email" id="login-email" placeholder="Email" class="w-full bg-slate-900 border border-white/5 px-6 py-4 rounded-2xl outline-none text-white focus:border-indigo-500 transition-colors text-base">
+                <input type="password" id="login-pass" placeholder="Password" class="w-full bg-slate-900 border border-white/5 px-6 py-4 rounded-2xl outline-none text-white focus:border-indigo-500 transition-colors text-base">
                 <div class="grid grid-cols-2 gap-4 pt-4">
                     <button onclick="window.ejecutarLogin('signin')" class="py-4 bg-indigo-600 hover:bg-indigo-500 transition-colors text-white font-bold rounded-2xl shadow-lg shadow-indigo-600/20">ENTRAR</button>
                     <button onclick="window.ejecutarLogin('signup')" class="py-4 bg-slate-800 hover:bg-slate-700 transition-colors text-white font-bold rounded-2xl">REGISTRAR</button>
@@ -66,47 +80,49 @@
     </div>
 
     <!-- HEADER -->
-    <header class="p-6 flex justify-between items-center sticky top-0 z-50 bg-[#020617]/80 backdrop-blur-md">
-        <h2 class="text-2xl font-black tracking-tighter italic">GymOS <span class="text-indigo-500">Elite</span></h2>
-        <button onclick="window.cerrarSesion()" class="text-[10px] font-bold bg-slate-800/50 px-4 py-2 rounded-full border border-white/10 hover:bg-slate-700 transition-colors">SALIR</button>
+    <header class="px-5 py-5 flex justify-between items-center sticky top-0 z-50 bg-[#020617]/90 backdrop-blur-md border-b border-white/5 safe-pt">
+        <h2 class="text-xl font-black tracking-tighter italic">GymOS <span class="text-indigo-500">Elite</span></h2>
+        <button onclick="window.cerrarSesion()" class="text-[10px] font-bold bg-slate-800/50 px-3 py-1.5 rounded-full border border-white/10 hover:bg-slate-700 transition-colors">SALIR</button>
     </header>
 
-    <main class="px-6 max-w-2xl mx-auto min-h-screen">
+    <!-- MAIN CONTAINER - Padding reducido para móviles -->
+    <main class="px-4 w-full max-w-lg mx-auto min-h-screen pt-4">
         
         <!-- DASHBOARD -->
         <section id="section-dashboard" class="space-y-6 animate-up">
-            <div class="glass p-6 rounded-[2.5rem]">
+            <div class="glass p-5 rounded-[2rem]">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-[10px] font-black uppercase tracking-widest text-indigo-400">Progreso (1RM est.)</h3>
-                    <select id="chart-exercise-select" onchange="window.updateProgressChart()" class="bg-slate-900 text-[10px] font-bold p-2 px-3 rounded-lg outline-none border border-white/5 focus:border-indigo-500"></select>
+                    <!-- Select con truncado para evitar desbordamiento -->
+                    <select id="chart-exercise-select" onchange="window.updateProgressChart()" class="bg-slate-900 text-[10px] font-bold p-2 px-3 rounded-lg outline-none border border-white/5 focus:border-indigo-500 max-w-[140px] truncate"></select>
                 </div>
-                <div class="h-[220px] w-full relative">
+                <div class="h-[200px] w-full relative">
                     <canvas id="progressChart"></canvas>
                 </div>
             </div>
 
             <div class="grid grid-cols-2 gap-3">
-                <div class="premium-card p-5 rounded-[2rem] flex flex-col items-center justify-center text-center">
+                <div class="premium-card p-4 rounded-[1.5rem] flex flex-col items-center justify-center text-center">
                     <p class="text-[9px] font-bold text-slate-500 uppercase mb-2">Volumen Histórico</p>
-                    <h3 id="stat-volume" class="text-xl sm:text-2xl font-black tracking-tight">0 kg</h3>
+                    <h3 id="stat-volume" class="text-xl font-black tracking-tight">0 kg</h3>
                 </div>
-                <div class="premium-card p-5 rounded-[2rem] flex flex-col items-center justify-center text-center">
+                <div class="premium-card p-4 rounded-[1.5rem] flex flex-col items-center justify-center text-center">
                     <p class="text-[9px] font-bold text-slate-500 uppercase mb-2">Días Entrenados</p>
-                    <h3 id="streak-count" class="text-xl sm:text-2xl font-black tracking-tight">🔥 0</h3>
+                    <h3 id="streak-count" class="text-xl font-black tracking-tight">🔥 0</h3>
                 </div>
             </div>
 
-            <div class="space-y-4 pb-20">
-                <h3 class="text-sm font-black text-slate-400 px-2 uppercase tracking-widest">Últimos registros</h3>
+            <div class="space-y-4 pb-10">
+                <h3 class="text-xs font-black text-slate-400 px-2 uppercase tracking-widest">Últimos registros</h3>
                 <div id="workout-history" class="grid gap-3"></div>
             </div>
         </section>
 
         <!-- ENTRENAR -->
-        <section id="section-train" class="hidden space-y-6 animate-up">
+        <section id="section-train" class="hidden space-y-6 animate-up w-full overflow-hidden">
             <!-- Selector de Rutinas -->
             <div id="routine-selector" class="space-y-4">
-                <button onclick="window.openUniversalPicker('session')" class="w-full py-8 border-2 border-dashed border-indigo-500/30 bg-indigo-500/5 rounded-[2rem] text-indigo-300 font-bold hover:bg-indigo-500/10 transition-all flex flex-col items-center gap-2 group">
+                <button onclick="window.openUniversalPicker('session')" class="w-full py-8 border-2 border-dashed border-indigo-500/30 bg-indigo-500/5 rounded-[2rem] text-indigo-300 font-bold hover:bg-indigo-500/10 transition-all flex flex-col items-center gap-2 group active:scale-[0.98]">
                     <span class="text-3xl group-hover:scale-110 transition-transform">+</span>
                     <span>CREAR SESIÓN LIBRE</span>
                 </button>
@@ -115,111 +131,114 @@
                      <span class="text-[10px] font-bold text-slate-600 uppercase">O mis rutinas</span>
                      <div class="h-px bg-slate-800 flex-1"></div>
                 </div>
-                <div id="train-routines-list" class="grid gap-4 pb-20"></div>
+                <div id="train-routines-list" class="grid gap-3 pb-20"></div>
             </div>
 
-            <!-- Sesión Activa -->
-            <div id="active-session-ui" class="hidden space-y-6 pb-24">
-                <div class="glass p-6 rounded-[2.5rem] flex flex-col gap-4 sticky top-20 z-[40] shadow-2xl shadow-black/50">
+            <!-- Sesión Activa UI (Optimizada para evitar scroll horizontal) -->
+            <div id="active-session-ui" class="hidden space-y-5 pb-10 w-full">
+                <!-- Header Sticky Compacto -->
+                <div class="glass p-4 rounded-3xl flex flex-col gap-3 sticky top-[4.5rem] z-[40] shadow-2xl shadow-black/80 ring-1 ring-white/5">
                     <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-[9px] text-slate-500 font-bold uppercase mb-1">Entrenando ahora</p>
-                            <h2 id="active-routine-name" class="font-black text-xl text-white uppercase italic leading-none">--</h2>
+                        <div class="overflow-hidden pr-2">
+                            <p class="text-[8px] text-slate-500 font-bold uppercase mb-0.5">Entrenando ahora</p>
+                            <h2 id="active-routine-name" class="font-black text-lg text-white uppercase italic leading-none truncate">--</h2>
                         </div>
-                        <button onclick="window.cancelSession()" class="text-rose-500 bg-rose-500/10 p-2 px-3 rounded-xl text-xs font-bold hover:bg-rose-500/20">Cancelar</button>
+                        <button onclick="window.cancelSession()" class="flex-shrink-0 text-rose-500 bg-rose-500/10 p-2 px-3 rounded-lg text-[10px] font-bold">Cancelar</button>
                     </div>
-                    <div class="flex items-center gap-3">
-                        <input type="date" id="workout-date" class="bg-slate-900 border border-white/5 rounded-xl px-3 py-2 text-slate-300 font-bold outline-none text-xs flex-1">
-                        <button onclick="window.openUniversalPicker('add_to_active')" class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/20">+ Ejercicio</button>
+                    <div class="flex items-center gap-2">
+                        <!-- Input Date con flex-1 y min-w-0 para que se encoja si es necesario -->
+                        <input type="date" id="workout-date" class="bg-slate-900 border border-white/5 rounded-lg px-2 py-2 text-slate-300 font-bold outline-none text-xs flex-1 min-w-0">
+                        <button onclick="window.openUniversalPicker('add_to_active')" class="flex-shrink-0 bg-indigo-600 text-white px-3 py-2 rounded-lg text-xs font-bold shadow-lg shadow-indigo-600/20">+ Ejercicio</button>
                     </div>
                 </div>
 
-                <div id="active-session-container" class="space-y-4"></div>
+                <div id="active-session-container" class="space-y-3 w-full"></div>
                 
-                <button onclick="window.saveFullSession()" class="w-full py-6 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-[2.5rem] shadow-xl shadow-emerald-600/20 uppercase tracking-widest transition-all transform active:scale-95">
-                    Finalizar Entrenamiento
+                <button onclick="window.saveFullSession()" class="w-full py-5 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-3xl shadow-xl shadow-emerald-600/20 uppercase tracking-widest text-sm transition-all transform active:scale-95 mb-10">
+                    FINALIZAR ENTRENAMIENTO
                 </button>
             </div>
         </section>
 
         <!-- RUTINAS (PLANIFICADOR) -->
-        <section id="section-routines" class="hidden space-y-6 animate-up pb-24">
-            <div class="glass p-8 rounded-[2.5rem] text-center space-y-4">
-                <div class="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center mx-auto text-indigo-400">
-                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+        <section id="section-routines" class="hidden space-y-6 animate-up pb-10">
+            <div class="glass p-6 rounded-[2rem] text-center space-y-4">
+                <div class="w-14 h-14 bg-slate-800 rounded-2xl flex items-center justify-center mx-auto text-indigo-400">
+                    <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
                 </div>
-                <h3 class="text-xl font-black italic text-white">PLANIFICADOR</h3>
-                <p class="text-xs text-slate-400 font-medium leading-relaxed">Crea plantillas de rutinas para usarlas rápidamente en tus entrenamientos.</p>
-                <button onclick="window.openUniversalPicker('planner')" class="w-full py-4 bg-indigo-600 text-white font-bold rounded-2xl shadow-lg shadow-indigo-600/20 uppercase text-xs tracking-widest">Crear Nueva Rutina</button>
+                <div>
+                    <h3 class="text-lg font-black italic text-white">PLANIFICADOR</h3>
+                    <p class="text-[11px] text-slate-400 font-medium leading-relaxed mt-1">Crea plantillas para usarlas luego.</p>
+                </div>
+                <button onclick="window.openUniversalPicker('planner')" class="w-full py-3.5 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/20 uppercase text-[10px] tracking-widest">Crear Nueva Rutina</button>
             </div>
             
-            <div id="saved-routines-list-view" class="space-y-4">
-                <h3 class="text-sm font-black text-slate-400 px-2 uppercase tracking-widest">Mis Rutinas Guardadas</h3>
-                <div id="planner-saved-list" class="grid gap-3"></div>
+            <div class="space-y-3">
+                <h3 class="text-xs font-black text-slate-400 px-2 uppercase tracking-widest">Mis Rutinas</h3>
+                <div id="planner-saved-list" class="grid gap-2"></div>
             </div>
         </section>
     </main>
 
     <!-- UNIVERSAL EXERCISE PICKER MODAL (Full Screen Overlay) -->
     <div id="universal-picker" class="fixed inset-0 z-[3000] bg-slate-950 flex flex-col hidden modal-enter-active">
-        <div class="p-6 flex items-center justify-between bg-slate-900/50 backdrop-blur-md border-b border-white/5">
-            <h3 class="text-lg font-black italic text-white">SELECCIONAR</h3>
-            <button onclick="window.closeUniversalPicker()" class="text-slate-400 hover:text-white font-bold text-sm">CERRAR</button>
+        <!-- Header con Padding Safe Area Top -->
+        <div class="p-4 pt-4 mt-8 flex items-center justify-between bg-slate-900/90 backdrop-blur-xl border-b border-white/5 sticky top-0 z-20">
+            <h3 class="text-base font-black italic text-white">SELECCIONAR</h3>
+            <button onclick="window.closeUniversalPicker()" class="text-slate-400 bg-slate-800/50 px-3 py-1 rounded-full text-xs font-bold">CERRAR</button>
         </div>
         
-        <div class="p-4 space-y-4 border-b border-white/5">
+        <!-- Search & Custom -->
+        <div class="p-4 space-y-3 border-b border-white/5 bg-slate-950">
             <div class="flex gap-2">
-                <input type="text" id="picker-search" placeholder="Buscar ejercicio..." class="w-full bg-slate-900 p-4 rounded-2xl text-sm outline-none border border-white/5 focus:border-indigo-500 text-white">
-                <button onclick="window.toggleCustomInput()" class="bg-slate-800 w-14 rounded-2xl font-black text-indigo-400 text-xl flex items-center justify-center shadow-lg shadow-black/20">+</button>
+                <!-- Text base para evitar zoom en iOS -->
+                <input type="text" id="picker-search" placeholder="Buscar ejercicio..." class="w-full bg-slate-900 p-3 rounded-xl text-base outline-none border border-white/5 focus:border-indigo-500 text-white appearance-none">
+                <button onclick="window.toggleCustomInput()" class="bg-slate-800 w-12 rounded-xl font-black text-indigo-400 text-lg flex items-center justify-center shadow-lg shadow-black/20 flex-shrink-0">+</button>
             </div>
             
-            <!-- Crear nuevo ejercicio -->
-            <div id="custom-ex-input" class="hidden p-4 bg-indigo-900/20 rounded-2xl border border-indigo-500/30 space-y-3">
-                <h4 class="text-[10px] font-black uppercase text-indigo-400">Nuevo Ejercicio Personalizado</h4>
-                <input type="text" id="new-ex-name" placeholder="Nombre Ej. Press Militar" class="w-full bg-slate-950/50 p-3 rounded-xl text-sm outline-none text-white border border-white/5">
-                <button onclick="window.addCustomExercise()" class="w-full bg-indigo-600 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-indigo-600/20">Guardar</button>
+            <div id="custom-ex-input" class="hidden p-3 bg-indigo-900/10 rounded-xl border border-indigo-500/20 space-y-2">
+                <input type="text" id="new-ex-name" placeholder="Nombre Ej. Press Militar" class="w-full bg-slate-950 p-3 rounded-lg text-base outline-none text-white border border-white/5">
+                <button onclick="window.addCustomExercise()" class="w-full bg-indigo-600 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-indigo-600/20">Guardar</button>
             </div>
         </div>
 
-        <!-- Lista de Selección -->
+        <!-- List -->
         <div class="flex-1 overflow-y-auto p-4 space-y-2" id="picker-list"></div>
 
-        <!-- Barra inferior de acción -->
-        <div id="picker-action-bar" class="p-6 pb-10 bg-slate-900 border-t border-white/5 hidden">
+        <!-- Action Bar (Safe Area Bottom incluido) -->
+        <div id="picker-action-bar" class="p-4 pb-[calc(20px+env(safe-area-inset-bottom))] bg-slate-900 border-t border-white/5 hidden">
             <div class="flex justify-between items-center mb-3">
-                <span class="text-xs font-bold text-slate-400">SELECCIONADOS: <span id="picker-count" class="text-white">0</span></span>
+                <span class="text-[10px] font-bold text-slate-400">SELECCIONADOS: <span id="picker-count" class="text-white">0</span></span>
                 <button onclick="window.clearPickerSelection()" class="text-[10px] font-bold text-rose-500 uppercase">Limpiar</button>
             </div>
-            <button id="picker-confirm-btn" class="w-full py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-lg shadow-indigo-600/20 uppercase tracking-widest">CONFIRMAR</button>
+            <button id="picker-confirm-btn" class="w-full py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-lg shadow-indigo-600/20 uppercase tracking-widest text-xs">CONFIRMAR</button>
         </div>
         
-        <!-- UI Específica para guardar rutina (Planner Mode) -->
-        <div id="picker-planner-bar" class="p-6 pb-10 bg-slate-900 border-t border-white/5 hidden space-y-3">
-            <div id="planner-preview" class="flex flex-wrap gap-2 mb-2 max-h-20 overflow-y-auto"></div>
-            <input type="text" id="routine-name-input" placeholder="Nombre de la rutina..." class="w-full bg-slate-950 p-4 rounded-2xl outline-none font-bold border border-white/5 text-white">
-            <button onclick="window.saveRoutineBlock()" class="w-full py-4 bg-emerald-600 text-white font-black rounded-2xl shadow-lg shadow-emerald-600/20 uppercase tracking-widest">GUARDAR RUTINA</button>
+        <!-- Planner Bar -->
+        <div id="picker-planner-bar" class="p-4 pb-[calc(20px+env(safe-area-inset-bottom))] bg-slate-900 border-t border-white/5 hidden space-y-3">
+            <div id="planner-preview" class="flex flex-wrap gap-2 mb-1 max-h-16 overflow-y-auto"></div>
+            <input type="text" id="routine-name-input" placeholder="Nombre de la rutina..." class="w-full bg-slate-950 p-3 rounded-xl outline-none font-bold border border-white/5 text-white text-base">
+            <button onclick="window.saveRoutineBlock()" class="w-full py-3 bg-emerald-600 text-white font-black rounded-xl shadow-lg shadow-emerald-600/20 uppercase tracking-widest text-xs">GUARDAR RUTINA</button>
         </div>
     </div>
 
     <!-- BOTTOM NAV -->
-    <nav class="fixed bottom-6 left-6 right-6 h-20 glass rounded-[2.5rem] z-[1000] flex justify-around items-center px-4 shadow-2xl shadow-black/50">
-        <button onclick="window.switchTab('dashboard')" id="tab-dashboard" class="nav-tab active flex flex-col items-center gap-1 group">
+    <nav class="fixed bottom-6 left-4 right-4 h-[70px] glass rounded-[2rem] z-[1000] flex justify-around items-center px-2 shadow-2xl shadow-black/50">
+        <button onclick="window.switchTab('dashboard')" id="tab-dashboard" class="nav-tab active flex flex-col items-center gap-1 w-16 group">
             <svg class="w-6 h-6 group-hover:text-indigo-400 transition-colors" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-            <span class="text-[8px] font-bold uppercase tracking-wide">Panel</span>
+            <span class="text-[9px] font-bold uppercase tracking-wide mt-0.5">Panel</span>
         </button>
-        <button onclick="window.switchTab('train')" id="tab-train" class="nav-tab flex flex-col items-center gap-1 text-slate-500 group">
-            <div class="relative">
-                <svg class="w-6 h-6 group-hover:text-indigo-400 transition-colors" fill="currentColor" viewBox="0 0 24 24"><path d="M20.57 14.86L22 13.43L20.57 12L17 15.57L8.43 7L12 3.43L10.57 2L9.14 3.43L7.71 2L5.57 4.14L4.14 2.71L2.71 4.14L4.14 5.57L2 7.71L3.43 9.14L2 10.57L3.43 12L7 8.43L15.57 17L12 20.57L13.43 22L14.86 20.57L16.29 22L18.43 19.86L19.86 21.29L21.29 19.86L19.86 18.43L22 16.29L20.57 14.86Z"/></svg>
-            </div>
-            <span class="text-[8px] font-bold uppercase tracking-wide">Entrenar</span>
+        <button onclick="window.switchTab('train')" id="tab-train" class="nav-tab flex flex-col items-center gap-1 text-slate-500 w-16 group">
+            <svg class="w-6 h-6 group-hover:text-indigo-400 transition-colors" fill="currentColor" viewBox="0 0 24 24"><path d="M20.57 14.86L22 13.43L20.57 12L17 15.57L8.43 7L12 3.43L10.57 2L9.14 3.43L7.71 2L5.57 4.14L4.14 2.71L2.71 4.14L4.14 5.57L2 7.71L3.43 9.14L2 10.57L3.43 12L7 8.43L15.57 17L12 20.57L13.43 22L14.86 20.57L16.29 22L18.43 19.86L19.86 21.29L21.29 19.86L19.86 18.43L22 16.29L20.57 14.86Z"/></svg>
+            <span class="text-[9px] font-bold uppercase tracking-wide mt-0.5">Entrenar</span>
         </button>
-        <button onclick="window.switchTab('routines')" id="tab-routines" class="nav-tab flex flex-col items-center gap-1 text-slate-500 group">
+        <button onclick="window.switchTab('routines')" id="tab-routines" class="nav-tab flex flex-col items-center gap-1 text-slate-500 w-16 group">
             <svg class="w-6 h-6 group-hover:text-indigo-400 transition-colors" fill="currentColor" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-            <span class="text-[8px] font-bold uppercase tracking-wide">Rutinas</span>
+            <span class="text-[9px] font-bold uppercase tracking-wide mt-0.5">Rutinas</span>
         </button>
     </nav>
 
-    <div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 glass px-8 py-4 rounded-2xl opacity-0 transition-all duration-500 z-[9999] font-black text-[10px] uppercase text-white pointer-events-none shadow-2xl flex items-center gap-3">
+    <div id="toast" class="fixed top-4 left-1/2 -translate-x-1/2 glass px-6 py-3 rounded-full opacity-0 transition-all duration-300 z-[9999] font-black text-[10px] uppercase text-white pointer-events-none shadow-2xl flex items-center gap-2 whitespace-nowrap">
         <span class="w-2 h-2 rounded-full bg-emerald-500 block"></span>
         <span id="toast-msg">MENSAJE</span>
     </div>
@@ -243,12 +262,13 @@
         const db = getFirestore(fb);
         const DB_KEY = 'gym-pro-v2026-master';
 
+        // Estructura de Biblioteca
         const GLOBAL_LIBRARY = {
-            "Pectoral": ["Press Banca", "Press Inclinado", "Aperturas", "Fondos en Paralelas", "Cruce de Poleas"],
-            "Espalda": ["Dominadas", "Jalón al Pecho", "Remo con Barra", "Remo Gironda", "Pull Over"],
-            "Pierna": ["Sentadilla Libre", "Prensa 45", "Peso Muerto", "Extensiones Cuádriceps", "Curl Femoral", "Zancadas"],
-            "Hombro": ["Press Militar", "Elevaciones Laterales", "Pájaros", "Face Pull"],
-            "Brazos": ["Curl con Barra", "Curl Martillo", "Press Francés", "Extensiones Tríceps Polea"]
+            "Pectoral": ["Press Banca", "Press Inclinado", "Aperturas", "Fondos", "Cruce Poleas"],
+            "Espalda": ["Dominadas", "Jalón Pecho", "Remo Barra", "Remo Gironda", "Pull Over"],
+            "Pierna": ["Sentadilla", "Prensa 45", "Peso Muerto", "Ext. Cuádriceps", "Curl Femoral", "Zancadas"],
+            "Hombro": ["Press Militar", "Elev. Laterales", "Pájaros", "Face Pull"],
+            "Brazos": ["Curl Barra", "Curl Martillo", "Press Francés", "Ext. Tríceps"]
         };
 
         let user = null;
@@ -258,240 +278,243 @@
         let allLogs = [];
         let myChart = null;
 
+        // Estado del Picker
         let pickerContext = null; 
-        let pickerSelection = new Set(); 
-
+        let pickerSelection = new Set();
+        
         const escapeHTML = (s) => String(s || "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
 
+        // --- AUTH ---
         window.ejecutarLogin = async (mode) => {
-            const e = document.getElementById('login-email').value, p = document.getElementById('login-pass').value;
+            const e = document.getElementById('login-email').value;
+            const p = document.getElementById('login-pass').value;
+            
             if(!e || !p) return window.showToast("Faltan datos", "error");
-            try {
-                if (mode === 'signin') await signInWithEmailAndPassword(auth, e, p);
-                else await createUserWithEmailAndPassword(auth, e, p);
-            } catch (err) { window.showToast(err.message, "error"); }
+            
+            try { 
+                if (mode === 'signin') {
+                    await signInWithEmailAndPassword(auth, e, p);
+                } else {
+                    await createUserWithEmailAndPassword(auth, e, p);
+                }
+            } catch (err) { 
+                window.showToast(err.message, "error"); 
+            }
         };
 
-        window.cerrarSesion = () => signOut(auth).then(() => window.location.reload());
-        
+        window.cerrarSesion = () => {
+            signOut(auth).then(() => window.location.reload());
+        };
+
         onAuthStateChanged(auth, u => { 
             user = u; 
             document.getElementById('login-overlay').classList.toggle('hidden', !!u); 
-            if (u) {
-                initSync();
-                window.showToast("Bienvenido de nuevo");
-            }
+            if (u) { 
+                initSync(); 
+                window.showToast("Conectado"); 
+            } 
         });
 
+        // --- SYNC ---
         const initSync = () => {
-            onSnapshot(query(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'history'), orderBy('timestamp', 'desc')), snap => {
-                allLogs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                renderDashboard();
-                updateExerciseSelect();
+            // Historial
+            onSnapshot(query(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'history'), orderBy('timestamp', 'desc')), snap => { 
+                allLogs = snap.docs.map(d => ({ id: d.id, ...d.data() })); 
+                renderDashboard(); 
+                updateExerciseSelect(); 
             });
-            onSnapshot(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'custom_ex'), snap => {
-                customExercises = snap.docs.map(d => ({ id: d.id, name: d.data().name }));
-                if(!document.getElementById('universal-picker').classList.contains('hidden')) renderPickerList();
+            // Custom Ex
+            onSnapshot(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'custom_ex'), snap => { 
+                customExercises = snap.docs.map(d => ({ id: d.id, name: d.data().name })); 
+                if(!document.getElementById('universal-picker').classList.contains('hidden')) {
+                    renderPickerList();
+                }
             });
-            onSnapshot(query(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'blocks'), orderBy('createdAt', 'desc')), snap => {
-                savedBlocks = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            // Rutinas
+            onSnapshot(query(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'blocks'), orderBy('createdAt', 'desc')), snap => { 
+                savedBlocks = snap.docs.map(d => ({ id: d.id, ...d.data() })); 
                 renderTrainSelector(); 
                 renderPlannerSavedList(); 
             });
         };
 
+        // --- DASHBOARD ---
         const renderDashboard = () => {
-            let v = 0; const days = new Set();
+            let v = 0; 
+            const days = new Set(); 
             allLogs.forEach(l => { 
                 days.add(l.date); 
                 l.sets?.forEach(set => { v += (set.weight * set.reps); }); 
             });
-            document.getElementById('stat-volume').textContent = (v / 1000).toFixed(1) + " Ton";
+            
+            document.getElementById('stat-volume').textContent = (v / 1000).toFixed(1) + "t";
             document.getElementById('streak-count').textContent = `🔥 ${days.size}`;
-
+            
             document.getElementById('workout-history').innerHTML = allLogs.slice(0, 5).map(l => `
-                <div class="premium-card p-4 rounded-2xl flex justify-between items-center group animate-up hover:bg-white/5 transition-colors">
-                    <div>
-                        <p class="text-xs font-black text-indigo-400 uppercase tracking-wider">${escapeHTML(l.exercise)}</p>
-                        <p class="text-[9px] text-slate-500 font-bold">${l.date} • <span class="text-slate-300">${l.sets.length} series</span></p>
+                <div class="premium-card p-3 rounded-xl flex justify-between items-center group">
+                    <div class="truncate pr-2 w-full">
+                        <p class="text-[10px] font-black text-indigo-400 uppercase truncate">${escapeHTML(l.exercise)}</p>
+                        <p class="text-[9px] text-slate-500 font-bold">${l.date} • <span class="text-slate-300">${l.sets.length} sets</span></p>
                     </div>
-                    <button onclick="window.deleteHistory('${l.id}')" class="text-rose-500/30 hover:text-rose-500 p-2 transition-colors">✕</button>
+                    <button onclick="window.deleteHistory('${l.id}')" class="flex-shrink-0 text-rose-500/30 hover:text-rose-500 p-2">✕</button>
                 </div>`).join('');
+                
             if(allLogs.length > 0) window.updateProgressChart();
         };
 
-        // --- PICKER LOGIC FIXED ---
+        // --- NAVIGATION ---
+        window.switchTab = (t) => { 
+            ['dashboard', 'train', 'routines'].forEach(s => { 
+                const el = document.getElementById(`section-${s}`); 
+                if(s === t) { 
+                    el.classList.remove('hidden'); 
+                    el.classList.remove('animate-up'); 
+                    void el.offsetWidth; 
+                    el.classList.add('animate-up'); 
+                } else { 
+                    el.classList.add('hidden'); 
+                } 
+                
+                const btn = document.getElementById(`tab-${s}`); 
+                btn.classList.toggle('active', s === t); 
+                btn.classList.toggle('text-slate-500', s !== t); 
+            }); 
+        };
+
+        // --- PICKER SYSTEM ---
         window.openUniversalPicker = (context) => {
-            pickerContext = context;
-            pickerSelection.clear(); 
+            pickerContext = context; 
+            pickerSelection.clear();
             
-            const picker = document.getElementById('universal-picker');
-            const actionBar = document.getElementById('picker-action-bar');
-            const plannerBar = document.getElementById('picker-planner-bar');
-            
-            picker.classList.remove('hidden');
+            const picker = document.getElementById('universal-picker'); 
+            picker.classList.remove('hidden'); 
             document.body.style.overflow = 'hidden';
-
-            if(context === 'planner') {
-                actionBar.classList.add('hidden');
-                plannerBar.classList.remove('hidden');
-                document.getElementById('routine-name-input').value = "";
-            } else {
-                actionBar.classList.remove('hidden');
-                plannerBar.classList.add('hidden');
-                const btn = document.getElementById('picker-confirm-btn');
-                btn.textContent = context === 'add_to_active' ? "AÑADIR A SESIÓN" : "COMENZAR SESIÓN";
-                btn.onclick = context === 'add_to_active' ? window.confirmAddToActive : window.startFreeSessionFromPicker;
+            
+            const action = document.getElementById('picker-action-bar');
+            const planner = document.getElementById('picker-planner-bar');
+            
+            if(context === 'planner') { 
+                action.classList.add('hidden'); 
+                planner.classList.remove('hidden'); 
+                document.getElementById('routine-name-input').value = ""; 
+            } else { 
+                action.classList.remove('hidden'); 
+                planner.classList.add('hidden'); 
+                const btn = document.getElementById('picker-confirm-btn'); 
+                btn.textContent = context === 'add_to_active' ? "AÑADIR" : "COMENZAR"; 
+                btn.onclick = context === 'add_to_active' ? window.confirmAddToActive : window.startFreeSessionFromPicker; 
             }
-
-            renderPickerList();
+            
+            renderPickerList(); 
             updatePickerUI();
         };
 
-        window.closeUniversalPicker = () => {
-            document.getElementById('universal-picker').classList.add('hidden');
-            document.body.style.overflow = '';
-            document.getElementById('custom-ex-input').classList.add('hidden');
+        window.closeUniversalPicker = () => { 
+            document.getElementById('universal-picker').classList.add('hidden'); 
+            document.body.style.overflow = ''; 
+            document.getElementById('custom-ex-input').classList.add('hidden'); 
         };
-
-        // FIXED: Using appendChild instead of innerHTML += to preserve Event Listeners
+        
         const renderPickerList = (filter = "") => {
-            const list = document.getElementById('picker-list');
-            list.innerHTML = ""; // Clear existing
+            const list = document.getElementById('picker-list'); 
+            list.innerHTML = ""; 
             const f = filter.toLowerCase();
-
-            // Helper to create header
-            const createHeader = (text) => {
-                const h = document.createElement('h4');
-                h.className = "text-[10px] font-black text-slate-500 uppercase tracking-widest mt-4 mb-2 sticky top-0 bg-[#060b1e] py-2 z-10";
-                h.textContent = text;
-                return h;
+            
+            const createHeader = (text) => { 
+                const h = document.createElement('h4'); 
+                h.className = "text-[9px] font-black text-slate-500 uppercase tracking-widest mt-3 mb-1 sticky top-0 bg-[#060b1e] py-1 z-10"; 
+                h.textContent = text; 
+                return h; 
             };
-
-            // 1. Custom Exercises
+            
+            // Custom Ex
             const visibleCustom = customExercises.filter(e => e.name.toLowerCase().includes(f));
-            if(visibleCustom.length > 0) {
-                list.appendChild(createHeader("Mis Ejercicios"));
-                visibleCustom.forEach(ex => {
-                    list.appendChild(createPickerItem(ex.name, true, ex.id));
-                });
+            if(visibleCustom.length > 0) { 
+                list.appendChild(createHeader("Míos")); 
+                visibleCustom.forEach(ex => list.appendChild(createPickerItem(ex.name, true, ex.id))); 
             }
-
-            // 2. Global Library
-            Object.entries(GLOBAL_LIBRARY).forEach(([category, exercises]) => {
-                const visibleEx = exercises.filter(e => e.toLowerCase().includes(f));
-                if(visibleEx.length > 0) {
-                    list.appendChild(createHeader(category));
-                    visibleEx.forEach(name => {
-                        list.appendChild(createPickerItem(name, false));
-                    });
-                }
+            
+            // Global Lib
+            Object.entries(GLOBAL_LIBRARY).forEach(([cat, exercises]) => { 
+                const visible = exercises.filter(e => e.toLowerCase().includes(f)); 
+                if(visible.length > 0) { 
+                    list.appendChild(createHeader(cat)); 
+                    visible.forEach(name => list.appendChild(createPickerItem(name, false))); 
+                } 
             });
         };
 
         const createPickerItem = (name, isCustom, id = null) => {
-            const div = document.createElement('div');
-            const isSelected = pickerSelection.has(name);
-            div.className = `p-4 rounded-xl flex justify-between items-center mb-1 cursor-pointer transition-all border ${isSelected ? 'bg-indigo-600/20 border-indigo-500' : 'bg-slate-900 border-transparent hover:bg-slate-800'}`;
-            
-            // Event Listener attached directly to the element
+            const div = document.createElement('div'); 
+            const isSel = pickerSelection.has(name);
+            div.className = `p-3 rounded-lg flex justify-between items-center mb-1 cursor-pointer transition-all border ${isSel ? 'bg-indigo-600/20 border-indigo-500' : 'bg-slate-900 border-transparent active:bg-slate-800'}`;
             div.onclick = () => window.togglePickerSelection(name);
             
             div.innerHTML = `
-                <span class="text-sm font-bold ${isSelected ? 'text-indigo-300' : 'text-slate-300'}">${escapeHTML(name)}</span>
-                <div class="flex items-center gap-3">
-                    ${isCustom ? `<button onclick="event.stopPropagation(); window.deleteCustomEx('${id}')" class="text-rose-500/50 hover:text-rose-500 text-xs">✕</button>` : ''}
-                    <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center ${isSelected ? 'border-indigo-500 bg-indigo-500' : 'border-slate-600'}">
-                        ${isSelected ? '<svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7" /></svg>' : ''}
+                <span class="text-xs font-bold ${isSel ? 'text-indigo-300' : 'text-slate-300'} truncate mr-2">${escapeHTML(name)}</span>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    ${isCustom ? `<button onclick="event.stopPropagation(); window.deleteCustomEx('${id}')" class="text-rose-500/50 p-1">✕</button>` : ''}
+                    <div class="w-4 h-4 rounded-full border flex items-center justify-center ${isSel ? 'border-indigo-500 bg-indigo-500' : 'border-slate-600'}">
+                        ${isSel ? '<svg class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7" /></svg>' : ''}
                     </div>
-                </div>
-            `;
+                </div>`;
             return div;
         };
 
-        window.togglePickerSelection = (name) => {
-            if(pickerSelection.has(name)) pickerSelection.delete(name);
-            else pickerSelection.add(name);
-            // Re-render only list to update visuals, keep focus if needed
-            renderPickerList(document.getElementById('picker-search').value);
-            updatePickerUI();
+        window.togglePickerSelection = (name) => { 
+            if(pickerSelection.has(name)) pickerSelection.delete(name); 
+            else pickerSelection.add(name); 
+            renderPickerList(document.getElementById('picker-search').value); 
+            updatePickerUI(); 
         };
 
         const updatePickerUI = () => {
-            const count = pickerSelection.size;
-            if(pickerContext !== 'planner') {
-                document.getElementById('picker-count').textContent = count;
-                const btn = document.getElementById('picker-confirm-btn');
-                btn.disabled = count === 0;
-                btn.classList.toggle('opacity-50', count === 0);
-            } else {
-                const preview = document.getElementById('planner-preview');
-                preview.innerHTML = Array.from(pickerSelection).map(n => 
-                    `<span class="text-[9px] bg-indigo-900/50 text-indigo-300 px-2 py-1 rounded-md border border-indigo-500/20">${escapeHTML(n)}</span>`
-                ).join('');
+            if(pickerContext !== 'planner') { 
+                document.getElementById('picker-count').textContent = pickerSelection.size; 
+                const btn = document.getElementById('picker-confirm-btn'); 
+                btn.disabled = pickerSelection.size === 0; 
+                btn.classList.toggle('opacity-50', pickerSelection.size === 0); 
+            } else { 
+                document.getElementById('planner-preview').innerHTML = Array.from(pickerSelection).map(n => 
+                    `<span class="text-[8px] bg-indigo-900/50 text-indigo-300 px-2 py-0.5 rounded border border-indigo-500/20">${escapeHTML(n)}</span>`
+                ).join(''); 
             }
         };
 
-        window.clearPickerSelection = () => { pickerSelection.clear(); renderPickerList(); updatePickerUI(); };
-
-        window.startFreeSessionFromPicker = () => {
-            if(pickerSelection.size === 0) return;
-            const exercises = Array.from(pickerSelection).map(name => ({ name, sets: 3 }));
-            window.loadAndStart(exercises, "Sesión Libre");
-            window.closeUniversalPicker();
+        window.clearPickerSelection = () => { 
+            pickerSelection.clear(); 
+            renderPickerList(); 
+            updatePickerUI(); 
         };
 
-        window.confirmAddToActive = () => {
-            if(!activeSession) return;
-            pickerSelection.forEach(name => {
-                activeSession.push({
-                    name: name,
-                    actual: [{weight:"", reps: "", done: false}]
-                });
-            });
-            window.renderActiveSession();
-            window.closeUniversalPicker();
-            window.showToast("Ejercicios añadidos");
+        window.startFreeSessionFromPicker = () => { 
+            if(pickerSelection.size > 0) { 
+                window.loadAndStart(Array.from(pickerSelection).map(name => ({ name, sets: 3 })), "Sesión Libre"); 
+                window.closeUniversalPicker(); 
+            } 
         };
 
-        window.saveRoutineBlock = async () => {
-            const name = document.getElementById('routine-name-input').value.trim();
-            if(!name || pickerSelection.size === 0) return window.showToast("Pon nombre y selecciona ejercicios", "error");
-            
-            const exercises = Array.from(pickerSelection).map(n => ({ name: n, sets: 3 }));
-            
-            await addDoc(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'blocks'), { 
-                name, exercises, createdAt: serverTimestamp() 
-            });
-            
-            window.closeUniversalPicker();
-            window.showToast("Rutina Guardada");
-            window.switchTab('train');
+        window.confirmAddToActive = () => { 
+            if(activeSession) { 
+                pickerSelection.forEach(name => activeSession.push({ name, actual: [{weight:"", reps: "", done: false}] })); 
+                window.renderActiveSession(); 
+                window.closeUniversalPicker(); 
+                window.showToast("Añadido"); 
+            } 
         };
-
+        
+        // --- TRAINING LOGIC ---
         const renderTrainSelector = () => {
             document.getElementById('train-routines-list').innerHTML = savedBlocks.map(b => `
-                <div class="premium-card p-6 rounded-[2rem] relative group animate-up transition-transform hover:scale-[1.01]">
-                    <div onclick='window.loadAndStart(${JSON.stringify(b.exercises)}, "${escapeHTML(b.name)}")' class="cursor-pointer">
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="text-lg font-black uppercase italic tracking-tighter text-white">${escapeHTML(b.name)}</h3>
-                            <span class="bg-slate-800 text-[10px] font-bold px-2 py-1 rounded-lg text-slate-400 border border-white/5">${b.exercises.length} Ex</span>
-                        </div>
-                        <p class="text-slate-500 text-xs truncate">${b.exercises.map(e=>e.name).join(', ')}</p>
+                <div class="premium-card p-4 rounded-2xl relative group active:scale-[0.98] transition-transform">
+                    <div onclick='window.loadAndStart(${JSON.stringify(b.exercises)}, "${escapeHTML(b.name)}")' class="cursor-pointer pr-6">
+                        <h3 class="text-base font-black uppercase italic tracking-tighter text-white mb-1 truncate">${escapeHTML(b.name)}</h3>
+                        <p class="text-slate-500 text-[10px] truncate">${b.exercises.length} ejercicios</p>
                     </div>
-                    <button onclick="window.deleteRoutineBlock('${b.id}')" class="absolute bottom-6 right-6 text-rose-500/30 hover:text-rose-500 p-2 z-10 transition-colors">
+                    <button onclick="window.deleteRoutineBlock('${b.id}')" class="absolute top-1/2 -translate-y-1/2 right-2 text-rose-500/30 hover:text-rose-500 p-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                     </button>
                 </div>`).join('');
-        };
-        
-        const renderPlannerSavedList = () => {
-            document.getElementById('planner-saved-list').innerHTML = savedBlocks.map(b => `
-                <div class="bg-slate-900/50 p-4 rounded-2xl flex justify-between items-center border border-white/5">
-                    <span class="text-sm font-bold text-slate-300">${escapeHTML(b.name)}</span>
-                    <button onclick="window.deleteRoutineBlock('${b.id}')" class="text-rose-500/50 hover:text-rose-500 text-xs font-bold uppercase">Eliminar</button>
-                </div>
-            `).join('');
         };
 
         window.loadAndStart = (exs, name) => {
@@ -501,37 +524,38 @@
             }));
             
             document.getElementById('active-routine-name').textContent = name;
-            document.getElementById('routine-selector').classList.add('hidden');
+            document.getElementById('routine-selector').classList.add('hidden'); 
             document.getElementById('active-session-ui').classList.remove('hidden');
-            window.scrollTo({top: 0, behavior: 'smooth'});
+            
+            window.scrollTo({top: 0, behavior: 'smooth'}); 
             window.renderActiveSession();
         };
 
         window.renderActiveSession = () => {
-            const container = document.getElementById('active-session-container');
-            container.innerHTML = activeSession.map((ex, exIdx) => `
-                <div class="glass p-5 rounded-[2.5rem] space-y-4 animate-up">
-                    <div class="flex justify-between items-center pl-2">
-                        <h4 class="font-black text-indigo-400 uppercase text-sm italic tracking-wide">${escapeHTML(ex.name)}</h4>
-                        <div class="flex gap-2">
-                            <button onclick="window.removeExercise(${exIdx})" class="text-[9px] font-bold text-rose-500/50 hover:text-rose-500 p-2">BORRAR</button>
-                            <button onclick="window.addSetToExercise(${exIdx})" class="text-[9px] font-black bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 px-3 py-1 rounded-full border border-indigo-500/20">+ SERIE</button>
+            document.getElementById('active-session-container').innerHTML = activeSession.map((ex, exIdx) => `
+                <div class="glass p-4 rounded-3xl space-y-3 animate-up w-full">
+                    <div class="flex justify-between items-center px-1">
+                        <h4 class="font-black text-indigo-400 uppercase text-xs italic tracking-wide truncate max-w-[60%]">${escapeHTML(ex.name)}</h4>
+                        <div class="flex gap-2 shrink-0">
+                            <button onclick="window.removeExercise(${exIdx})" class="text-[9px] font-bold text-rose-500/50 p-2">QUITAR</button>
+                            <button onclick="window.addSetToExercise(${exIdx})" class="text-[9px] font-black bg-indigo-500/10 text-indigo-300 px-3 py-1.5 rounded-full">+ SET</button>
                         </div>
                     </div>
                     <div class="space-y-2">
                         ${ex.actual.map((s, sIdx) => `
-                            <div class="flex items-center gap-3 p-1 pr-2 rounded-2xl ${s.done ? 'bg-emerald-900/10 border border-emerald-500/20' : 'bg-slate-950/40 border border-white/5'} transition-all duration-300">
-                                <button onclick="window.toggleSet(${exIdx}, ${sIdx})" class="w-12 h-12 flex-shrink-0 rounded-xl font-black transition-all flex items-center justify-center text-sm ${s.done ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 scale-105' : 'bg-slate-800 text-slate-500 hover:bg-slate-700'}">
+                            <div class="flex items-center gap-2 w-full">
+                                <button onclick="window.toggleSet(${exIdx}, ${sIdx})" class="flex-shrink-0 w-10 h-10 rounded-xl font-black text-xs transition-all flex items-center justify-center ${s.done ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-slate-800 text-slate-500'}">
                                     ${s.done ? '✓' : sIdx+1}
                                 </button>
-                                <div class="flex-1 grid grid-cols-2 gap-2">
-                                    <div class="relative">
-                                        <input type="number" placeholder="0" value="${s.weight}" oninput="window.updateSet(${exIdx}, ${sIdx}, 'weight', this.value)" class="w-full bg-slate-900 p-3 rounded-xl text-center font-bold text-lg text-white outline-none focus:bg-slate-800 transition-colors">
-                                        <span class="absolute right-2 top-1/2 -translate-y-1/2 text-[8px] font-bold text-slate-600 pointer-events-none">KG</span>
+                                <div class="flex-1 grid grid-cols-2 gap-2 min-w-0">
+                                    <div class="relative bg-slate-900 rounded-xl overflow-hidden">
+                                        <!-- text-base previene zoom en iOS -->
+                                        <input type="number" placeholder="-" value="${s.weight}" oninput="window.updateSet(${exIdx}, ${sIdx}, 'weight', this.value)" class="w-full bg-transparent p-2.5 text-center font-bold text-base text-white outline-none">
+                                        <span class="absolute right-1 top-1/2 -translate-y-1/2 text-[8px] font-bold text-slate-600 pointer-events-none">KG</span>
                                     </div>
-                                    <div class="relative">
-                                        <input type="number" placeholder="0" value="${s.reps}" oninput="window.updateSet(${exIdx}, ${sIdx}, 'reps', this.value)" class="w-full bg-slate-900 p-3 rounded-xl text-center font-bold text-lg text-white outline-none focus:bg-slate-800 transition-colors">
-                                        <span class="absolute right-2 top-1/2 -translate-y-1/2 text-[8px] font-bold text-slate-600 pointer-events-none">REPS</span>
+                                    <div class="relative bg-slate-900 rounded-xl overflow-hidden">
+                                        <input type="number" placeholder="-" value="${s.reps}" oninput="window.updateSet(${exIdx}, ${sIdx}, 'reps', this.value)" class="w-full bg-transparent p-2.5 text-center font-bold text-base text-white outline-none">
+                                        <span class="absolute right-1 top-1/2 -translate-y-1/2 text-[8px] font-bold text-slate-600 pointer-events-none">RPS</span>
                                     </div>
                                 </div>
                             </div>`).join('')}
@@ -540,115 +564,181 @@
         };
 
         window.addSetToExercise = (ei) => { 
-            const prev = activeSession[ei].actual[activeSession[ei].actual.length - 1];
-            activeSession[ei].actual.push({weight: prev ? prev.weight : "", reps: prev ? prev.reps : "", done: false}); 
+            const prev = activeSession[ei].actual[activeSession[ei].actual.length-1]; 
+            activeSession[ei].actual.push({
+                weight: prev ? prev.weight : "", 
+                reps: prev ? prev.reps : "", 
+                done: false
+            }); 
             window.renderActiveSession(); 
         };
-        
-        window.removeExercise = (ei) => {
-            if(confirm("¿Quitar ejercicio?")) {
-                activeSession.splice(ei, 1);
-                window.renderActiveSession();
-            }
+
+        window.removeExercise = (ei) => { 
+            if(confirm("¿Quitar?")) { 
+                activeSession.splice(ei, 1); 
+                window.renderActiveSession(); 
+            } 
         };
 
-        window.toggleSet = (ei, si) => { activeSession[ei].actual[si].done = !activeSession[ei].actual[si].done; window.renderActiveSession(); };
-        window.updateSet = (ei, si, k, v) => { activeSession[ei].actual[si][k] = v; };
+        window.toggleSet = (ei, si) => { 
+            activeSession[ei].actual[si].done = !activeSession[ei].actual[si].done; 
+            window.renderActiveSession(); 
+        };
+
+        window.updateSet = (ei, si, k, v) => { 
+            activeSession[ei].actual[si][k] = v; 
+        };
 
         window.saveFullSession = async () => {
             if(!activeSession || activeSession.length === 0) return;
-            const date = document.getElementById('workout-date').value;
+            
             const validData = activeSession.map(ex => ({ 
                 exercise: ex.name, 
                 sets: ex.actual.filter(s => s.done && s.weight && s.reps).map(s => ({ weight: parseFloat(s.weight), reps: parseInt(s.reps) })), 
-                date 
+                date: document.getElementById('workout-date').value 
             })).filter(e => e.sets.length > 0);
-
-            if(validData.length === 0) return window.showToast("Completa al menos una serie", "error");
-
-            try {
-                const promises = validData.map(e => addDoc(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'history'), { ...e, timestamp: serverTimestamp() }));
-                await Promise.all(promises);
-                window.showToast("ENTRENAMIENTO GUARDADO"); 
-                window.cancelSession();
-            } catch(e) { window.showToast("Error al guardar", "error"); }
-        };
-
-        window.updateProgressChart = () => {
-            const exName = document.getElementById('chart-exercise-select').value;
-            if (!exName || !allLogs.length) return;
-            const filtered = allLogs.filter(l => l.exercise === exName).sort((a,b) => new Date(a.date) - new Date(b.date));
-            const labels = filtered.map(l => { const d = new Date(l.date); return `${d.getDate()}/${d.getMonth()+1}`; });
-            const data = filtered.map(l => {
-                const bestSet = l.sets.reduce((max, s) => {
-                    const oneRM = s.weight * (1 + s.reps/30);
-                    return oneRM > max ? oneRM : max;
-                }, 0);
-                return Math.round(bestSet);
-            });
-
-            if (myChart) myChart.destroy();
-            const ctx = document.getElementById('progressChart').getContext('2d');
-            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-            gradient.addColorStop(0, '#6366f1');
-            gradient.addColorStop(1, 'rgba(99, 102, 241, 0)');
-
-            myChart = new Chart(ctx, {
-                type: 'line',
-                data: { labels, datasets: [{ label: '1RM Estimado (kg)', data, borderColor: '#818cf8', borderWidth: 3, pointBackgroundColor: '#fff', pointBorderColor: '#6366f1', pointRadius: 4, tension: 0.3, fill: true, backgroundColor: gradient }] },
-                options: {
-                    responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
-                    scales: { x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10, family: 'Plus Jakarta Sans' } } }, y: { border: { display: false }, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b', font: { size: 10 } } } },
-                    interaction: { mode: 'nearest', axis: 'x', intersect: false }
-                }
-            });
-        };
-
-        const updateExerciseSelect = () => {
-            const select = document.getElementById('chart-exercise-select');
-            const currentVal = select.value;
-            const exs = [...new Set(allLogs.map(l => l.exercise))];
-            select.innerHTML = exs.map(e => `<option value="${e}" ${e === currentVal ? 'selected' : ''}>${e}</option>`).join('');
-            if(!currentVal && exs.length > 0) { select.value = exs[0]; window.updateProgressChart(); }
-        };
-
-        window.switchTab = (t) => {
-            ['dashboard', 'train', 'routines'].forEach(s => {
-                const el = document.getElementById(`section-${s}`);
-                if(s === t) { el.classList.remove('hidden'); el.classList.remove('animate-up'); void el.offsetWidth; el.classList.add('animate-up'); } 
-                else { el.classList.add('hidden'); }
-                const btn = document.getElementById(`tab-${s}`);
-                btn.classList.toggle('active', s === t); btn.classList.toggle('text-slate-500', s !== t);
-            });
-        };
-
-        window.cancelSession = () => { if(confirm("¿Cancelar sesión?")) { activeSession = null; document.getElementById('routine-selector').classList.remove('hidden'); document.getElementById('active-session-ui').classList.add('hidden'); } };
-        window.deleteHistory = async (id) => { if(confirm("¿Eliminar registro?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', user.uid, 'history', id)); };
-        window.deleteRoutineBlock = async (id) => { if(confirm("¿Borrar rutina guardada?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', user.uid, 'blocks', id)); };
-        window.deleteCustomEx = async (id) => { if(confirm("¿Borrar ejercicio?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', user.uid, 'custom_ex', id)); };
-        
-        window.toggleCustomInput = () => document.getElementById('custom-ex-input').classList.toggle('hidden');
-        window.addCustomExercise = async () => {
-            const name = document.getElementById('new-ex-name').value.trim();
-            if(name) {
-                await addDoc(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'custom_ex'), { name });
-                document.getElementById('new-ex-name').value = ""; window.toggleCustomInput();
-                setTimeout(() => renderPickerList(document.getElementById('picker-search').value), 100);
+            
+            if(validData.length === 0) return window.showToast("Completa series", "error");
+            
+            try { 
+                await Promise.all(validData.map(e => addDoc(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'history'), { ...e, timestamp: serverTimestamp() }))); 
+                window.showToast("GUARDADO"); 
+                window.cancelSession(); 
+            } catch(e) { 
+                window.showToast("Error", "error"); 
             }
         };
 
+        // --- PLANNER ---
+        window.saveRoutineBlock = async () => { 
+            const name = document.getElementById('routine-name-input').value.trim(); 
+            if(!name || pickerSelection.size === 0) return window.showToast("Faltan datos", "error"); 
+            
+            await addDoc(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'blocks'), { 
+                name, 
+                exercises: Array.from(pickerSelection).map(n=>({name:n, sets:3})), 
+                createdAt: serverTimestamp() 
+            }); 
+            
+            window.closeUniversalPicker(); 
+            window.showToast("Guardado"); 
+            window.switchTab('train'); 
+        };
+        
+        const renderPlannerSavedList = () => { 
+            document.getElementById('planner-saved-list').innerHTML = savedBlocks.map(b => 
+                `<div class="bg-slate-900/50 p-3 rounded-xl flex justify-between items-center border border-white/5">
+                    <span class="text-xs font-bold text-slate-300 truncate mr-2">${escapeHTML(b.name)}</span>
+                    <button onclick="window.deleteRoutineBlock('${b.id}')" class="text-rose-500/50 p-1">✕</button>
+                </div>`).join(''); 
+        };
+
+        // --- CHART & UTILS ---
+        window.updateProgressChart = () => {
+            const exName = document.getElementById('chart-exercise-select').value; 
+            if (!exName || !allLogs.length) return;
+            
+            const filtered = allLogs.filter(l => l.exercise === exName).sort((a,b) => new Date(a.date) - new Date(b.date));
+            const labels = filtered.map(l => { 
+                const d = new Date(l.date); 
+                return `${d.getDate()}/${d.getMonth()+1}`; 
+            });
+            const data = filtered.map(l => Math.round(l.sets.reduce((max, s) => { 
+                const rm = s.weight * (1 + s.reps/30); 
+                return rm > max ? rm : max; 
+            }, 0)));
+            
+            if (myChart) myChart.destroy();
+            
+            const ctx = document.getElementById('progressChart').getContext('2d');
+            const grad = ctx.createLinearGradient(0,0,0,300); 
+            grad.addColorStop(0, '#6366f1'); 
+            grad.addColorStop(1, 'rgba(99,102,241,0)');
+            
+            myChart = new Chart(ctx, { 
+                type: 'line', 
+                data: { 
+                    labels, 
+                    datasets: [{ 
+                        data, 
+                        borderColor: '#818cf8', 
+                        borderWidth: 3, 
+                        pointRadius: 3, 
+                        tension: 0.3, 
+                        fill: true, 
+                        backgroundColor: grad 
+                    }] 
+                }, 
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { legend: false }, 
+                    scales: { 
+                        x: { display: false }, 
+                        y: { display: false } 
+                    } 
+                } 
+            });
+        };
+        
+        const updateExerciseSelect = () => { 
+            const sel = document.getElementById('chart-exercise-select');
+            const val = sel.value; 
+            const exs = [...new Set(allLogs.map(l => l.exercise))]; 
+            
+            sel.innerHTML = exs.map(e => `<option value="${e}" ${e===val?'selected':''}>${e}</option>`).join(''); 
+            
+            if(!val && exs.length) { 
+                sel.value = exs[0]; 
+                window.updateProgressChart(); 
+            } 
+        };
+        
+        // --- HELPERS ---
+        window.cancelSession = () => { 
+            if(confirm("¿Salir?")) { 
+                activeSession = null; 
+                document.getElementById('routine-selector').classList.remove('hidden'); 
+                document.getElementById('active-session-ui').classList.add('hidden'); 
+            } 
+        };
+
+        window.deleteHistory = async (id) => { 
+            if(confirm("¿Borrar?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', user.uid, 'history', id)); 
+        };
+        
+        window.deleteRoutineBlock = async (id) => { 
+            if(confirm("¿Borrar?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', user.uid, 'blocks', id)); 
+        };
+        
+        window.deleteCustomEx = async (id) => { 
+            if(confirm("¿Borrar?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', user.uid, 'custom_ex', id)); 
+        };
+        
+        window.toggleCustomInput = () => document.getElementById('custom-ex-input').classList.toggle('hidden');
+        
+        window.addCustomExercise = async () => { 
+            const name = document.getElementById('new-ex-name').value.trim(); 
+            if(name) { 
+                await addDoc(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'custom_ex'), { name }); 
+                document.getElementById('new-ex-name').value = ""; 
+                window.toggleCustomInput(); 
+                setTimeout(()=>renderPickerList(document.getElementById('picker-search').value),100); 
+            } 
+        };
+        
         window.showToast = (m, type="success") => { 
-            const t = document.getElementById('toast'); 
-            const msg = document.getElementById('toast-msg');
-            msg.textContent = m;
-            t.firstElementChild.className = `w-2 h-2 rounded-full block ${type === 'error' ? 'bg-rose-500' : 'bg-emerald-500'}`;
+            const t = document.getElementById('toast');
+            const msg = document.getElementById('toast-msg'); 
+            msg.textContent = m; 
+            t.firstElementChild.className = `w-2 h-2 rounded-full block ${type==='error'?'bg-rose-500':'bg-emerald-500'}`; 
             t.classList.remove('opacity-0', 'translate-y-4'); 
             setTimeout(() => t.classList.add('opacity-0', 'translate-y-4'), 2500); 
         };
-
+        
         window.onload = () => { 
-            document.getElementById('workout-date').value = new Date().toISOString().split('T')[0];
-            document.getElementById('picker-search').addEventListener('input', e => renderPickerList(e.target.value));
+            document.getElementById('workout-date').value = new Date().toISOString().split('T')[0]; 
+            document.getElementById('picker-search').addEventListener('input', e => renderPickerList(e.target.value)); 
         };
     </script>
 </body>
