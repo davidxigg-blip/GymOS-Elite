@@ -1,2 +1,2 @@
-# neuralliftv2
+# GymOS Elite
 Gym tracker
