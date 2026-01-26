@@ -1,3 +1,5 @@
+--- START OF FILE Paste January 22, 2026 - 03:00PM ---
+
 <!DOCTYPE html>
 <html lang="es" class="dark">
 <head>
@@ -49,9 +51,11 @@
         /* Evitar borde azul por defecto */
         input:focus { border-color: var(--brand) !important; outline: none; }
         
-        /* Soporte para el "Notch" y la barra inferior del iPhone */
+        /* CORRECCIÓN VISUAL IPHONE: Margen inferior y superior seguros */
         .safe-pb { padding-bottom: calc(90px + env(safe-area-inset-bottom)); }
-        .safe-pt { padding-top: env(safe-area-inset-top); }
+        
+        /* Aquí sumamos 1.5rem (aprox 24px) a la zona segura superior para que no toque la hora/batería */
+        .safe-pt { padding-top: calc(1.5rem + env(safe-area-inset-top)); }
         
         /* Modal transitions */
         .modal-enter { transform: translateY(100%); }
@@ -79,13 +83,13 @@
         </div>
     </div>
 
-    <!-- HEADER -->
-    <header class="px-5 py-5 flex justify-between items-center sticky top-0 z-50 bg-[#020617]/90 backdrop-blur-md border-b border-white/5 safe-pt">
+    <!-- HEADER (Corregido: pb-4 para abajo, safe-pt para arriba) -->
+    <header class="px-5 pb-4 flex justify-between items-center sticky top-0 z-50 bg-[#020617]/90 backdrop-blur-md border-b border-white/5 safe-pt">
         <h2 class="text-xl font-black tracking-tighter italic">GymOS <span class="text-indigo-500">Elite</span></h2>
         <button onclick="window.cerrarSesion()" class="text-[10px] font-bold bg-slate-800/50 px-3 py-1.5 rounded-full border border-white/10 hover:bg-slate-700 transition-colors">SALIR</button>
     </header>
 
-    <!-- MAIN CONTAINER - Padding reducido para móviles -->
+    <!-- MAIN CONTAINER -->
     <main class="px-4 w-full max-w-lg mx-auto min-h-screen pt-4">
         
         <!-- DASHBOARD -->
@@ -93,7 +97,6 @@
             <div class="glass p-5 rounded-[2rem]">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-[10px] font-black uppercase tracking-widest text-indigo-400">Progreso (1RM est.)</h3>
-                    <!-- Select con truncado para evitar desbordamiento -->
                     <select id="chart-exercise-select" onchange="window.updateProgressChart()" class="bg-slate-900 text-[10px] font-bold p-2 px-3 rounded-lg outline-none border border-white/5 focus:border-indigo-500 max-w-[140px] truncate"></select>
                 </div>
                 <div class="h-[200px] w-full relative">
@@ -134,10 +137,10 @@
                 <div id="train-routines-list" class="grid gap-3 pb-20"></div>
             </div>
 
-            <!-- Sesión Activa UI (Optimizada para evitar scroll horizontal) -->
+            <!-- Sesión Activa UI -->
             <div id="active-session-ui" class="hidden space-y-5 pb-10 w-full">
                 <!-- Header Sticky Compacto -->
-                <div class="glass p-4 rounded-3xl flex flex-col gap-3 sticky top-[4.5rem] z-[40] shadow-2xl shadow-black/80 ring-1 ring-white/5">
+                <div class="glass p-4 rounded-3xl flex flex-col gap-3 sticky top-[5.5rem] z-[40] shadow-2xl shadow-black/80 ring-1 ring-white/5">
                     <div class="flex justify-between items-start">
                         <div class="overflow-hidden pr-2">
                             <p class="text-[8px] text-slate-500 font-bold uppercase mb-0.5">Entrenando ahora</p>
@@ -146,7 +149,6 @@
                         <button onclick="window.cancelSession()" class="flex-shrink-0 text-rose-500 bg-rose-500/10 p-2 px-3 rounded-lg text-[10px] font-bold">Cancelar</button>
                     </div>
                     <div class="flex items-center gap-2">
-                        <!-- Input Date con flex-1 y min-w-0 para que se encoja si es necesario -->
                         <input type="date" id="workout-date" class="bg-slate-900 border border-white/5 rounded-lg px-2 py-2 text-slate-300 font-bold outline-none text-xs flex-1 min-w-0">
                         <button onclick="window.openUniversalPicker('add_to_active')" class="flex-shrink-0 bg-indigo-600 text-white px-3 py-2 rounded-lg text-xs font-bold shadow-lg shadow-indigo-600/20">+ Ejercicio</button>
                     </div>
@@ -180,10 +182,10 @@
         </section>
     </main>
 
-    <!-- UNIVERSAL EXERCISE PICKER MODAL (Full Screen Overlay) -->
+    <!-- UNIVERSAL EXERCISE PICKER MODAL -->
     <div id="universal-picker" class="fixed inset-0 z-[3000] bg-slate-950 flex flex-col hidden modal-enter-active">
         <!-- Header con Padding Safe Area Top -->
-        <div class="p-4 pt-4 mt-8 flex items-center justify-between bg-slate-900/90 backdrop-blur-xl border-b border-white/5 sticky top-0 z-20">
+        <div class="p-4 flex items-center justify-between bg-slate-900/90 backdrop-blur-xl border-b border-white/5 sticky top-0 z-20 safe-pt">
             <h3 class="text-base font-black italic text-white">SELECCIONAR</h3>
             <button onclick="window.closeUniversalPicker()" class="text-slate-400 bg-slate-800/50 px-3 py-1 rounded-full text-xs font-bold">CERRAR</button>
         </div>
@@ -191,7 +193,6 @@
         <!-- Search & Custom -->
         <div class="p-4 space-y-3 border-b border-white/5 bg-slate-950">
             <div class="flex gap-2">
-                <!-- Text base para evitar zoom en iOS -->
                 <input type="text" id="picker-search" placeholder="Buscar ejercicio..." class="w-full bg-slate-900 p-3 rounded-xl text-base outline-none border border-white/5 focus:border-indigo-500 text-white appearance-none">
                 <button onclick="window.toggleCustomInput()" class="bg-slate-800 w-12 rounded-xl font-black text-indigo-400 text-lg flex items-center justify-center shadow-lg shadow-black/20 flex-shrink-0">+</button>
             </div>
