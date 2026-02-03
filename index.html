@@ -2,33 +2,33 @@
 <html lang="es" class="dark">
 <head>
     <meta charset="UTF-8">
-    <!-- Viewport ajustado para iPhone: fit=cover y no-scalable para sentirlo nativo -->
+    <!-- Viewport ajustado para iPhone -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
     <title>GymOS Elite</title>
-    
+
+    <!-- 1. CARGA DE ESTILOS (CRÍTICO: NO BORRAR) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+
     <!-- Configuración iOS PWA -->
     <meta name="apple-mobile-web-app-title" content="GymOS">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#020617">
 
-    <!-- ICONO DE APP (Base64 Alta Resolución - Logo "GO" Índigo) -->
+    <!-- ICONO DE APP -->
     <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAMAAAAKE/YAAAAABGdBTUEAALGPC/xhBQAAAwBQTFRF////AgYHAQsKAg0LAhEMAhINAxQQAxYRAxcSAxgTAxkUAxoVAxsWAxwXA0cbA0kdA0oeBE0hBE4iBE8jBFAkBFImBFMnBVMpBVQqBVQrBVRBBVtFBV1JBV5KBl9MBldaBmBOCGNSCWVUCmhXC2xZDHFbDXNeD3ZgEHdiEXlkEnxmFH5oFYBqFoFsF4JuGIRwGIVxGYZyGpB2G5F3HJJ4HZJ5HpN6H5R7IJZ9IZd9Iph+I5l/JJp/JZtAJpxBKKBCKaFDKqJEK6NGLKNHLaRILqVJL6ZKMKdLMqhMM6hNNKlONapPNqtQOKxROa1SOq5TPK9UPbBVPbFWP7JXP7NYQLRZwLxnxL9pxb9qxsFsx8JtyMNuycRvysVwy8ZxzMdyzchzzsl0z8p10Mt20ct30cx408151M561c971tB92NF+2dJ/2tOA3NWC3daD3teE39iF4NmG4dqH4tuI49yJ5N2K5d6L5t+M5+CO6OGP6eKQ6uOR6+ST7OWU7eaV7ueW7+iX8OmY8eqZ8uua8+yb9O2c9e6d9u+e9/Cf+PCg+fGh+vKj+/Ok/PSl/fWm/vap//erAMCsAMKwAcOxAsSyA8WzAca0Asi2A8m3BMq5BMy6Bc27Bs68B8+/CMDAOsrEQc3FRM/GSc/HSdDIStHJTNLKTtPLT9TNUdXOUtfPVNjQVtXRV9bSWNfTWdjUWtnVW9rWXNvXXdzYX93ZYd/aYt/aY+DbZeDcZuLdaOLdaePeauTebeXfb+bfcefgcujhc+nidOrjdurkeOvkfOzlfezlfvDmget2g/Dng/DnhPDohfHphvHqh/LqiPPri/PrjPPsjvTskPXtkvbulffvmPjwmfnxm/rxn/rxn/vyoPzzof31ov31pP72pf73qP/4qf/5qv/6q//7rP/8rf/9rv/+sP//7e3tAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKD/h2AAAAQB0Uk5T////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////AFP3ByUAAALwSURBVHja7Z3ZchIxEEVT8z7//89dC4F00t1JqlKq8uI85IGpB2R12U0CjuM4juM4juM4juM4juM4juM4juM4juM4juM4juM4jmMVjsejXq/X6/XG47H7l/yP0+l0Op/Pp9Pp+Xzu/iX/IwiC+Xw+m80EwWw2C4Ig+K942sedIITA3wR+4O/3+4QQ9y/65z0M/H6/3263+/1+v91u+/3A3bv+eY/b7Xa7xWKxWCy22+1isQi8u/55j/1isVgul8vlcrFYLJfLwNu7f81/73G5XC6Xq9VqtVotl8vVauDuXf+8x+VqtVqt1+v1erVar9frwNu7f81/77Fer9frzWaz2WzW6/Vm4O5d/7zHerbZbDab7Xb7/eF2u91stn3/pn/f43a73W63u93u/f52u93tdu/u3vTve+x2u91ut9vtDod3t9vtdvvt3vTve+x2u91ut9vtdofDu9vtdrv9dm/69z12h8PhcDgcDofD4XA4HA6Hw+FwOBwOh8PhcPg/Pex2u/1+/3g8Ho/H/X6/2+0Od/2b/n2P/X6/3+/3+/3z/na/3+/3z+/6N/37Hvv9fr/fPz09PT097ff7p6f//Jv+fY/n5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+f/x/4F1F5X/gN6/oEAAAAASUVORK5CYII=">
 
-    <!-- Librerías Externas -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-    
     <style>
         :root { --brand: #6366f1; --bg: #020617; }
         
-        /* Reset para comportamiento móvil nativo */
+        /* Reset */
         * { -webkit-tap-highlight-color: transparent; scrollbar-width: none; touch-action: manipulation; }
         *::-webkit-scrollbar { display: none; }
 
-        /* FIX: Fondo negro en HTML para evitar pantallazo blanco al abrir */
+        /* FIX CRÍTICO: Fondo negro */
         html { background-color: #020617; height: 100%; }
 
         body { 
@@ -38,11 +38,10 @@
             color: #f8fafc; 
             overflow-x: hidden;
             width: 100vw;
-            /* Evita el rebote elástico global en iOS */
             overscroll-behavior-y: none;
+            min-height: 100dvh;
         }
 
-        /* Estilo Vidrio (Glassmorphism) */
         .glass { 
             background: rgba(15, 23, 42, 0.85); 
             backdrop-filter: blur(20px); 
@@ -55,39 +54,24 @@
             border: 1px solid rgba(255, 255, 255, 0.05); 
         }
 
-        /* Navegación */
         .nav-tab.active { color: #818cf8; }
         .nav-tab.active svg { transform: translateY(-2px); transition: transform 0.2s; }
 
-        /* Animaciones */
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .animate-up { animation: slideUp 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
         
-        .modal-enter { transform: translateY(100%); }
-        .modal-enter-active { transform: translateY(0); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
-
-        /* Inputs Limpios */
         input[type="number"]::-webkit-inner-spin-button { display: none; }
         input:focus { border-color: var(--brand) !important; outline: none; }
         
-        /* === FIX VISUAL IPHONE ZONAS SEGURAS === */
-        
-        /* Espacio abajo para la barra de inicio */
+        /* Zonas Seguras iPhone */
         .safe-pb { padding-bottom: calc(90px + env(safe-area-inset-bottom)); }
-        
-        /* Espacio arriba para el Notch/Isla Dinámica + Header */
-        /* Usamos max() para garantizar espacio aunque el navegador no reporte safe-area */
         .safe-pt { padding-top: max(1.5rem, calc(0.8rem + env(safe-area-inset-top))); }
-        
-        /* Ajuste de Top para elementos Sticky considerando el Notch */
-        .sticky-header-adjust {
-            top: calc(4.5rem + env(safe-area-inset-top));
-        }
+        .sticky-header-adjust { top: calc(4.5rem + env(safe-area-inset-top)); }
     </style>
 </head>
 <body class="safe-pb selection:bg-indigo-500 selection:text-white">
 
-    <!-- PANTALLA DE LOGIN -->
+    <!-- LOGIN -->
     <div id="login-overlay" class="fixed inset-0 z-[2000] bg-slate-950 flex items-center justify-center px-6">
         <div class="w-full max-w-sm text-center animate-up">
             <div class="w-20 h-20 bg-indigo-600 rounded-[2rem] flex items-center justify-center shadow-2xl shadow-indigo-500/20 mx-auto mb-8 rotate-3">
@@ -96,7 +80,6 @@
             <h1 class="text-4xl font-black tracking-tighter italic mb-2">GYMOS <span class="text-indigo-500">PRO</span></h1>
             <p class="text-slate-400 text-xs font-bold mb-8 uppercase tracking-widest">Training System 2026</p>
             <div class="space-y-4">
-                <!-- Text-base evita zoom automático en iOS -->
                 <input type="email" id="login-email" placeholder="Email" class="w-full bg-slate-900 border border-white/5 px-6 py-4 rounded-2xl outline-none text-white focus:border-indigo-500 transition-colors text-base">
                 <input type="password" id="login-pass" placeholder="Password" class="w-full bg-slate-900 border border-white/5 px-6 py-4 rounded-2xl outline-none text-white focus:border-indigo-500 transition-colors text-base">
                 <div class="grid grid-cols-2 gap-4 pt-4">
@@ -107,16 +90,15 @@
         </div>
     </div>
 
-    <!-- ENCABEZADO PRINCIPAL (Fixed Top con Safe Area) -->
+    <!-- HEADER -->
     <header class="px-5 pb-4 flex justify-between items-center sticky top-0 z-50 bg-[#020617]/90 backdrop-blur-md border-b border-white/5 safe-pt">
         <h2 class="text-xl font-black tracking-tighter italic">GymOS <span class="text-indigo-500">Elite</span></h2>
         <button onclick="window.cerrarSesion()" class="text-[10px] font-bold bg-slate-800/50 px-3 py-1.5 rounded-full border border-white/10 hover:bg-slate-700 transition-colors">SALIR</button>
     </header>
 
-    <!-- CONTENIDO PRINCIPAL -->
     <main class="px-4 w-full max-w-lg mx-auto min-h-screen pt-4">
         
-        <!-- SECCIÓN: DASHBOARD -->
+        <!-- DASHBOARD -->
         <section id="section-dashboard" class="space-y-6 animate-up">
             <div class="glass p-5 rounded-[2rem]">
                 <div class="flex justify-between items-center mb-6">
@@ -145,9 +127,8 @@
             </div>
         </section>
 
-        <!-- SECCIÓN: ENTRENAR -->
+        <!-- ENTRENAR -->
         <section id="section-train" class="hidden space-y-6 animate-up w-full overflow-hidden">
-            <!-- Selector de Rutinas o Libre -->
             <div id="routine-selector" class="space-y-4">
                 <button onclick="window.openUniversalPicker('session')" class="w-full py-8 border-2 border-dashed border-indigo-500/30 bg-indigo-500/5 rounded-[2rem] text-indigo-300 font-bold hover:bg-indigo-500/10 transition-all flex flex-col items-center gap-2 group active:scale-[0.98]">
                     <span class="text-3xl group-hover:scale-110 transition-transform">+</span>
@@ -161,9 +142,7 @@
                 <div id="train-routines-list" class="grid gap-3 pb-20"></div>
             </div>
 
-            <!-- Interfaz de Sesión Activa -->
             <div id="active-session-ui" class="hidden space-y-5 pb-10 w-full">
-                <!-- Header de sesión (Sticky ajustado al header principal) -->
                 <div class="glass p-4 rounded-3xl flex flex-col gap-3 sticky z-[40] shadow-2xl shadow-black/80 ring-1 ring-white/5 sticky-header-adjust">
                     <div class="flex justify-between items-start">
                         <div class="overflow-hidden pr-2">
@@ -186,7 +165,7 @@
             </div>
         </section>
 
-        <!-- SECCIÓN: RUTINAS (PLANIFICADOR) -->
+        <!-- RUTINAS -->
         <section id="section-routines" class="hidden space-y-6 animate-up pb-10">
             <div class="glass p-6 rounded-[2rem] text-center space-y-4">
                 <div class="w-14 h-14 bg-slate-800 rounded-2xl flex items-center justify-center mx-auto text-indigo-400">
@@ -206,32 +185,27 @@
         </section>
     </main>
 
-    <!-- SELECTOR UNIVERSAL (MODAL PANTALLA COMPLETA) -->
+    <!-- UNIVERSAL EXERCISE PICKER MODAL -->
     <div id="universal-picker" class="fixed inset-0 z-[3000] bg-slate-950 flex flex-col hidden modal-enter-active">
-        <!-- Header del Modal con Safe Area -->
         <div class="p-4 flex items-center justify-between bg-slate-900/90 backdrop-blur-xl border-b border-white/5 sticky top-0 z-20 safe-pt">
             <h3 class="text-base font-black italic text-white">SELECCIONAR</h3>
             <button onclick="window.closeUniversalPicker()" class="text-slate-400 bg-slate-800/50 px-3 py-1 rounded-full text-xs font-bold">CERRAR</button>
         </div>
         
-        <!-- Buscador -->
         <div class="p-4 space-y-3 border-b border-white/5 bg-slate-950">
             <div class="flex gap-2">
                 <input type="text" id="picker-search" placeholder="Buscar ejercicio..." class="w-full bg-slate-900 p-3 rounded-xl text-base outline-none border border-white/5 focus:border-indigo-500 text-white appearance-none">
                 <button onclick="window.toggleCustomInput()" class="bg-slate-800 w-12 rounded-xl font-black text-indigo-400 text-lg flex items-center justify-center shadow-lg shadow-black/20 flex-shrink-0">+</button>
             </div>
             
-            <!-- Input para ejercicio personalizado -->
             <div id="custom-ex-input" class="hidden p-3 bg-indigo-900/10 rounded-xl border border-indigo-500/20 space-y-2">
                 <input type="text" id="new-ex-name" placeholder="Nombre Ej. Press Militar" class="w-full bg-slate-950 p-3 rounded-lg text-base outline-none text-white border border-white/5">
                 <button onclick="window.addCustomExercise()" class="w-full bg-indigo-600 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-indigo-600/20">Guardar</button>
             </div>
         </div>
 
-        <!-- Lista de Ejercicios -->
         <div class="flex-1 overflow-y-auto p-4 space-y-2" id="picker-list"></div>
 
-        <!-- Barra de Acción (Iniciar sesión) -->
         <div id="picker-action-bar" class="p-4 pb-[calc(20px+env(safe-area-inset-bottom))] bg-slate-900 border-t border-white/5 hidden">
             <div class="flex justify-between items-center mb-3">
                 <span class="text-[10px] font-bold text-slate-400">SELECCIONADOS: <span id="picker-count" class="text-white">0</span></span>
@@ -240,7 +214,6 @@
             <button id="picker-confirm-btn" class="w-full py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-lg shadow-indigo-600/20 uppercase tracking-widest text-xs">CONFIRMAR</button>
         </div>
         
-        <!-- Barra de Acción (Planificador) -->
         <div id="picker-planner-bar" class="p-4 pb-[calc(20px+env(safe-area-inset-bottom))] bg-slate-900 border-t border-white/5 hidden space-y-3">
             <div id="planner-preview" class="flex flex-wrap gap-2 mb-1 max-h-16 overflow-y-auto"></div>
             <input type="text" id="routine-name-input" placeholder="Nombre de la rutina..." class="w-full bg-slate-950 p-3 rounded-xl outline-none font-bold border border-white/5 text-white text-base">
@@ -248,7 +221,7 @@
         </div>
     </div>
 
-    <!-- MENÚ INFERIOR DE NAVEGACIÓN -->
+    <!-- BOTTOM NAV -->
     <nav class="fixed bottom-6 left-4 right-4 h-[70px] glass rounded-[2rem] z-[1000] flex justify-around items-center px-2 shadow-2xl shadow-black/50">
         <button onclick="window.switchTab('dashboard')" id="tab-dashboard" class="nav-tab active flex flex-col items-center gap-1 w-16 group">
             <svg class="w-6 h-6 group-hover:text-indigo-400 transition-colors" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
@@ -264,7 +237,7 @@
         </button>
     </nav>
 
-    <!-- TOAST DE NOTIFICACIONES -->
+    <!-- TOAST NOTIFICACIONES -->
     <div id="toast" class="fixed top-4 left-1/2 -translate-x-1/2 glass px-6 py-3 rounded-full opacity-0 transition-all duration-300 z-[9999] font-black text-[10px] uppercase text-white pointer-events-none shadow-2xl flex items-center gap-2 whitespace-nowrap">
         <span class="w-2 h-2 rounded-full bg-emerald-500 block"></span>
         <span id="toast-msg">MENSAJE</span>
@@ -289,7 +262,6 @@
         const db = getFirestore(fb);
         const DB_KEY = 'gym-pro-v2026-master';
 
-        // Estructura de Biblioteca Base
         const GLOBAL_LIBRARY = {
             "Pectoral": ["Press Banca", "Press Inclinado", "Aperturas", "Fondos", "Cruce Poleas"],
             "Espalda": ["Dominadas", "Jalón Pecho", "Remo Barra", "Remo Gironda", "Pull Over"],
@@ -298,7 +270,6 @@
             "Brazos": ["Curl Barra", "Curl Martillo", "Press Francés", "Ext. Tríceps"]
         };
 
-        // Estado Global de la App
         let user = null;
         let activeSession = null; 
         let customExercises = [];
@@ -311,7 +282,7 @@
         const escapeHTML = (s) => String(s || "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
 
         // ==========================================
-        //  AUTENTICACIÓN
+        //  AUTH
         // ==========================================
         window.ejecutarLogin = async (mode) => {
             const e = document.getElementById('login-email').value;
@@ -344,24 +315,20 @@
         });
 
         // ==========================================
-        //  SINCRONIZACIÓN DE DATOS (REALTIME)
+        //  SYNC
         // ==========================================
         const initSync = () => {
-            // 1. Historial de entrenamientos
             onSnapshot(query(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'history'), orderBy('timestamp', 'desc')), snap => { 
                 allLogs = snap.docs.map(d => ({ id: d.id, ...d.data() })); 
                 renderDashboard(); 
                 updateExerciseSelect(); 
             });
-            // 2. Ejercicios personalizados
             onSnapshot(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'custom_ex'), snap => { 
                 customExercises = snap.docs.map(d => ({ id: d.id, name: d.data().name })); 
-                // Si el picker está abierto, refrescarlo
                 if(!document.getElementById('universal-picker').classList.contains('hidden')) {
                     renderPickerList();
                 }
             });
-            // 3. Rutinas guardadas (Bloques)
             onSnapshot(query(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'blocks'), orderBy('createdAt', 'desc')), snap => { 
                 savedBlocks = snap.docs.map(d => ({ id: d.id, ...d.data() })); 
                 renderTrainSelector(); 
@@ -370,20 +337,17 @@
         };
 
         // ==========================================
-        //  DASHBOARD & CHART
+        //  DASHBOARD
         // ==========================================
         const renderDashboard = () => {
             let v = 0; 
             const days = new Set(); 
-            
             allLogs.forEach(l => { 
                 days.add(l.date); 
                 l.sets?.forEach(set => { v += (set.weight * set.reps); }); 
             });
-            
             document.getElementById('stat-volume').textContent = (v / 1000).toFixed(1) + "t";
             document.getElementById('streak-count').textContent = `🔥 ${days.size}`;
-            
             document.getElementById('workout-history').innerHTML = allLogs.slice(0, 5).map(l => `
                 <div class="premium-card p-3 rounded-xl flex justify-between items-center group">
                     <div class="truncate pr-2 w-full">
@@ -392,14 +356,12 @@
                     </div>
                     <button onclick="window.deleteHistory('${l.id}')" class="flex-shrink-0 text-rose-500/30 hover:text-rose-500 p-2">✕</button>
                 </div>`).join('');
-                
             if(allLogs.length > 0) window.updateProgressChart();
         };
 
         window.updateProgressChart = () => {
             const exName = document.getElementById('chart-exercise-select').value; 
             if (!exName || !allLogs.length) return;
-            
             const filtered = allLogs.filter(l => l.exercise === exName).sort((a,b) => new Date(a.date) - new Date(b.date));
             const labels = filtered.map(l => { 
                 const d = new Date(l.date); 
@@ -409,14 +371,11 @@
                 const rm = s.weight * (1 + s.reps/30); 
                 return rm > max ? rm : max; 
             }, 0)));
-            
             if (myChart) myChart.destroy();
-            
             const ctx = document.getElementById('progressChart').getContext('2d');
             const grad = ctx.createLinearGradient(0,0,0,300); 
             grad.addColorStop(0, '#6366f1'); 
             grad.addColorStop(1, 'rgba(99,102,241,0)');
-            
             myChart = new Chart(ctx, { 
                 type: 'line', 
                 data: { 
@@ -435,10 +394,7 @@
                     responsive: true, 
                     maintainAspectRatio: false, 
                     plugins: { legend: false }, 
-                    scales: { 
-                        x: { display: false }, 
-                        y: { display: false } 
-                    } 
+                    scales: { x: { display: false }, y: { display: false } } 
                 } 
             });
         };
@@ -447,17 +403,12 @@
             const sel = document.getElementById('chart-exercise-select');
             const val = sel.value; 
             const exs = [...new Set(allLogs.map(l => l.exercise))]; 
-            
             sel.innerHTML = exs.map(e => `<option value="${e}" ${e===val?'selected':''}>${e}</option>`).join(''); 
-            
-            if(!val && exs.length) { 
-                sel.value = exs[0]; 
-                window.updateProgressChart(); 
-            } 
+            if(!val && exs.length) { sel.value = exs[0]; window.updateProgressChart(); } 
         };
 
         // ==========================================
-        //  NAVEGACIÓN (TABS)
+        //  NAVIGATION
         // ==========================================
         window.switchTab = (t) => { 
             ['dashboard', 'train', 'routines'].forEach(s => { 
@@ -465,12 +416,11 @@
                 if(s === t) { 
                     el.classList.remove('hidden'); 
                     el.classList.remove('animate-up'); 
-                    void el.offsetWidth; // Trigger reflow
+                    void el.offsetWidth; 
                     el.classList.add('animate-up'); 
                 } else { 
                     el.classList.add('hidden'); 
                 } 
-                
                 const btn = document.getElementById(`tab-${s}`); 
                 btn.classList.toggle('active', s === t); 
                 btn.classList.toggle('text-slate-500', s !== t); 
@@ -478,20 +428,16 @@
         };
 
         // ==========================================
-        //  PICKER UNIVERSAL DE EJERCICIOS
+        //  PICKER
         // ==========================================
         window.openUniversalPicker = (context) => {
             pickerContext = context; 
             pickerSelection.clear();
-            
             const picker = document.getElementById('universal-picker'); 
             picker.classList.remove('hidden'); 
-            document.body.style.overflow = 'hidden'; // Bloquear scroll del body
-            
+            document.body.style.overflow = 'hidden';
             const action = document.getElementById('picker-action-bar');
             const planner = document.getElementById('picker-planner-bar');
-            
-            // Configurar UI según contexto
             if(context === 'planner') { 
                 action.classList.add('hidden'); 
                 planner.classList.remove('hidden'); 
@@ -503,7 +449,6 @@
                 btn.textContent = context === 'add_to_active' ? "AÑADIR" : "COMENZAR"; 
                 btn.onclick = context === 'add_to_active' ? window.confirmAddToActive : window.startFreeSessionFromPicker; 
             }
-            
             renderPickerList(); 
             updatePickerUI();
         };
@@ -518,22 +463,17 @@
             const list = document.getElementById('picker-list'); 
             list.innerHTML = ""; 
             const f = filter.toLowerCase();
-            
             const createHeader = (text) => { 
                 const h = document.createElement('h4'); 
                 h.className = "text-[9px] font-black text-slate-500 uppercase tracking-widest mt-3 mb-1 sticky top-0 bg-[#060b1e] py-1 z-10"; 
                 h.textContent = text; 
                 return h; 
             };
-            
-            // 1. Ejercicios Custom
             const visibleCustom = customExercises.filter(e => e.name.toLowerCase().includes(f));
             if(visibleCustom.length > 0) { 
                 list.appendChild(createHeader("Míos")); 
                 visibleCustom.forEach(ex => list.appendChild(createPickerItem(ex.name, true, ex.id))); 
             }
-            
-            // 2. Biblioteca Global
             Object.entries(GLOBAL_LIBRARY).forEach(([cat, exercises]) => { 
                 const visible = exercises.filter(e => e.toLowerCase().includes(f)); 
                 if(visible.length > 0) { 
@@ -548,7 +488,6 @@
             const isSel = pickerSelection.has(name);
             div.className = `p-3 rounded-lg flex justify-between items-center mb-1 cursor-pointer transition-all border ${isSel ? 'bg-indigo-600/20 border-indigo-500' : 'bg-slate-900 border-transparent active:bg-slate-800'}`;
             div.onclick = () => window.togglePickerSelection(name);
-            
             div.innerHTML = `
                 <span class="text-xs font-bold ${isSel ? 'text-indigo-300' : 'text-slate-300'} truncate mr-2">${escapeHTML(name)}</span>
                 <div class="flex items-center gap-2 flex-shrink-0">
@@ -603,7 +542,7 @@
         };
         
         // ==========================================
-        //  LÓGICA DE ENTRENAMIENTO
+        //  TRAINING
         // ==========================================
         const renderTrainSelector = () => {
             document.getElementById('train-routines-list').innerHTML = savedBlocks.map(b => `
@@ -623,11 +562,9 @@
                 name: e.name, 
                 actual: Array.from({length: parseInt(e.sets) || 3}, () => ({weight:"", reps: "", done: false})) 
             }));
-            
             document.getElementById('active-routine-name').textContent = name;
             document.getElementById('routine-selector').classList.add('hidden'); 
             document.getElementById('active-session-ui').classList.remove('hidden');
-            
             window.scrollTo({top: 0, behavior: 'smooth'}); 
             window.renderActiveSession();
         };
@@ -650,7 +587,6 @@
                                 </button>
                                 <div class="flex-1 grid grid-cols-2 gap-2 min-w-0">
                                     <div class="relative bg-slate-900 rounded-xl overflow-hidden">
-                                        <!-- text-base previene zoom en iOS -->
                                         <input type="number" placeholder="-" value="${s.weight}" oninput="window.updateSet(${exIdx}, ${sIdx}, 'weight', this.value)" class="w-full bg-transparent p-2.5 text-center font-bold text-base text-white outline-none">
                                         <span class="absolute right-1 top-1/2 -translate-y-1/2 text-[8px] font-bold text-slate-600 pointer-events-none">KG</span>
                                     </div>
@@ -692,7 +628,6 @@
 
         window.saveFullSession = async () => {
             if(!activeSession || activeSession.length === 0) return;
-            
             const validData = activeSession.map(ex => ({ 
                 exercise: ex.name, 
                 sets: ex.actual.filter(s => s.done && s.weight && s.reps).map(s => ({ weight: parseFloat(s.weight), reps: parseInt(s.reps) })), 
@@ -711,7 +646,7 @@
         };
 
         // ==========================================
-        //  PLANIFICADOR DE RUTINAS
+        //  PLANNER
         // ==========================================
         window.saveRoutineBlock = async () => { 
             const name = document.getElementById('routine-name-input').value.trim(); 
@@ -737,7 +672,7 @@
         };
 
         // ==========================================
-        //  UTILIDADES
+        //  UTILS
         // ==========================================
         window.cancelSession = () => { 
             if(confirm("¿Salir?")) { 
