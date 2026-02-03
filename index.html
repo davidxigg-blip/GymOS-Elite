@@ -2,29 +2,35 @@
 <html lang="es" class="dark">
 <head>
     <meta charset="UTF-8">
+    <!-- Viewport optimizado para iPhone con Notch/Isla Dinámica -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
     <title>GymOS Elite</title>
     
-    <!-- CONFIGURACIÓN iOS PWA -->
-    <meta name="apple-mobile-web-app-title" content="GymOS">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#020617">
-
-    <!-- LIBRERÍAS -->
+    <!-- LIBRERÍAS (Tailwind, Chart.js, Google Fonts) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- ICONO DE APP (Generado para que iOS lo acepte) -->
-    <link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=GO&background=4f46e5&color=fff&size=512&font-size=0.4&rounded=true&bold=true">
+    <!-- CONFIGURACIÓN PWA PARA IOS (Safari) -->
+    <meta name="apple-mobile-web-app-title" content="GymOS Elite">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#020617">
+
+    <!-- LOGO PROFESIONAL PARA PANTALLA DE INICIO -->
+    <!-- He seleccionado un icono de fitness moderno y minimalista en color índigo para que parezca una App nativa -->
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2964/2964514.png">
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2964/2964514.png">
 
     <style>
         :root { --brand: #6366f1; --bg: #020617; }
+        
+        /* Reset para comportamiento móvil nativo */
         * { -webkit-tap-highlight-color: transparent; scrollbar-width: none; touch-action: manipulation; }
         *::-webkit-scrollbar { display: none; }
 
-        /* Evitar pantallazo blanco en iPhone */
+        /* Fondo negro en HTML para evitar el flash blanco al abrir la App */
         html { background-color: #020617; height: 100%; }
 
         body { 
@@ -34,7 +40,7 @@
             color: #f8fafc; 
             overflow-x: hidden;
             width: 100vw;
-            overscroll-behavior-y: none;
+            overscroll-behavior-y: none; /* Evita el rebote de página en iOS */
             min-height: 100dvh;
         }
 
@@ -59,7 +65,7 @@
         input[type="number"]::-webkit-inner-spin-button { display: none; }
         input:focus { border-color: var(--brand) !important; outline: none; }
         
-        /* Ajustes iPhone (Notch y Home Bar) */
+        /* FIX ZONAS SEGURAS IPHONE */
         .safe-pb { padding-bottom: calc(90px + env(safe-area-inset-bottom)); }
         .safe-pt { padding-top: max(1.5rem, calc(0.8rem + env(safe-area-inset-top))); }
         .sticky-header-adjust { top: calc(4.5rem + env(safe-area-inset-top)); }
@@ -68,7 +74,7 @@
         .modal-enter-active { transform: translateY(0); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
     </style>
 </head>
-<body class="safe-pb">
+<body class="safe-pb selection:bg-indigo-500 selection:text-white">
 
     <!-- PANTALLA DE ACCESO (LOGIN) -->
     <div id="login-overlay" class="fixed inset-0 z-[2000] bg-slate-950 flex items-center justify-center px-6">
@@ -76,14 +82,14 @@
             <div class="w-20 h-20 bg-indigo-600 rounded-[2rem] flex items-center justify-center shadow-2xl shadow-indigo-500/20 mx-auto mb-8 rotate-3">
                 <svg viewBox="0 0 24 24" class="w-12 h-12 text-white fill-current"><path d="M20.57 14.86L22 13.43L20.57 12L17 15.57L8.43 7L12 3.43L10.57 2L9.14 3.43L7.71 2L5.57 4.14L4.14 2.71L2.71 4.14L4.14 5.57L2 7.71L3.43 9.14L2 10.57L3.43 12L7 8.43L15.57 17L12 20.57L13.43 22L14.86 20.57L16.29 22L18.43 19.86L19.86 21.29L21.29 19.86L19.86 18.43L22 16.29L20.57 14.86Z"/></svg>
             </div>
-            <h1 class="text-4xl font-black tracking-tighter italic mb-2 text-white">GYMOS <span class="text-indigo-500">PRO</span></h1>
+            <h1 class="text-4xl font-black tracking-tighter italic mb-2">GYMOS <span class="text-indigo-500">PRO</span></h1>
             <p class="text-slate-400 text-xs font-bold mb-8 uppercase tracking-widest">Training System 2026</p>
             <div class="space-y-4">
                 <input type="email" id="login-email" placeholder="Correo electrónico" class="w-full bg-slate-900 border border-white/5 px-6 py-4 rounded-2xl outline-none text-white focus:border-indigo-500 transition-colors text-base appearance-none">
                 <input type="password" id="login-pass" placeholder="Contraseña" class="w-full bg-slate-900 border border-white/5 px-6 py-4 rounded-2xl outline-none text-white focus:border-indigo-500 transition-colors text-base appearance-none">
                 <div class="grid grid-cols-2 gap-4 pt-4">
-                    <button id="btn-signin" class="py-4 bg-indigo-600 text-white font-bold rounded-2xl shadow-lg shadow-indigo-600/20 active:scale-95 transition">ENTRAR</button>
-                    <button id="btn-signup" class="py-4 bg-slate-800 text-white font-bold rounded-2xl active:scale-95 transition">REGISTRAR</button>
+                    <button id="btn-signin" class="py-4 bg-indigo-600 hover:bg-indigo-500 transition-colors text-white font-bold rounded-2xl shadow-lg shadow-indigo-600/20 active:scale-95 transition">ENTRAR</button>
+                    <button id="btn-signup" class="py-4 bg-slate-800 hover:bg-slate-700 transition-colors text-white font-bold rounded-2xl active:scale-95 transition">REGISTRAR</button>
                 </div>
                 <p id="login-error" class="text-rose-500 text-[10px] font-bold uppercase mt-2 hidden"></p>
             </div>
@@ -96,9 +102,10 @@
         <button onclick="window.cerrarSesion()" class="text-[10px] font-bold bg-slate-800/50 px-3 py-1.5 rounded-full border border-white/10 hover:bg-slate-700 transition-colors">SALIR</button>
     </header>
 
+    <!-- CONTENEDOR PRINCIPAL -->
     <main class="px-4 w-full max-w-lg mx-auto min-h-screen pt-4">
         
-        <!-- SECCIÓN: DASHBOARD (PANEL) -->
+        <!-- SECCIÓN: DASHBOARD -->
         <section id="section-dashboard" class="space-y-6 animate-up">
             <div class="glass p-5 rounded-[2rem]">
                 <div class="flex justify-between items-center mb-6">
@@ -142,7 +149,6 @@
                 <div id="train-routines-list" class="grid gap-3 pb-20"></div>
             </div>
 
-            <!-- Interfaz Sesión Activa -->
             <div id="active-session-ui" class="hidden space-y-5 pb-10 w-full">
                 <div class="glass p-4 rounded-3xl flex flex-col gap-3 sticky z-[40] shadow-2xl shadow-black/80 ring-1 ring-white/5 sticky-header-adjust">
                     <div class="flex justify-between items-start">
@@ -157,9 +163,7 @@
                         <button onclick="window.openUniversalPicker('add_to_active')" class="flex-shrink-0 bg-indigo-600 text-white px-3 py-2 rounded-lg text-xs font-bold shadow-lg shadow-indigo-600/20">+ Ejercicio</button>
                     </div>
                 </div>
-
                 <div id="active-session-container" class="space-y-3 w-full"></div>
-                
                 <button onclick="window.saveFullSession()" class="w-full py-5 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-3xl shadow-xl shadow-emerald-600/20 uppercase tracking-widest text-sm transition-all transform active:scale-95 mb-10">
                     FINALIZAR ENTRENAMIENTO
                 </button>
@@ -178,11 +182,7 @@
                 </div>
                 <button onclick="window.openUniversalPicker('planner')" class="w-full py-3.5 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/20 uppercase text-[10px] tracking-widest">Crear Nueva Rutina</button>
             </div>
-            
-            <div class="space-y-3">
-                <h3 class="text-xs font-black text-slate-400 px-2 uppercase tracking-widest">Mis Rutinas</h3>
-                <div id="planner-saved-list" class="grid gap-2"></div>
-            </div>
+            <div id="planner-saved-list" class="grid gap-2"></div>
         </section>
     </main>
 
@@ -192,20 +192,17 @@
             <h3 class="text-base font-black italic text-white">SELECCIONAR</h3>
             <button onclick="window.closeUniversalPicker()" class="text-slate-400 bg-slate-800/50 px-3 py-1 rounded-full text-xs font-bold">CERRAR</button>
         </div>
-        
         <div class="p-4 space-y-3 border-b border-white/5 bg-slate-950">
             <div class="flex gap-2">
                 <input type="text" id="picker-search" placeholder="Buscar ejercicio..." class="w-full bg-slate-900 p-3 rounded-xl text-base outline-none border border-white/5 focus:border-indigo-500 text-white appearance-none">
                 <button onclick="window.toggleCustomInput()" class="bg-slate-800 w-12 rounded-xl font-black text-indigo-400 text-lg flex items-center justify-center shadow-lg shadow-black/20 flex-shrink-0">+</button>
             </div>
             <div id="custom-ex-input" class="hidden p-3 bg-indigo-900/10 rounded-xl border border-indigo-500/20 space-y-2">
-                <input type="text" id="new-ex-name" placeholder="Nombre Ej. Prensa" class="w-full bg-slate-950 p-3 rounded-lg text-base outline-none text-white border border-white/5">
+                <input type="text" id="new-ex-name" placeholder="Nombre: Ej. Peso Muerto" class="w-full bg-slate-950 p-3 rounded-lg text-base outline-none text-white border border-white/5">
                 <button id="btn-save-custom-ex" class="w-full bg-indigo-600 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-indigo-600/20">Guardar</button>
             </div>
         </div>
-
         <div class="flex-1 overflow-y-auto p-4 space-y-2" id="picker-list"></div>
-
         <div id="picker-action-bar" class="p-4 pb-[calc(20px+env(safe-area-inset-bottom))] bg-slate-900 border-t border-white/5 hidden">
             <div class="flex justify-between items-center mb-3">
                 <span class="text-[10px] font-bold text-slate-400">SELECCIONADOS: <span id="picker-count" class="text-white">0</span></span>
@@ -213,7 +210,6 @@
             </div>
             <button id="picker-confirm-btn" class="w-full py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-lg shadow-indigo-600/20 uppercase tracking-widest text-xs">CONFIRMAR</button>
         </div>
-        
         <div id="picker-planner-bar" class="p-4 pb-[calc(20px+env(safe-area-inset-bottom))] bg-slate-900 border-t border-white/5 hidden space-y-3">
             <div id="planner-preview" class="flex flex-wrap gap-2 mb-1 max-h-16 overflow-y-auto"></div>
             <input type="text" id="routine-name-input" placeholder="Nombre de la rutina..." class="w-full bg-slate-950 p-3 rounded-xl outline-none font-bold border border-white/5 text-white text-base">
@@ -221,35 +217,35 @@
         </div>
     </div>
 
-    <!-- NAVEGACIÓN INFERIOR (TABS) -->
+    <!-- MENÚ INFERIOR -->
     <nav class="fixed bottom-6 left-4 right-4 h-[70px] glass rounded-[2rem] z-[1000] flex justify-around items-center px-2 shadow-2xl shadow-black/50">
         <button onclick="window.switchTab('dashboard')" id="tab-dashboard" class="nav-tab active flex flex-col items-center gap-1 w-16 group">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            <svg class="w-6 h-6 group-hover:text-indigo-400 transition-colors" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
             <span class="text-[9px] font-bold uppercase tracking-wide mt-0.5">Panel</span>
         </button>
         <button onclick="window.switchTab('train')" id="tab-train" class="nav-tab flex flex-col items-center gap-1 text-slate-500 w-16 group">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M20.57 14.86L22 13.43L20.57 12L17 15.57L8.43 7L12 3.43L10.57 2L9.14 3.43L7.71 2L5.57 4.14L4.14 2.71L2.71 4.14L4.14 5.57L2 7.71L3.43 9.14L2 10.57L3.43 12L7 8.43L15.57 17L12 20.57L13.43 22L14.86 20.57L16.29 22L18.43 19.86L19.86 21.29L21.29 19.86L19.86 18.43L22 16.29L20.57 14.86Z"/></svg>
+            <svg class="w-6 h-6 group-hover:text-indigo-400 transition-colors" fill="currentColor" viewBox="0 0 24 24"><path d="M20.57 14.86L22 13.43L20.57 12L17 15.57L8.43 7L12 3.43L10.57 2L9.14 3.43L7.71 2L5.57 4.14L4.14 2.71L2.71 4.14L4.14 5.57L2 7.71L3.43 9.14L2 10.57L3.43 12L7 8.43L15.57 17L12 20.57L13.43 22L14.86 20.57L16.29 22L18.43 19.86L19.86 21.29L21.29 19.86L19.86 18.43L22 16.29L20.57 14.86Z"/></svg>
             <span class="text-[9px] font-bold uppercase tracking-wide mt-0.5">Entrenar</span>
         </button>
         <button onclick="window.switchTab('routines')" id="tab-routines" class="nav-tab flex flex-col items-center gap-1 text-slate-500 w-16 group">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            <svg class="w-6 h-6 group-hover:text-indigo-400 transition-colors" fill="currentColor" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
             <span class="text-[9px] font-bold uppercase tracking-wide mt-0.5">Rutinas</span>
         </button>
     </nav>
 
-    <!-- TOAST NOTIFICACIÓN -->
+    <!-- TOAST -->
     <div id="toast" class="fixed top-4 left-1/2 -translate-x-1/2 glass px-6 py-3 rounded-full opacity-0 transition-all duration-300 z-[9999] font-black text-[10px] uppercase text-white pointer-events-none shadow-2xl flex items-center gap-2 whitespace-nowrap">
         <span class="w-2 h-2 rounded-full bg-emerald-500 block"></span>
         <span id="toast-msg">MENSAJE</span>
     </div>
 
-    <!-- JAVASCRIPT: LÓGICA FIREBASE -->
+    <!-- SCRIPT PRINCIPAL: FIREBASE V10.8.0 -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, query, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // TUS LLAVES CONFIGURADAS
+        // TUS LLAVES FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyB5TTnMn1co3GA_oX3jrZ5KZ8KzRbXbhGQ",
             authDomain: "gym-pro-4588d.firebaseapp.com",
@@ -273,18 +269,12 @@
             "Brazos": ["Curl Barra", "Curl Martillo", "Press Francés", "Ext. Tríceps"]
         };
 
-        let user = null;
-        let activeSession = null; 
-        let customExercises = [];
-        let savedBlocks = [];
-        let allLogs = [];
-        let myChart = null;
-        let pickerContext = null; 
-        let pickerSelection = new Set();
+        let user = null, activeSession = null, customExercises = [], savedBlocks = [], allLogs = [], myChart = null;
+        let pickerContext = null, pickerSelection = new Set();
         
         const escapeHTML = (s) => String(s || "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
 
-        // --- LÓGICA DE ACCESO ---
+        // LOGUEO
         const loginEmail = document.getElementById('login-email');
         const loginPass = document.getElementById('login-pass');
         const loginError = document.getElementById('login-error');
@@ -293,46 +283,31 @@
             const email = loginEmail.value.trim();
             const pass = loginPass.value.trim();
             loginError.classList.add('hidden');
-            
-            if(!email || !pass) {
-                loginError.textContent = "Faltan datos";
-                loginError.classList.remove('hidden');
-                return;
-            }
-            
+            if(!email || !pass) { loginError.textContent = "Faltan datos"; loginError.classList.remove('hidden'); return; }
             try { 
-                if (mode === 'signin') {
-                    await signInWithEmailAndPassword(auth, email, pass);
-                } else {
-                    await createUserWithEmailAndPassword(auth, email, pass);
-                }
+                if (mode === 'signin') await signInWithEmailAndPassword(auth, email, pass);
+                else await createUserWithEmailAndPassword(auth, email, pass);
             } catch (err) { 
                 loginError.textContent = "Error: " + err.code;
                 loginError.classList.remove('hidden');
-                console.error(err);
             }
         };
 
         document.getElementById('btn-signin').onclick = () => window.ejecutarLogin('signin');
         document.getElementById('btn-signup').onclick = () => window.ejecutarLogin('signup');
-
         window.cerrarSesion = () => signOut(auth).then(() => window.location.reload());
 
         onAuthStateChanged(auth, u => { 
             user = u; 
             document.getElementById('login-overlay').classList.toggle('hidden', !!u); 
-            if (u) { 
-                initSync(); 
-                window.showToast("Acceso correcto"); 
-            } 
+            if (u) { initSync(); window.showToast("Acceso correcto"); } 
         });
 
-        // --- LÓGICA DE DATOS ---
+        // SINCRONIZACIÓN
         const initSync = () => {
             onSnapshot(query(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'history'), orderBy('timestamp', 'desc')), snap => { 
                 allLogs = snap.docs.map(d => ({ id: d.id, ...d.data() })); 
-                renderDashboard(); 
-                updateExerciseSelect(); 
+                renderDashboard(); updateExerciseSelect(); 
             });
             onSnapshot(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'custom_ex'), snap => { 
                 customExercises = snap.docs.map(d => ({ id: d.id, name: d.data().name })); 
@@ -340,17 +315,13 @@
             });
             onSnapshot(query(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'blocks'), orderBy('createdAt', 'desc')), snap => { 
                 savedBlocks = snap.docs.map(d => ({ id: d.id, ...d.data() })); 
-                renderTrainSelector(); 
-                renderPlannerSavedList(); 
+                renderTrainSelector(); renderPlannerSavedList(); 
             });
         };
 
         const renderDashboard = () => {
             let v = 0; const days = new Set(); 
-            allLogs.forEach(l => { 
-                days.add(l.date); 
-                l.sets?.forEach(set => { v += (set.weight * set.reps); }); 
-            });
+            allLogs.forEach(l => { days.add(l.date); l.sets?.forEach(set => { v += (set.weight * set.reps); }); });
             document.getElementById('stat-volume').textContent = (v / 1000).toFixed(1) + "t";
             document.getElementById('streak-count').textContent = `🔥 ${days.size}`;
             document.getElementById('workout-history').innerHTML = allLogs.slice(0, 5).map(l => `
@@ -365,13 +336,9 @@
         };
 
         window.updateProgressChart = () => {
-            const exName = document.getElementById('chart-exercise-select').value; 
-            if (!exName || !allLogs.length) return;
+            const exName = document.getElementById('chart-exercise-select').value; if (!exName || !allLogs.length) return;
             const filtered = allLogs.filter(l => l.exercise === exName).sort((a,b) => new Date(a.date) - new Date(b.date));
-            const labels = filtered.map(l => { 
-                const d = new Date(l.date); 
-                return `${d.getDate()}/${d.getMonth()+1}`; 
-            });
+            const labels = filtered.map(l => { const d = new Date(l.date); return `${d.getDate()}/${d.getMonth()+1}`; });
             const data = filtered.map(l => Math.round(l.sets.reduce((max, s) => { const rm = s.weight * (1 + s.reps/30); return rm > max ? rm : max; }, 0)));
             if (myChart) myChart.destroy();
             const ctx = document.getElementById('progressChart').getContext('2d');
@@ -385,18 +352,18 @@
             if(!val && exs.length) { sel.value = exs[0]; window.updateProgressChart(); } 
         };
 
-        // --- NAVEGACIÓN ---
+        // NAV
         window.switchTab = (t) => { 
             ['dashboard', 'train', 'routines'].forEach(s => { 
                 const el = document.getElementById(`section-${s}`); 
                 if(s === t) { el.classList.remove('hidden'); el.classList.remove('animate-up'); void el.offsetWidth; el.classList.add('animate-up'); } 
-                else { el.classList.add('hidden'); } 
+                else el.classList.add('hidden');
                 const btn = document.getElementById(`tab-${s}`); 
                 btn.classList.toggle('active', s === t); btn.classList.toggle('text-slate-500', s !== t); 
             }); 
         };
 
-        // --- PICKER ---
+        // PICKER
         window.openUniversalPicker = (context) => {
             pickerContext = context; pickerSelection.clear();
             const picker = document.getElementById('universal-picker'); 
@@ -408,11 +375,7 @@
             renderPickerList(); updatePickerUI();
         };
 
-        window.closeUniversalPicker = () => { 
-            document.getElementById('universal-picker').classList.add('hidden'); 
-            document.body.style.overflow = ''; 
-            document.getElementById('custom-ex-input').classList.add('hidden'); 
-        };
+        window.closeUniversalPicker = () => { document.getElementById('universal-picker').classList.add('hidden'); document.body.style.overflow = ''; document.getElementById('custom-ex-input').classList.add('hidden'); };
         
         const renderPickerList = (filter = "") => {
             const list = document.getElementById('picker-list'); list.innerHTML = ""; const f = filter.toLowerCase();
@@ -431,18 +394,16 @@
         };
 
         window.togglePickerSelection = (name) => { if(pickerSelection.has(name)) pickerSelection.delete(name); else pickerSelection.add(name); renderPickerList(document.getElementById('picker-search').value); updatePickerUI(); };
-
         const updatePickerUI = () => {
             if(pickerContext !== 'planner') { document.getElementById('picker-count').textContent = pickerSelection.size; const btn = document.getElementById('picker-confirm-btn'); btn.disabled = pickerSelection.size === 0; btn.classList.toggle('opacity-50', pickerSelection.size === 0); } 
-            else { document.getElementById('planner-preview').innerHTML = Array.from(pickerSelection).map(n => `<span class="text-[8px] bg-indigo-900/50 text-indigo-300 px-2 py-0.5 rounded border border-indigo-500/20">${escapeHTML(n)}</span>`).join(''); }
+            else document.getElementById('planner-preview').innerHTML = Array.from(pickerSelection).map(n => `<span class="text-[8px] bg-indigo-900/50 text-indigo-300 px-2 py-0.5 rounded border border-indigo-500/20">${escapeHTML(n)}</span>`).join('');
         };
 
         window.clearPickerSelection = () => { pickerSelection.clear(); renderPickerList(); updatePickerUI(); };
-
         window.startFreeSessionFromPicker = () => { if(pickerSelection.size > 0) { window.loadAndStart(Array.from(pickerSelection).map(name => ({ name, sets: 3 })), "Sesión Libre"); window.closeUniversalPicker(); } };
-
         window.confirmAddToActive = () => { if(activeSession) { pickerSelection.forEach(name => activeSession.push({ name, actual: [{weight:"", reps: "", done: false}] })); window.renderActiveSession(); window.closeUniversalPicker(); window.showToast("Añadido"); } };
         
+        // ENTRENAMIENTO
         const renderTrainSelector = () => {
             document.getElementById('train-routines-list').innerHTML = savedBlocks.map(b => `
                 <div class="premium-card p-4 rounded-2xl relative group active:scale-[0.98] transition-transform">
@@ -450,7 +411,7 @@
                         <h3 class="text-base font-black uppercase italic tracking-tighter text-white mb-1 truncate">${escapeHTML(b.name)}</h3>
                         <p class="text-slate-500 text-[10px] truncate">${b.exercises.length} ejercicios</p>
                     </div>
-                    <button onclick="window.deleteRoutineBlock('${b.id}')" class="absolute top-1/2 -translate-y-1/2 right-2 text-rose-500/30 hover:text-rose-500 p-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
+                    <button onclick="window.deleteRoutineBlock('${b.id}')" class="absolute top-1/2 -translate-y-1/2 right-2 text-rose-500/30 hover:text-rose-500 p-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
                 </div>`).join('');
         };
 
@@ -502,7 +463,7 @@
             try { for(const e of validData) await addDoc(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'history'), { ...e, timestamp: serverTimestamp() }); window.showToast("GUARDADO"); window.cancelSession(); } catch(e) { window.showToast("Error al guardar", "error"); }
         };
 
-        // --- PLANIFICADOR ---
+        // PLANNER
         window.saveRoutineBlock = async () => { 
             const name = document.getElementById('routine-name-input').value.trim(); 
             if(!name || pickerSelection.size === 0) return window.showToast("Faltan datos", "error"); 
@@ -515,15 +476,11 @@
             document.getElementById('planner-saved-list').innerHTML = savedBlocks.map(b => `<div class="bg-slate-900/50 p-3 rounded-xl flex justify-between items-center border border-white/5"><span class="text-xs font-bold text-slate-300 truncate mr-2">${escapeHTML(b.name)}</span><button onclick="window.deleteRoutineBlock('${b.id}')" class="text-rose-500/50 p-1">✕</button></div>`).join(''); 
         };
 
-        // --- UTILIDADES ---
+        // UTILS
         window.toggleCustomInput = () => document.getElementById('custom-ex-input').classList.toggle('hidden');
         window.addCustomExercise = async () => { 
             const name = document.getElementById('new-ex-name').value.trim(); 
-            if(name) { 
-                await addDoc(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'custom_ex'), { name }); 
-                document.getElementById('new-ex-name').value = ""; 
-                window.toggleCustomInput(); 
-            } 
+            if(name) { await addDoc(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'custom_ex'), { name }); document.getElementById('new-ex-name').value = ""; window.toggleCustomInput(); } 
         };
         document.getElementById('btn-save-custom-ex').onclick = () => window.addCustomExercise();
 
@@ -532,12 +489,9 @@
         window.deleteRoutineBlock = async (id) => { if(confirm("¿Borrar?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', user.uid, 'blocks', id)); };
 
         window.showToast = (m, type="success") => { 
-            const t = document.getElementById('toast'); 
-            const msg = document.getElementById('toast-msg'); 
-            msg.textContent = m; 
-            t.firstElementChild.className = `w-2 h-2 rounded-full block ${type==='error'?'bg-rose-500':'bg-emerald-500'}`; 
-            t.classList.remove('opacity-0', 'translate-y-4'); 
-            setTimeout(() => t.classList.add('opacity-0', 'translate-y-4'), 2500); 
+            const t = document.getElementById('toast'); const msg = document.getElementById('toast-msg'); 
+            msg.textContent = m; t.firstElementChild.className = `w-2 h-2 rounded-full block ${type==='error'?'bg-rose-500':'bg-emerald-500'}`; 
+            t.classList.remove('opacity-0', 'translate-y-4'); setTimeout(() => t.classList.add('opacity-0', 'translate-y-4'), 2500); 
         };
 
         window.onload = () => { 
