@@ -5,18 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>GymOS Elite</title>
     
-    <!-- LIBRERÍAS (Carga prioritaria) -->
+    <!-- ESTILOS Y GRÁFICAS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Configuración iOS PWA -->
+    <!-- CONFIGURACIÓN iOS -->
     <meta name="apple-mobile-web-app-title" content="GymOS">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#020617">
 
-    <!-- ICONO DE APP (Alta resolución para iOS) -->
+    <!-- ICONOS iOS -->
     <link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=GO&background=4f46e5&color=fff&size=512&font-size=0.4&rounded=true&bold=true">
     <link rel="icon" type="image/png" href="https://ui-avatars.com/api/?name=GO&background=4f46e5&color=fff&size=512&font-size=0.4&rounded=true&bold=true">
 
@@ -24,7 +24,10 @@
         :root { --brand: #6366f1; --bg: #020617; }
         * { -webkit-tap-highlight-color: transparent; scrollbar-width: none; touch-action: manipulation; }
         *::-webkit-scrollbar { display: none; }
+        
+        /* Fix pantalla blanca */
         html { background-color: #020617; height: 100%; }
+        
         body { 
             background: var(--bg); 
             background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #020617 100%);
@@ -35,18 +38,23 @@
             overscroll-behavior-y: none;
             min-height: 100dvh;
         }
+
         .glass { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
         .premium-card { background: linear-gradient(145deg, rgba(30, 41, 59, 0.4), rgba(15, 23, 42, 0.7)); border: 1px solid rgba(255, 255, 255, 0.05); }
         .nav-tab.active { color: #818cf8; }
         .nav-tab.active svg { transform: translateY(-2px); transition: transform 0.2s; }
+        
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .animate-up { animation: slideUp 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        
         input[type="number"]::-webkit-inner-spin-button { display: none; }
         input:focus { border-color: var(--brand) !important; outline: none; }
+        
         /* Zonas Seguras iPhone */
         .safe-pb { padding-bottom: calc(90px + env(safe-area-inset-bottom)); }
         .safe-pt { padding-top: max(1.5rem, calc(0.8rem + env(safe-area-inset-top))); }
         .sticky-header-adjust { top: calc(4.5rem + env(safe-area-inset-top)); }
+        
         .modal-enter { transform: translateY(100%); }
         .modal-enter-active { transform: translateY(0); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
     </style>
@@ -167,7 +175,7 @@
         </section>
     </main>
 
-    <!-- UNIVERSAL EXERCISE PICKER MODAL -->
+    <!-- PICKER MODAL -->
     <div id="universal-picker" class="fixed inset-0 z-[3000] bg-slate-950 flex flex-col hidden modal-enter-active">
         <div class="p-4 flex items-center justify-between bg-slate-900/90 backdrop-blur-xl border-b border-white/5 sticky top-0 z-20 safe-pt">
             <h3 class="text-base font-black italic text-white">SELECCIONAR</h3>
@@ -203,7 +211,7 @@
         </div>
     </div>
 
-    <!-- BOTTOM NAV -->
+    <!-- NAVBAR -->
     <nav class="fixed bottom-6 left-4 right-4 h-[70px] glass rounded-[2rem] z-[1000] flex justify-around items-center px-2 shadow-2xl shadow-black/50">
         <button onclick="window.switchTab('dashboard')" id="tab-dashboard" class="nav-tab active flex flex-col items-center gap-1 w-16 group">
             <svg class="w-6 h-6 group-hover:text-indigo-400 transition-colors" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
@@ -225,9 +233,10 @@
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, query, orderBy, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        // USANDO VERSIÓN ESTABLE 10.8.0 PARA ASEGURAR COMPATIBILIDAD
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, query, orderBy, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyB5TTnMn1co3GA_oX3jrZ5KZ8KzRbXbhGQ",
@@ -256,6 +265,7 @@
         
         const escapeHTML = (s) => String(s || "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
 
+        // AUTH
         window.ejecutarLogin = async (mode) => {
             const e = document.getElementById('login-email').value;
             const p = document.getElementById('login-pass').value;
@@ -263,10 +273,7 @@
             try { 
                 if (mode === 'signin') await signInWithEmailAndPassword(auth, e, p);
                 else await createUserWithEmailAndPassword(auth, e, p);
-            } catch (err) { 
-                alert("Error de acceso: " + err.message + "\n\nRecuerda: Si es la primera vez, usa REGISTRAR. Verifica que en Firebase Console > Authentication tengas habilitado Email/Password.");
-                window.showToast("Error de acceso", "error"); 
-            }
+            } catch (err) { window.showToast(err.message, "error"); }
         };
 
         window.cerrarSesion = () => signOut(auth).then(() => window.location.reload());
