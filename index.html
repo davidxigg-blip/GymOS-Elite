@@ -2,36 +2,29 @@
 <html lang="es" class="dark">
 <head>
     <meta charset="UTF-8">
-    <!-- Viewport ajustado para iPhone: fit=cover y no-scalable para sentirlo nativo -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    
     <title>GymOS Elite</title>
     
-    <!-- CARGA DE ESTILOS (Tailwind) -->
+    <!-- LIBRERÍAS (Carga prioritaria) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- CONFIGURACIÓN iOS PWA -->
+    <!-- Configuración iOS PWA -->
     <meta name="apple-mobile-web-app-title" content="GymOS">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#020617">
 
-    <!-- SOLUCIÓN ICONO iOS: Usamos una URL externa generada porque iOS no acepta Base64 -->
+    <!-- ICONO DE APP (Alta resolución para iOS) -->
     <link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=GO&background=4f46e5&color=fff&size=512&font-size=0.4&rounded=true&bold=true">
     <link rel="icon" type="image/png" href="https://ui-avatars.com/api/?name=GO&background=4f46e5&color=fff&size=512&font-size=0.4&rounded=true&bold=true">
 
     <style>
         :root { --brand: #6366f1; --bg: #020617; }
-        
-        /* Reset para comportamiento móvil nativo */
         * { -webkit-tap-highlight-color: transparent; scrollbar-width: none; touch-action: manipulation; }
         *::-webkit-scrollbar { display: none; }
-
-        /* FIX CRÍTICO: Fondo negro en HTML para evitar pantallazo blanco al abrir */
         html { background-color: #020617; height: 100%; }
-
         body { 
             background: var(--bg); 
             background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #020617 100%);
@@ -42,33 +35,18 @@
             overscroll-behavior-y: none;
             min-height: 100dvh;
         }
-
-        .glass { 
-            background: rgba(15, 23, 42, 0.85); 
-            backdrop-filter: blur(20px); 
-            -webkit-backdrop-filter: blur(20px); 
-            border: 1px solid rgba(255, 255, 255, 0.08); 
-        }
-        
-        .premium-card { 
-            background: linear-gradient(145deg, rgba(30, 41, 59, 0.4), rgba(15, 23, 42, 0.7)); 
-            border: 1px solid rgba(255, 255, 255, 0.05); 
-        }
-
+        .glass { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .premium-card { background: linear-gradient(145deg, rgba(30, 41, 59, 0.4), rgba(15, 23, 42, 0.7)); border: 1px solid rgba(255, 255, 255, 0.05); }
         .nav-tab.active { color: #818cf8; }
         .nav-tab.active svg { transform: translateY(-2px); transition: transform 0.2s; }
-
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .animate-up { animation: slideUp 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
-        
         input[type="number"]::-webkit-inner-spin-button { display: none; }
         input:focus { border-color: var(--brand) !important; outline: none; }
-        
         /* Zonas Seguras iPhone */
         .safe-pb { padding-bottom: calc(90px + env(safe-area-inset-bottom)); }
         .safe-pt { padding-top: max(1.5rem, calc(0.8rem + env(safe-area-inset-top))); }
         .sticky-header-adjust { top: calc(4.5rem + env(safe-area-inset-top)); }
-        
         .modal-enter { transform: translateY(100%); }
         .modal-enter-active { transform: translateY(0); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
     </style>
@@ -84,11 +62,11 @@
             <h1 class="text-4xl font-black tracking-tighter italic mb-2">GYMOS <span class="text-indigo-500">PRO</span></h1>
             <p class="text-slate-400 text-xs font-bold mb-8 uppercase tracking-widest">Training System 2026</p>
             <div class="space-y-4">
-                <input type="email" id="login-email" placeholder="Email" class="w-full bg-slate-900 border border-white/5 px-6 py-4 rounded-2xl outline-none text-white focus:border-indigo-500 transition-colors text-base">
-                <input type="password" id="login-pass" placeholder="Password" class="w-full bg-slate-900 border border-white/5 px-6 py-4 rounded-2xl outline-none text-white focus:border-indigo-500 transition-colors text-base">
+                <input type="email" id="login-email" placeholder="Email" class="w-full bg-slate-900 border border-white/5 px-6 py-4 rounded-2xl outline-none text-white focus:border-indigo-500 transition-colors text-base appearance-none">
+                <input type="password" id="login-pass" placeholder="Password" class="w-full bg-slate-900 border border-white/5 px-6 py-4 rounded-2xl outline-none text-white focus:border-indigo-500 transition-colors text-base appearance-none">
                 <div class="grid grid-cols-2 gap-4 pt-4">
-                    <button onclick="window.ejecutarLogin('signin')" class="py-4 bg-indigo-600 hover:bg-indigo-500 transition-colors text-white font-bold rounded-2xl shadow-lg shadow-indigo-600/20">ENTRAR</button>
-                    <button onclick="window.ejecutarLogin('signup')" class="py-4 bg-slate-800 hover:bg-slate-700 transition-colors text-white font-bold rounded-2xl">REGISTRAR</button>
+                    <button onclick="window.ejecutarLogin('signin')" class="py-4 bg-indigo-600 hover:bg-indigo-500 transition-colors text-white font-bold rounded-2xl shadow-lg shadow-indigo-600/20 active:scale-95 transform transition">ENTRAR</button>
+                    <button onclick="window.ejecutarLogin('signup')" class="py-4 bg-slate-800 hover:bg-slate-700 transition-colors text-white font-bold rounded-2xl active:scale-95 transform transition">REGISTRAR</button>
                 </div>
             </div>
         </div>
@@ -241,7 +219,6 @@
         </button>
     </nav>
 
-    <!-- TOAST -->
     <div id="toast" class="fixed top-4 left-1/2 -translate-x-1/2 glass px-6 py-3 rounded-full opacity-0 transition-all duration-300 z-[9999] font-black text-[10px] uppercase text-white pointer-events-none shadow-2xl flex items-center gap-2 whitespace-nowrap">
         <span class="w-2 h-2 rounded-full bg-emerald-500 block"></span>
         <span id="toast-msg">MENSAJE</span>
@@ -286,7 +263,10 @@
             try { 
                 if (mode === 'signin') await signInWithEmailAndPassword(auth, e, p);
                 else await createUserWithEmailAndPassword(auth, e, p);
-            } catch (err) { window.showToast(err.message, "error"); }
+            } catch (err) { 
+                alert("Error de acceso: " + err.message + "\n\nRecuerda: Si es la primera vez, usa REGISTRAR. Verifica que en Firebase Console > Authentication tengas habilitado Email/Password.");
+                window.showToast("Error de acceso", "error"); 
+            }
         };
 
         window.cerrarSesion = () => signOut(auth).then(() => window.location.reload());
@@ -331,8 +311,7 @@
         };
 
         window.updateProgressChart = () => {
-            const exName = document.getElementById('chart-exercise-select').value; 
-            if (!exName || !allLogs.length) return;
+            const exName = document.getElementById('chart-exercise-select').value; if (!exName || !allLogs.length) return;
             const filtered = allLogs.filter(l => l.exercise === exName).sort((a,b) => new Date(a.date) - new Date(b.date));
             const labels = filtered.map(l => { const d = new Date(l.date); return `${d.getDate()}/${d.getMonth()+1}`; });
             const data = filtered.map(l => Math.round(l.sets.reduce((max, s) => { const rm = s.weight * (1 + s.reps/30); return rm > max ? rm : max; }, 0)));
