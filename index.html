@@ -4,60 +4,23 @@
     <meta charset="UTF-8">
     <!-- Viewport ajustado para iPhone: fit=cover y no-scalable -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>GymOS Elite 2026</title>
     
+    <!-- Configuración PWA / iOS -->
+    <title>GymOS Elite</title>
+    <meta name="apple-mobile-web-app-title" content="GymOS">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-    
+    <meta name="theme-color" content="#020617">
+
+    <!-- ICONO DE APP (Base64 para que funcione sin archivos externos) -->
+    <link rel="apple-touch-icon" href="data:image/png;base64,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">
+
     <style>
-        :root { --brand: #6366f1; --bg: #020617; }
-        /* Prevención de scroll horizontal y mejoras táctiles */
-        * { -webkit-tap-highlight-color: transparent; scrollbar-width: none; touch-action: manipulation; }
-        *::-webkit-scrollbar { display: none; }
-
-        body { 
-            background: var(--bg); 
-            background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #020617 100%);
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            color: #f8fafc; 
-            overflow-x: hidden; /* CRUCIAL PARA IPHONE */
-            width: 100vw;
-            overscroll-behavior-y: none; /* Evita el rebote elástico en iOS */
+        /* Corrección para eliminar flash blanco en inicio */
+        html, body {
+            background-color: #020617;
+            height: 100%;
         }
-
-        .glass { 
-            background: rgba(15, 23, 42, 0.85); 
-            backdrop-filter: blur(20px); 
-            -webkit-backdrop-filter: blur(20px); /* Soporte Safari */
-            border: 1px solid rgba(255, 255, 255, 0.08); 
-        }
-        
-        .premium-card { background: linear-gradient(145deg, rgba(30, 41, 59, 0.4), rgba(15, 23, 42, 0.7)); border: 1px solid rgba(255, 255, 255, 0.05); }
-
-        .nav-tab.active { color: #818cf8; }
-        .nav-tab.active svg { transform: translateY(-2px); transition: transform 0.2s; }
-
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .animate-up { animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
-        
-        /* Ocultar flechas de input number */
-        input[type="number"]::-webkit-inner-spin-button { display: none; }
-        /* Evitar borde azul por defecto */
-        input:focus { border-color: var(--brand) !important; outline: none; }
-        
-        /* CORRECCIÓN VISUAL IPHONE: Margen inferior y superior seguros */
-        .safe-pb { padding-bottom: calc(90px + env(safe-area-inset-bottom)); }
-        
-        /* Aquí sumamos 1.5rem (aprox 24px) a la zona segura superior para que no toque la hora/batería */
-        .safe-pt { padding-top: calc(1.5rem + env(safe-area-inset-top)); }
-        
-        /* Modal transitions */
-        .modal-enter { transform: translateY(100%); }
-        .modal-enter-active { transform: translateY(0); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
     </style>
 </head>
 <body class="safe-pb selection:bg-indigo-500 selection:text-white">
