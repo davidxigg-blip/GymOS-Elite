@@ -10,11 +10,13 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- CONFIGURACIÓN iOS -->
+    <!-- CONFIGURACIÓN iOS PWA -->
     <meta name="apple-mobile-web-app-title" content="GymOS Elite">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#020617">
+    
+    <!-- ICONO PROFESIONAL Safari -->
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2964/2964514.png">
 
     <style>
@@ -22,6 +24,7 @@
         * { -webkit-tap-highlight-color: transparent; scrollbar-width: none; touch-action: manipulation; }
         *::-webkit-scrollbar { display: none; }
         html { background-color: #020617; height: 100%; }
+        
         body { 
             background: var(--bg); 
             background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #020617 100%);
@@ -32,36 +35,40 @@
             overscroll-behavior-y: none;
             min-height: 100dvh;
         }
+
         .glass { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
         .premium-card { background: linear-gradient(145deg, rgba(30, 41, 59, 0.4), rgba(15, 23, 42, 0.7)); border: 1px solid rgba(255, 255, 255, 0.05); }
         .nav-tab.active { color: #818cf8; }
+        
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .animate-up { animation: slideUp 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        
         input:focus { border-color: var(--brand) !important; outline: none; }
         
-        /* FIX ZONAS SEGURAS */
+        /* ZONAS SEGURAS IPHONE */
         .safe-pb { padding-bottom: calc(100px + env(safe-area-inset-bottom)); }
         .safe-pt { padding-top: max(1.2rem, calc(0.5rem + env(safe-area-inset-top))); }
         
-        /* Ajuste preciso para que el header sticky de la sesión no tape nada */
-        .sticky-session-header {
+        /* HEADER DE ENTRENAMIENTO MEJORADO (Evita solapamiento) */
+        .training-header-fixed {
             position: sticky;
-            top: calc(4.5rem + env(safe-area-inset-top));
+            top: calc(4rem + env(safe-area-inset-top));
             z-index: 40;
-            margin-bottom: 1rem;
+            width: 100%;
         }
 
-        .modal-enter { transform: translateY(100%); }
-        .modal-enter-active { transform: translateY(0); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        /* Transiciones de Modal */
+        .modal-active { display: flex !important; animation: fadeIn 0.2s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body class="safe-pb selection:bg-indigo-500 selection:text-white">
 
-    <!-- LOGIN -->
+    <!-- PANTALLA DE ACCESO (LOGIN) -->
     <div id="login-overlay" class="fixed inset-0 z-[2000] bg-slate-950 flex items-center justify-center px-6">
         <div class="w-full max-w-sm text-center animate-up">
-            <div class="w-20 h-20 mx-auto mb-6 bg-indigo-600/20 rounded-[2rem] flex items-center justify-center border border-indigo-500/30">
-                <svg viewBox="0 0 24 24" class="w-10 h-10 text-indigo-500 fill-current"><path d="M20.57 14.86L22 13.43L20.57 12L17 15.57L8.43 7L12 3.43L10.57 2L9.14 3.43L7.71 2L5.57 4.14L4.14 2.71L2.71 4.14L4.14 5.57L2 7.71L3.43 9.14L2 10.57L3.43 12L7 8.43L15.57 17L12 20.57L13.43 22L14.86 20.57L16.29 22L18.43 19.86L19.86 21.29L21.29 19.86L19.86 18.43L22 16.29L20.57 14.86Z"/></svg>
+            <div class="w-24 h-24 mx-auto mb-8 bg-indigo-600/20 rounded-[2.5rem] flex items-center justify-center shadow-2xl shadow-indigo-500/20 border border-indigo-500/30">
+                <svg viewBox="0 0 24 24" class="w-14 h-14 text-indigo-500 fill-current"><path d="M20.57 14.86L22 13.43L20.57 12L17 15.57L8.43 7L12 3.43L10.57 2L9.14 3.43L7.71 2L5.57 4.14L4.14 2.71L2.71 4.14L4.14 5.57L2 7.71L3.43 9.14L2 10.57L3.43 12L7 8.43L15.57 17L12 20.57L13.43 22L14.86 20.57L16.29 22L18.43 19.86L19.86 21.29L21.29 19.86L19.86 18.43L22 16.29L20.57 14.86Z"/></svg>
             </div>
             <h1 class="text-4xl font-black tracking-tighter italic mb-2 text-white">GYMOS <span class="text-indigo-500">PRO</span></h1>
             <p class="text-slate-400 text-xs font-bold mb-8 uppercase tracking-widest">Training System 2026</p>
@@ -77,7 +84,7 @@
         </div>
     </div>
 
-    <!-- MAIN HEADER -->
+    <!-- CABECERA (HEADER) -->
     <header class="px-5 pb-3 flex justify-between items-center sticky top-0 z-50 bg-[#020617]/90 backdrop-blur-md border-b border-white/5 safe-pt">
         <div class="flex items-center gap-2">
             <svg viewBox="0 0 24 24" class="w-6 h-6 text-indigo-500 fill-current"><path d="M20.57 14.86L22 13.43L20.57 12L17 15.57L8.43 7L12 3.43L10.57 2L9.14 3.43L7.71 2L5.57 4.14L4.14 2.71L2.71 4.14L4.14 5.57L2 7.71L3.43 9.14L2 10.57L3.43 12L7 8.43L15.57 17L12 20.57L13.43 22L14.86 20.57L16.29 22L18.43 19.86L19.86 21.29L21.29 19.86L19.86 18.43L22 16.29L20.57 14.86Z"/></svg>
@@ -88,7 +95,7 @@
 
     <main class="px-4 w-full max-w-lg mx-auto min-h-screen pt-4">
         
-        <!-- SECCIÓN: PANEL -->
+        <!-- DASHBOARD (PANEL) -->
         <section id="section-dashboard" class="space-y-6 animate-up">
             <div class="glass p-5 rounded-[2rem]">
                 <div class="flex justify-between items-center mb-6">
@@ -118,102 +125,129 @@
         </section>
 
         <!-- SECCIÓN: ENTRENAR -->
-        <section id="section-train" class="hidden space-y-4 animate-up w-full overflow-hidden">
+        <section id="section-train" class="hidden space-y-4 animate-up w-full">
             <div id="routine-selector" class="space-y-4">
-                <!-- FIX: Caja de sesión libre compacta -->
-                <button onclick="window.openUniversalPicker('session')" class="w-full py-5 border-2 border-dashed border-indigo-500/30 bg-indigo-500/5 rounded-3xl text-indigo-300 font-bold hover:bg-indigo-500/10 flex items-center justify-center gap-3 active:scale-[0.98] transition-all">
-                    <span class="text-2xl font-light">+</span>
+                <button onclick="window.openUniversalPicker('session')" class="w-full py-5 border-2 border-dashed border-indigo-500/30 bg-indigo-500/5 rounded-3xl text-indigo-300 font-bold flex items-center justify-center gap-3 active:scale-95 transition-all">
+                    <span class="text-2xl">+</span>
                     <span class="text-sm uppercase tracking-widest">Crear Sesión Libre</span>
                 </button>
-                
                 <div class="flex items-center gap-4 py-1">
                      <div class="h-px bg-slate-800 flex-1"></div>
-                     <span class="text-[9px] font-bold text-slate-600 uppercase tracking-tighter">O mis rutinas</span>
+                     <span class="text-[9px] font-bold text-slate-600 uppercase">O mis rutinas</span>
                      <div class="h-px bg-slate-800 flex-1"></div>
                 </div>
-                
                 <div id="train-routines-list" class="grid gap-3"></div>
             </div>
 
             <!-- Interfaz Sesión Activa -->
             <div id="active-session-ui" class="hidden space-y-4 w-full">
-                <!-- FIX: Header sticky corregido y más bajo -->
-                <div class="glass p-4 rounded-3xl flex flex-col gap-3 shadow-2xl sticky-session-header ring-1 ring-white/5">
-                    <div class="flex justify-between items-center">
-                        <div class="overflow-hidden">
-                            <p class="text-[8px] text-slate-500 font-bold uppercase">Entrenando ahora</p>
-                            <h2 id="active-routine-name" class="font-black text-base text-white uppercase italic truncate">--</h2>
+                <!-- BOX DINÁMICO DE SESIÓN -->
+                <div class="training-header-fixed">
+                    <div class="glass p-4 rounded-3xl flex flex-col gap-3 shadow-2xl ring-1 ring-white/5">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-[8px] text-slate-500 font-bold uppercase tracking-widest">Entrenando ahora</p>
+                                <h2 id="active-routine-name" class="font-black text-lg text-white uppercase italic truncate">--</h2>
+                            </div>
+                            <button onclick="window.cancelSession()" class="flex-shrink-0 text-rose-500 bg-rose-500/10 p-2 px-3 rounded-lg text-[9px] font-black uppercase">Cancelar</button>
                         </div>
-                        <button onclick="window.cancelSession()" class="flex-shrink-0 text-rose-500 bg-rose-500/10 p-2 px-3 rounded-lg text-[9px] font-black uppercase tracking-widest">Cancelar</button>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <input type="date" id="workout-date" class="bg-slate-900 border border-white/5 rounded-xl px-3 py-2 text-slate-300 font-bold outline-none text-xs flex-1 min-w-0">
-                        <button onclick="window.openUniversalPicker('add_to_active')" class="flex-shrink-0 bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/20">+ Ejercicio</button>
+                        <div class="flex items-center gap-2">
+                            <input type="date" id="workout-date" class="bg-slate-900 border border-white/5 rounded-xl px-3 py-2 text-slate-300 font-bold outline-none text-xs flex-1 min-w-0">
+                            <button onclick="window.openUniversalPicker('add_to_active')" class="flex-shrink-0 bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/20">+ Ejercicio</button>
+                        </div>
                     </div>
                 </div>
 
-                <div id="active-session-container" class="space-y-4 w-full pt-1"></div>
+                <!-- CONTENEDOR DE EJERCICIOS (Con margen para no ser tapado) -->
+                <div id="active-session-container" class="space-y-4 w-full pb-20"></div>
                 
-                <button onclick="window.saveFullSession()" class="w-full py-5 bg-emerald-600 text-white font-black rounded-3xl shadow-xl uppercase tracking-widest text-sm active:scale-95 transition mt-4 mb-10">
+                <button onclick="window.saveFullSession()" class="w-full py-5 bg-emerald-600 text-white font-black rounded-3xl shadow-xl shadow-emerald-600/20 uppercase tracking-widest text-sm active:scale-95 transition">
                     Finalizar Entrenamiento
                 </button>
             </div>
         </section>
 
-        <!-- SECCIÓN: RUTINAS -->
+        <!-- SECCIÓN: RUTINAS (PLANIFICADOR) -->
         <section id="section-routines" class="hidden space-y-6 animate-up pb-10">
-            <div class="glass p-6 rounded-[2rem] text-center space-y-4">
-                <div class="w-12 h-12 bg-slate-800 rounded-2xl flex items-center justify-center mx-auto text-indigo-400">
-                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+            <div class="glass p-8 rounded-[2.5rem] text-center space-y-4">
+                <div class="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center mx-auto text-indigo-400">
+                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
                 </div>
-                <button onclick="window.openUniversalPicker('planner')" class="w-full py-3.5 bg-indigo-600 text-white font-bold rounded-xl shadow-lg uppercase text-[10px] tracking-widest">Crear Nueva Rutina</button>
+                <h3 class="text-xl font-black italic text-white">PLANIFICADOR</h3>
+                <p class="text-xs text-slate-400 font-medium leading-relaxed">Configura tus bloques de entrenamiento para usarlos rápidamente.</p>
+                <button onclick="window.openUniversalPicker('planner')" class="w-full py-4 bg-indigo-600 text-white font-bold rounded-2xl shadow-lg uppercase text-xs tracking-widest">Crear Nueva Rutina</button>
             </div>
-            <div id="planner-saved-list" class="grid gap-2"></div>
+            
+            <div class="space-y-3">
+                <h3 class="text-xs font-black text-slate-400 px-2 uppercase tracking-widest">Mis Rutinas Guardadas</h3>
+                <div id="planner-saved-list" class="grid gap-2"></div>
+            </div>
         </section>
     </main>
 
-    <!-- SELECTOR UNIVERSAL -->
+    <!-- SELECTOR UNIVERSAL (MODAL) -->
     <div id="universal-picker" class="fixed inset-0 z-[3000] bg-slate-950 flex flex-col hidden modal-enter-active">
         <div class="p-4 flex items-center justify-between bg-slate-900/90 backdrop-blur-xl border-b border-white/5 sticky top-0 z-20 safe-pt">
             <h3 class="text-base font-black italic text-white">SELECCIONAR</h3>
             <button onclick="window.closeUniversalPicker()" class="text-slate-400 bg-slate-800/50 px-3 py-1 rounded-full text-xs font-bold">CERRAR</button>
         </div>
-        <div class="p-4 space-y-3 bg-slate-950">
-            <input type="text" id="picker-search" placeholder="Buscar..." class="w-full bg-slate-900 p-3 rounded-xl text-base outline-none border border-white/5 text-white appearance-none">
-            <div id="custom-ex-input" class="hidden p-3 bg-indigo-900/10 rounded-xl border border-indigo-500/20 space-y-2">
-                <input type="text" id="new-ex-name" placeholder="Nombre Ej. Prensa" class="w-full bg-slate-950 p-3 rounded-lg text-base outline-none text-white border border-white/5">
-                <button id="btn-save-custom-ex" class="w-full bg-indigo-600 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest text-white shadow-lg">Guardar</button>
+        
+        <div class="p-4 space-y-4 border-b border-white/5 bg-slate-950">
+            <!-- BUSCADOR -->
+            <input type="text" id="picker-search" placeholder="Buscar ejercicio..." class="w-full bg-slate-900 p-4 rounded-2xl text-base outline-none border border-white/5 text-white appearance-none">
+            
+            <!-- CREAR EJERCICIO CUSTOM (Panel Colapsable) -->
+            <div id="custom-ex-input" class="hidden p-4 bg-indigo-900/20 rounded-2xl border border-indigo-500/30 space-y-3">
+                <h4 class="text-[10px] font-black uppercase text-indigo-400">Nuevo Ejercicio Personalizado</h4>
+                <input type="text" id="new-ex-name" placeholder="Nombre Ej. Press Militar" class="w-full bg-slate-950 p-3 rounded-xl text-base outline-none text-white border border-white/5">
+                <button id="btn-save-custom-ex" class="w-full bg-indigo-600 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-white">Guardar Ejercicio</button>
             </div>
-            <button onclick="window.toggleCustomInput()" class="w-full py-2 text-[10px] font-bold text-indigo-400 uppercase tracking-widest">+ Crear Ejercicio Personalizado</button>
+            
+            <button onclick="window.toggleCustomInput()" class="w-full py-2 text-[10px] font-black text-indigo-400 uppercase tracking-widest border border-indigo-500/20 rounded-xl">+ Crear Ejercicio Personalizado</button>
         </div>
+
+        <!-- LISTA DE EJERCICIOS -->
         <div class="flex-1 overflow-y-auto p-4 space-y-2" id="picker-list"></div>
+
+        <!-- PANEL INFERIOR PARA INICIAR ENTRENAMIENTO -->
         <div id="picker-action-bar" class="p-4 pb-[calc(20px+env(safe-area-inset-bottom))] bg-slate-900 border-t border-white/5 hidden">
-            <button id="picker-confirm-btn" class="w-full py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-lg uppercase tracking-widest text-xs">CONFIRMAR</button>
+            <div class="flex justify-between items-center mb-3">
+                <span class="text-[10px] font-bold text-slate-400 uppercase">Seleccionados: <span id="picker-count" class="text-white">0</span></span>
+                <button onclick="window.clearPickerSelection()" class="text-[10px] font-bold text-rose-500 uppercase">Limpiar</button>
+            </div>
+            <button id="picker-confirm-btn" class="w-full py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-lg uppercase tracking-widest text-sm">CONFIRMAR SELECCIÓN</button>
+        </div>
+        
+        <!-- PANEL INFERIOR PARA GUARDAR RUTINA (PLANIFICADOR) -->
+        <div id="picker-planner-bar" class="p-4 pb-[calc(20px+env(safe-area-inset-bottom))] bg-slate-900 border-t border-white/5 hidden space-y-3">
+            <div id="planner-preview" class="flex flex-wrap gap-2 mb-2 max-h-20 overflow-y-auto"></div>
+            <input type="text" id="routine-name-input" placeholder="Nombre de la rutina..." class="w-full bg-slate-950 p-4 rounded-2xl outline-none font-bold border border-white/5 text-white text-base">
+            <button id="btn-save-routine" class="w-full py-4 bg-emerald-600 text-white font-black rounded-2xl shadow-lg uppercase tracking-widest text-sm">GUARDAR BLOQUE DE RUTINA</button>
         </div>
     </div>
 
-    <!-- TABS -->
-    <nav class="fixed bottom-6 left-4 right-4 h-[70px] glass rounded-[2.5rem] z-[1000] flex justify-around items-center px-2 shadow-2xl">
+    <!-- TABS INFERIORES -->
+    <nav class="fixed bottom-6 left-4 right-4 h-[70px] glass rounded-[2rem] z-[1000] flex justify-around items-center px-2 shadow-2xl">
         <button onclick="window.switchTab('dashboard')" id="tab-dashboard" class="nav-tab active flex flex-col items-center gap-1 w-16 group">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            <svg class="w-6 h-6 group-hover:text-indigo-400 transition-colors" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
             <span class="text-[9px] font-bold uppercase tracking-wide">Panel</span>
         </button>
         <button onclick="window.switchTab('train')" id="tab-train" class="nav-tab flex flex-col items-center gap-1 text-slate-500 w-16 group">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M20.57 14.86L22 13.43L20.57 12L17 15.57L8.43 7L12 3.43L10.57 2L9.14 3.43L7.71 2L5.57 4.14L4.14 2.71L2.71 4.14L4.14 5.57L2 7.71L3.43 9.14L2 10.57L3.43 12L7 8.43L15.57 17L12 20.57L13.43 22L14.86 20.57L16.29 22L18.43 19.86L19.86 21.29L21.29 19.86L19.86 18.43L22 16.29L20.57 14.86Z"/></svg>
+            <svg class="w-6 h-6 group-hover:text-indigo-400 transition-colors" fill="currentColor" viewBox="0 0 24 24"><path d="M20.57 14.86L22 13.43L20.57 12L17 15.57L8.43 7L12 3.43L10.57 2L9.14 3.43L7.71 2L5.57 4.14L4.14 2.71L2.71 4.14L4.14 5.57L2 7.71L3.43 9.14L2 10.57L3.43 12L7 8.43L15.57 17L12 20.57L13.43 22L14.86 20.57L16.29 22L18.43 19.86L19.86 21.29L21.29 19.86L19.86 18.43L22 16.29L20.57 14.86Z"/></svg>
             <span class="text-[9px] font-bold uppercase tracking-wide">Entrenar</span>
         </button>
         <button onclick="window.switchTab('routines')" id="tab-routines" class="nav-tab flex flex-col items-center gap-1 text-slate-500 w-16 group">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            <svg class="w-6 h-6 group-hover:text-indigo-400 transition-colors" fill="currentColor" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
             <span class="text-[9px] font-bold uppercase tracking-wide">Rutinas</span>
         </button>
     </nav>
 
-    <div id="toast" class="fixed top-4 left-1/2 -translate-x-1/2 glass px-6 py-3 rounded-full opacity-0 transition-all duration-300 z-[9999] font-black text-[10px] uppercase text-white pointer-events-none shadow-2xl flex items-center gap-2 whitespace-nowrap">
+    <div id="toast" class="fixed top-4 left-1/2 -translate-x-1/2 glass px-6 py-3 rounded-full opacity-0 transition-all duration-300 z-[9999] font-black text-[10px] uppercase text-white pointer-events-none shadow-2xl flex items-center gap-2">
         <span class="w-2 h-2 rounded-full bg-emerald-500 block"></span>
         <span id="toast-msg">MENSAJE</span>
     </div>
 
-    <!-- FIREBASE & LOGIC -->
+    <!-- SCRIPTS FIREBASE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -242,25 +276,45 @@
             "Brazos": ["Curl Barra", "Curl Martillo", "Press Francés", "Ext. Tríceps"]
         };
 
-        let user = null, activeSession = null, customExercises = [], savedBlocks = [], allLogs = [], myChart = null, pickerContext = null, pickerSelection = new Set();
+        let user = null, activeSession = null, customExercises = [], savedBlocks = [], allLogs = [], myChart = null;
+        let pickerContext = null, pickerSelection = new Set();
         
         const escapeHTML = (s) => String(s || "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
 
-        // AUTH
+        // ==========================================
+        //  LOGIN Y SEGURIDAD
+        // ==========================================
+        const loginEmail = document.getElementById('login-email');
+        const loginPass = document.getElementById('login-pass');
+        const loginError = document.getElementById('login-error');
+
         window.ejecutarLogin = async (mode) => {
-            const email = document.getElementById('login-email').value.trim();
-            const pass = document.getElementById('login-pass').value.trim();
-            if(!email || !pass) return;
+            const email = loginEmail.value.trim();
+            const pass = loginPass.value.trim();
+            loginError.classList.add('hidden');
+            if(!email || !pass) { loginError.textContent = "Faltan datos"; loginError.classList.remove('hidden'); return; }
             try { 
                 if (mode === 'signin') await signInWithEmailAndPassword(auth, email, pass);
                 else await createUserWithEmailAndPassword(auth, email, pass);
-            } catch (err) { alert("Error: " + err.code); }
+            } catch (err) { 
+                loginError.textContent = "Error: " + err.code;
+                loginError.classList.remove('hidden');
+            }
         };
+
         document.getElementById('btn-signin').onclick = () => window.ejecutarLogin('signin');
         document.getElementById('btn-signup').onclick = () => window.ejecutarLogin('signup');
         window.cerrarSesion = () => signOut(auth).then(() => window.location.reload());
-        onAuthStateChanged(auth, u => { user = u; document.getElementById('login-overlay').classList.toggle('hidden', !!u); if (u) initSync(); });
 
+        onAuthStateChanged(auth, u => { 
+            user = u; 
+            document.getElementById('login-overlay').classList.toggle('hidden', !!u); 
+            if (u) initSync(); 
+        });
+
+        // ==========================================
+        //  SINCRONIZACIÓN FIREBASE
+        // ==========================================
         const initSync = () => {
             onSnapshot(query(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'history'), orderBy('timestamp', 'desc')), snap => { 
                 allLogs = snap.docs.map(d => ({ id: d.id, ...d.data() })); 
@@ -309,6 +363,9 @@
             if(!val && exs.length) { sel.value = exs[0]; window.updateProgressChart(); } 
         };
 
+        // ==========================================
+        //  NAVEGACIÓN Y PICKER
+        // ==========================================
         window.switchTab = (t) => { 
             ['dashboard', 'train', 'routines'].forEach(s => { 
                 const el = document.getElementById(`section-${s}`); 
@@ -323,39 +380,59 @@
             pickerContext = context; pickerSelection.clear();
             const picker = document.getElementById('universal-picker'); 
             picker.classList.remove('hidden'); document.body.style.overflow = 'hidden';
-            const action = document.getElementById('picker-action-bar');
-            if(context === 'planner') { action.classList.add('hidden'); } 
-            else { action.classList.remove('hidden'); const btn = document.getElementById('picker-confirm-btn'); btn.onclick = context === 'add_to_active' ? window.confirmAddToActive : window.startFreeSessionFromPicker; }
-            renderPickerList();
+            
+            const actionBar = document.getElementById('picker-action-bar');
+            const plannerBar = document.getElementById('picker-planner-bar');
+
+            if(context === 'planner') { 
+                actionBar.classList.add('hidden'); 
+                plannerBar.classList.remove('hidden'); 
+                document.getElementById('routine-name-input').value = ""; 
+            } else { 
+                actionBar.classList.remove('hidden'); 
+                plannerBar.classList.add('hidden'); 
+                const btn = document.getElementById('picker-confirm-btn'); 
+                btn.onclick = context === 'add_to_active' ? window.confirmAddToActive : window.startFreeSessionFromPicker; 
+            }
+            renderPickerList(); updatePickerUI();
         };
 
-        window.closeUniversalPicker = () => { document.getElementById('universal-picker').classList.add('hidden'); document.body.style.overflow = ''; };
+        window.closeUniversalPicker = () => { document.getElementById('universal-picker').classList.add('hidden'); document.body.style.overflow = ''; document.getElementById('custom-ex-input').classList.add('hidden'); };
         
-        const renderPickerList = (f = "") => {
-            const list = document.getElementById('picker-list'); list.innerHTML = "";
-            const visibleCustom = customExercises.filter(e => e.name.toLowerCase().includes(f.toLowerCase()));
-            visibleCustom.forEach(ex => list.appendChild(createPickerItem(ex.name, true, ex.id)));
-            Object.entries(GLOBAL_LIBRARY).forEach(([cat, exs]) => { exs.filter(e => e.toLowerCase().includes(f.toLowerCase())).forEach(name => list.appendChild(createPickerItem(name, false))); });
+        const renderPickerList = (filter = "") => {
+            const list = document.getElementById('picker-list'); list.innerHTML = ""; const f = filter.toLowerCase();
+            const createHeader = (text) => { const h = document.createElement('h4'); h.className = "text-[9px] font-black text-slate-500 uppercase tracking-widest mt-3 mb-1 sticky top-0 bg-[#060b1e] py-1 z-10"; h.textContent = text; return h; };
+            const visibleCustom = customExercises.filter(e => e.name.toLowerCase().includes(f));
+            if(visibleCustom.length > 0) { list.appendChild(createHeader("Míos")); visibleCustom.forEach(ex => list.appendChild(createPickerItem(ex.name, true, ex.id))); }
+            Object.entries(GLOBAL_LIBRARY).forEach(([cat, exercises]) => { const visible = exercises.filter(e => e.toLowerCase().includes(f)); if(visible.length > 0) { list.appendChild(createHeader(cat)); visible.forEach(name => list.appendChild(createPickerItem(name, false))); } });
         };
 
         const createPickerItem = (name, isCustom, id = null) => {
             const div = document.createElement('div'); const isSel = pickerSelection.has(name);
-            div.className = `p-3 rounded-lg flex justify-between items-center mb-1 border ${isSel ? 'bg-indigo-600/20 border-indigo-500' : 'bg-slate-900 border-transparent'}`;
-            div.onclick = () => { if(pickerSelection.has(name)) pickerSelection.delete(name); else pickerSelection.add(name); renderPickerList(document.getElementById('picker-search').value); updatePickerUI(); };
-            div.innerHTML = `<span class="text-xs font-bold ${isSel ? 'text-indigo-300' : 'text-slate-300'}">${escapeHTML(name)}</span><div class="w-4 h-4 rounded-full border ${isSel ? 'bg-indigo-500 border-indigo-500' : 'border-slate-600'}"></div>`;
+            div.className = `p-3 rounded-lg flex justify-between items-center mb-1 cursor-pointer transition-all border ${isSel ? 'bg-indigo-600/20 border-indigo-500' : 'bg-slate-900 border-transparent active:bg-slate-800'}`;
+            div.onclick = () => window.togglePickerSelection(name);
+            div.innerHTML = `<span class="text-xs font-bold ${isSel ? 'text-indigo-300' : 'text-slate-300'} truncate mr-2">${escapeHTML(name)}</span><div class="flex items-center gap-2 flex-shrink-0">${isCustom ? `<button onclick="event.stopPropagation(); window.deleteCustomEx('${id}')" class="text-rose-500/50 p-1">✕</button>` : ''}<div class="w-4 h-4 rounded-full border flex items-center justify-center ${isSel ? 'border-indigo-500 bg-indigo-500' : 'border-slate-600'}">${isSel ? '<svg class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7" /></svg>' : ''}</div></div>`;
             return div;
         };
 
-        const updatePickerUI = () => { };
-        window.clearPickerSelection = () => { pickerSelection.clear(); renderPickerList(); };
+        window.togglePickerSelection = (name) => { if(pickerSelection.has(name)) pickerSelection.delete(name); else pickerSelection.add(name); renderPickerList(document.getElementById('picker-search').value); updatePickerUI(); };
+        const updatePickerUI = () => {
+            document.getElementById('picker-count').textContent = pickerSelection.size;
+            if(pickerContext === 'planner') document.getElementById('planner-preview').innerHTML = Array.from(pickerSelection).map(n => `<span class="text-[8px] bg-indigo-900/50 text-indigo-300 px-2 py-0.5 rounded border border-indigo-500/20">${escapeHTML(n)}</span>`).join('');
+        };
+
+        window.clearPickerSelection = () => { pickerSelection.clear(); renderPickerList(); updatePickerUI(); };
         window.startFreeSessionFromPicker = () => { if(pickerSelection.size > 0) { window.loadAndStart(Array.from(pickerSelection).map(name => ({ name, sets: 3 })), "Sesión Libre"); window.closeUniversalPicker(); } };
-        window.confirmAddToActive = () => { pickerSelection.forEach(name => activeSession.push({ name, actual: [{weight:"", reps: "", done: false}] })); window.renderActiveSession(); window.closeUniversalPicker(); };
+        window.confirmAddToActive = () => { if(activeSession) { pickerSelection.forEach(name => activeSession.push({ name, actual: [{weight:"", reps: "", done: false}] })); window.renderActiveSession(); window.closeUniversalPicker(); window.showToast("Añadido"); } };
         
+        // ==========================================
+        //  LÓGICA DE ENTRENAMIENTO
+        // ==========================================
         const renderTrainSelector = () => {
             document.getElementById('train-routines-list').innerHTML = savedBlocks.map(b => `
                 <div class="premium-card p-4 rounded-2xl relative group active:scale-[0.98] transition-transform">
                     <div onclick='window.loadAndStart(${JSON.stringify(b.exercises)}, "${escapeHTML(b.name)}")' class="cursor-pointer pr-6">
-                        <h3 class="text-base font-black uppercase italic text-white truncate">${escapeHTML(b.name)}</h3>
+                        <h3 class="text-base font-black uppercase italic tracking-tighter text-white mb-1 truncate">${escapeHTML(b.name)}</h3>
                         <p class="text-slate-500 text-[10px] truncate">${b.exercises.length} ejercicios</p>
                     </div>
                     <button onclick="window.deleteRoutineBlock('${b.id}')" class="absolute top-1/2 -translate-y-1/2 right-2 text-rose-500/30 hover:text-rose-500 p-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
@@ -375,21 +452,21 @@
                     <div class="flex justify-between items-center px-1">
                         <h4 class="font-black text-indigo-400 uppercase text-xs italic tracking-wide truncate max-w-[60%]">${escapeHTML(ex.name)}</h4>
                         <div class="flex gap-2 shrink-0">
-                            <button onclick="window.removeExercise(${exIdx})" class="text-[9px] font-bold text-rose-500/50 p-2">QUITAR</button>
-                            <button onclick="window.addSetToExercise(${exIdx})" class="text-[9px] font-black bg-indigo-500/10 text-indigo-300 px-3 py-1.5 rounded-full">+ SET</button>
+                            <button onclick="window.removeExercise(${exIdx})" class="text-[9px] font-bold text-rose-500/50 p-2 uppercase">Quitar</button>
+                            <button onclick="activeSession[${exIdx}].actual.push({weight:'', reps:'', done:false}); window.renderActiveSession()" class="text-[9px] font-black bg-indigo-500/10 text-indigo-300 px-3 py-1.5 rounded-full">+ SET</button>
                         </div>
                     </div>
                     <div class="space-y-2">
                         ${ex.actual.map((s, sIdx) => `
                             <div class="flex items-center gap-2 w-full">
-                                <button onclick="window.toggleSet(${exIdx}, ${sIdx})" class="flex-shrink-0 w-10 h-10 rounded-xl font-black text-xs transition-all flex items-center justify-center ${s.done ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-slate-800 text-slate-500'}">${s.done ? '✓' : sIdx+1}</button>
+                                <button onclick="activeSession[${exIdx}].actual[${sIdx}].done = !activeSession[${exIdx}].actual[${sIdx}].done; window.renderActiveSession()" class="flex-shrink-0 w-10 h-10 rounded-xl font-black text-xs transition-all flex items-center justify-center ${s.done ? 'bg-emerald-500 text-white shadow-lg' : 'bg-slate-800 text-slate-500'}">${s.done ? '✓' : sIdx+1}</button>
                                 <div class="flex-1 grid grid-cols-2 gap-2 min-w-0">
                                     <div class="relative bg-slate-900 rounded-xl overflow-hidden">
-                                        <input type="number" placeholder="-" value="${s.weight}" oninput="window.updateSet(${exIdx}, ${sIdx}, 'weight', this.value)" class="w-full bg-transparent p-2.5 text-center font-bold text-base text-white outline-none">
+                                        <input type="number" placeholder="-" value="${s.weight}" oninput="activeSession[${exIdx}].actual[${sIdx}].weight = this.value" class="w-full bg-transparent p-2.5 text-center font-bold text-base text-white outline-none">
                                         <span class="absolute right-1 top-1/2 -translate-y-1/2 text-[8px] font-bold text-slate-600 pointer-events-none">KG</span>
                                     </div>
                                     <div class="relative bg-slate-900 rounded-xl overflow-hidden">
-                                        <input type="number" placeholder="-" value="${s.reps}" oninput="window.updateSet(${exIdx}, ${sIdx}, 'reps', this.value)" class="w-full bg-transparent p-2.5 text-center font-bold text-base text-white outline-none">
+                                        <input type="number" placeholder="-" value="${s.reps}" oninput="activeSession[${exIdx}].actual[${sIdx}].reps = this.value" class="w-full bg-transparent p-2.5 text-center font-bold text-base text-white outline-none">
                                         <span class="absolute right-1 top-1/2 -translate-y-1/2 text-[8px] font-bold text-slate-600 pointer-events-none">RPS</span>
                                     </div>
                                 </div>
@@ -398,44 +475,54 @@
                 </div>`).join('');
         };
 
-        window.addSetToExercise = (ei) => { const prev = activeSession[ei].actual[activeSession[ei].actual.length-1]; activeSession[ei].actual.push({weight: prev ? prev.weight : "", reps: prev ? prev.reps : "", done: false}); window.renderActiveSession(); };
-        window.removeExercise = (ei) => { if(confirm("¿Quitar?")) { activeSession.splice(ei, 1); window.renderActiveSession(); } };
-        window.toggleSet = (ei, si) => { activeSession[ei].actual[si].done = !activeSession[ei].actual[si].done; window.renderActiveSession(); };
-        window.updateSet = (ei, si, k, v) => { activeSession[ei].actual[si][k] = v; };
-
         window.saveFullSession = async () => {
             if(!activeSession || activeSession.length === 0) return;
             const validData = activeSession.map(ex => ({ exercise: ex.name, sets: ex.actual.filter(s => s.done && s.weight && s.reps).map(s => ({ weight: parseFloat(s.weight), reps: parseInt(s.reps) })), date: document.getElementById('workout-date').value })).filter(e => e.sets.length > 0);
             if(validData.length === 0) return window.showToast("Completa series", "error");
-            try { for(const e of validData) await addDoc(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'history'), { ...e, timestamp: serverTimestamp() }); window.showToast("GUARDADO"); window.cancelSession(); } catch(e) { window.showToast("Error", "error"); }
+            try { 
+                for(const e of validData) await addDoc(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'history'), { ...e, timestamp: serverTimestamp() }); 
+                window.showToast("GUARDADO"); window.cancelSession(); 
+            } catch(e) { window.showToast("Error", "error"); }
         };
 
+        // ==========================================
+        //  LÓGICA PLANIFICADOR Y CUSTOM EX
+        // ==========================================
         window.saveRoutineBlock = async () => { 
             const name = document.getElementById('routine-name-input').value.trim(); 
-            if(!name || pickerSelection.size === 0) return window.showToast("Faltan datos", "error"); 
+            if(!name || pickerSelection.size === 0) return window.showToast("Nombre y selección faltan", "error"); 
             await addDoc(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'blocks'), { name, exercises: Array.from(pickerSelection).map(n=>({name:n, sets:3})), createdAt: serverTimestamp() }); 
-            window.closeUniversalPicker(); window.showToast("Guardado"); window.switchTab('train'); 
+            window.closeUniversalPicker(); window.showToast("Rutina Guardada"); window.switchTab('train'); 
         };
         document.getElementById('btn-save-routine').onclick = () => window.saveRoutineBlock();
 
         const renderPlannerSavedList = () => { 
-            document.getElementById('planner-saved-list').innerHTML = savedBlocks.map(b => `<div class="bg-slate-900/50 p-3 rounded-xl flex justify-between items-center border border-white/5"><span class="text-xs font-bold text-slate-300 truncate mr-2">${escapeHTML(b.name)}</span><button onclick="window.deleteRoutineBlock('${b.id}')" class="text-rose-500/50 p-1">✕</button></div>`).join(''); 
+            document.getElementById('planner-saved-list').innerHTML = savedBlocks.map(b => `<div class="bg-slate-900/50 p-3 rounded-xl flex justify-between items-center border border-white/5"><span class="text-xs font-bold text-slate-300 truncate mr-2 uppercase tracking-wide">${escapeHTML(b.name)}</span><button onclick="window.deleteRoutineBlock('${b.id}')" class="text-rose-500/50 p-1">✕</button></div>`).join(''); 
         };
 
         window.toggleCustomInput = () => document.getElementById('custom-ex-input').classList.toggle('hidden');
         window.addCustomExercise = async () => { 
             const name = document.getElementById('new-ex-name').value.trim(); 
-            if(name) { await addDoc(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'custom_ex'), { name }); document.getElementById('new-ex-name').value = ""; window.toggleCustomInput(); } 
+            if(name) { 
+                await addDoc(collection(db, 'artifacts', DB_KEY, 'users', user.uid, 'custom_ex'), { name }); 
+                document.getElementById('new-ex-name').value = ""; 
+                window.toggleCustomInput(); 
+                window.showToast("Ejercicio Creado");
+            } 
         };
         document.getElementById('btn-save-custom-ex').onclick = () => window.addCustomExercise();
 
-        window.cancelSession = () => { if(confirm("¿Salir?")) { activeSession = null; document.getElementById('routine-selector').classList.remove('hidden'); document.getElementById('active-session-ui').classList.add('hidden'); } };
+        // ==========================================
+        //  UTILIDADES FINALES
+        // ==========================================
+        window.cancelSession = () => { if(confirm("¿Cancelar entrenamiento?")) { activeSession = null; document.getElementById('routine-selector').classList.remove('hidden'); document.getElementById('active-session-ui').classList.add('hidden'); } };
         window.deleteHistory = async (id) => { if(confirm("¿Borrar?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', user.uid, 'history', id)); };
         window.deleteRoutineBlock = async (id) => { if(confirm("¿Borrar?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', user.uid, 'blocks', id)); };
+        window.deleteCustomEx = async (id) => { if(confirm("¿Borrar?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', user.uid, 'custom_ex', id)); };
 
         window.showToast = (m, type="success") => { 
-            const t = document.getElementById('toast'); const msg = document.getElementById('toast-msg'); msg.textContent = m; 
-            t.firstElementChild.className = `w-2 h-2 rounded-full block ${type==='error'?'bg-rose-500':'bg-emerald-500'}`; 
+            const t = document.getElementById('toast'); const msg = document.getElementById('toast-msg'); 
+            msg.textContent = m; t.firstElementChild.className = `w-2 h-2 rounded-full block ${type==='error'?'bg-rose-500':'bg-emerald-500'}`; 
             t.classList.remove('opacity-0', 'translate-y-4'); setTimeout(() => t.classList.add('opacity-0', 'translate-y-4'), 2500); 
         };
 
@@ -443,6 +530,8 @@
             document.getElementById('workout-date').value = new Date().toISOString().split('T')[0]; 
             document.getElementById('picker-search').oninput = e => renderPickerList(e.target.value); 
         };
+
+        window.removeExercise = (ei) => { if(confirm("¿Quitar ejercicio?")) { activeSession.splice(ei, 1); window.renderActiveSession(); } };
     </script>
 </body>
 </html>
