@@ -39,13 +39,26 @@
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .animate-up { animation: slideUp 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
         
-        input:focus { border-color: var(--brand) !important; outline: none; }
+        input:focus { border-color: var(--brand) !important; outline: none; box-shadow: 0 0 15px rgba(99, 102, 241, 0.2); }
         
-        /* ZONAS SEGURAS IPHONE */
+        /* Estilo de los inputs de peso/reps */
+        .input-display {
+            background: rgba(2, 6, 23, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .set-row {
+            transition: all 0.2s ease;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            padding-bottom: 8px;
+        }
+        .set-row:last-child { border-bottom: none; }
+
+        /* ZONAS SEGURAS */
         .safe-pb { padding-bottom: calc(100px + env(safe-area-inset-bottom)); }
         .safe-pt { padding-top: max(1.2rem, calc(0.5rem + env(safe-area-inset-top))); }
         
-        /* HEADER DE ENTRENAMIENTO PEGADO ARRIBA SIN TAPAR CONTENIDO */
         .training-header-sticky {
             position: sticky;
             top: calc(4.1rem + env(safe-area-inset-top));
@@ -108,29 +121,27 @@
                     <h3 id="streak-count" class="text-xl font-black tracking-tight">🔥 0</h3>
                 </div>
             </div>
+            
+            <div class="flex items-center gap-3 px-1">
+                <div class="h-px bg-slate-800 flex-1"></div>
+                <span class="text-[8px] font-bold text-slate-600 uppercase tracking-widest">Actividad Reciente</span>
+                <div class="h-px bg-slate-800 flex-1"></div>
+            </div>
             <div id="workout-history" class="grid gap-3 mt-4"></div>
         </section>
 
         <!-- SECCIÓN: ENTRENAR -->
         <section id="section-train" class="hidden space-y-4 animate-up w-full">
             <div id="routine-selector" class="space-y-4">
-                <!-- CAJA SESION LIBRE COMPACTA -->
                 <button onclick="window.openUniversalPicker('session')" class="w-full py-4 border-2 border-dashed border-indigo-500/30 bg-indigo-500/5 rounded-2xl text-indigo-300 font-bold flex items-center justify-center gap-3 active:scale-95 transition-all">
                     <span class="text-xl">+</span>
                     <span class="text-xs uppercase tracking-widest">Crear Sesión Libre</span>
                 </button>
-                
-                <div class="flex items-center gap-4 py-1">
-                     <div class="h-px bg-slate-800 flex-1"></div>
-                     <span class="text-[8px] font-bold text-slate-600 uppercase tracking-widest">Mis Rutinas</span>
-                     <div class="h-px bg-slate-800 flex-1"></div>
-                </div>
                 <div id="train-routines-list" class="grid gap-3"></div>
             </div>
 
             <!-- Interfaz Sesión Activa -->
             <div id="active-session-ui" class="hidden w-full relative">
-                <!-- HEADER DE SESION STICKY -->
                 <div class="training-header-sticky">
                     <div class="glass p-4 rounded-3xl flex flex-col gap-3 shadow-2xl ring-1 ring-white/10">
                         <div class="flex justify-between items-center">
@@ -144,11 +155,9 @@
                     </div>
                 </div>
 
-                <!-- CONTENEDOR DE EJERCICIOS -->
-                <div id="active-session-container" class="space-y-4 w-full"></div>
+                <div id="active-session-container" class="space-y-5 w-full"></div>
                 
-                <!-- BOTON FINALIZAR (Al final de la lista, no tapa nada) -->
-                <button onclick="window.saveFullSession()" class="w-full py-5 bg-emerald-600 text-white font-black rounded-3xl shadow-xl uppercase tracking-widest text-sm active:scale-95 transition mt-8 mb-12">
+                <button onclick="window.saveFullSession()" class="w-full py-5 bg-emerald-600 text-white font-black rounded-3xl shadow-xl uppercase tracking-widest text-sm active:scale-95 transition mt-8 mb-12 border-t border-emerald-400/30">
                     Finalizar Entrenamiento
                 </button>
             </div>
@@ -168,32 +177,26 @@
     </main>
 
     <!-- SELECTOR UNIVERSAL -->
-    <div id="universal-picker" class="fixed inset-0 z-[3000] bg-slate-950 flex flex-col hidden modal-enter-active">
+    <div id="universal-picker" class="fixed inset-0 z-[3000] bg-slate-950 flex flex-col hidden">
         <div class="p-4 flex items-center justify-between bg-slate-900/90 backdrop-blur-xl border-b border-white/5 sticky top-0 z-20 safe-pt">
             <h3 class="text-base font-black italic text-white">SELECCIONAR</h3>
             <button onclick="window.closeUniversalPicker()" class="text-slate-400 bg-slate-800/50 px-3 py-1 rounded-full text-xs font-bold">CERRAR</button>
         </div>
-        
         <div class="p-4 space-y-4 bg-slate-950">
             <input type="text" id="picker-search" placeholder="Buscar ejercicio..." class="w-full bg-slate-900 p-3 rounded-xl text-base outline-none border border-white/5 text-white appearance-none">
-            
             <div id="custom-ex-input" class="hidden p-4 bg-indigo-900/20 rounded-2xl border border-indigo-500/30 space-y-3">
                 <input type="text" id="new-ex-name" placeholder="Nombre Ej. Prensa" class="w-full bg-slate-950 p-3 rounded-xl text-base outline-none text-white border border-white/5">
                 <button onclick="window.addCustomExercise()" class="w-full bg-indigo-600 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-white">Guardar</button>
             </div>
-            
             <button onclick="window.toggleCustomInput()" class="w-full py-2 text-[10px] font-bold text-indigo-400 uppercase tracking-widest">+ Crear Ejercicio Personalizado</button>
         </div>
-
         <div class="flex-1 overflow-y-auto p-4 space-y-2" id="picker-list"></div>
-
         <div id="picker-planner-bar" class="p-4 pb-[calc(25px+env(safe-area-inset-bottom))] bg-slate-900 border-t border-white/5 hidden space-y-3">
             <input type="text" id="routine-name-input" placeholder="Nombre de la rutina..." class="w-full bg-slate-950 p-3 rounded-xl outline-none font-bold border border-white/5 text-white text-base">
             <button onclick="window.saveRoutineBlock()" class="w-full py-4 bg-emerald-600 text-white font-black rounded-2xl shadow-lg uppercase tracking-widest text-sm">GUARDAR RUTINA</button>
         </div>
-
         <div id="picker-action-bar" class="p-4 pb-[calc(25px+env(safe-area-inset-bottom))] bg-slate-900 border-t border-white/5 hidden">
-            <button id="picker-confirm-btn" class="w-full py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-lg uppercase tracking-widest text-sm">CONFIRMAR</button>
+            <button id="picker-confirm-btn" class="w-full py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-lg uppercase tracking-widest text-sm">CONFIRMAR (<span id="picker-count">0</span>)</button>
         </div>
     </div>
 
@@ -218,7 +221,6 @@
         <span id="toast-msg">MENSAJE</span>
     </div>
 
-    <!-- FIREBASE LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -247,14 +249,12 @@
             "Brazos": ["Curl Barra", "Curl Martillo", "Press Francés", "Ext. Tríceps"]
         };
 
-        // EXPOSE TO WINDOW FOR HTML ONCLICK
         window.user = null;
         window.activeSession = null;
         let customExercises = [], savedBlocks = [], allLogs = [], myChart = null, pickerContext = null, pickerSelection = new Set();
         
         const escapeHTML = (s) => String(s || "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
 
-        // AUTH
         window.ejecutarLogin = async (mode) => {
             const email = document.getElementById('login-email').value.trim();
             const pass = document.getElementById('login-pass').value.trim();
@@ -267,18 +267,17 @@
         window.cerrarSesion = () => signOut(auth).then(() => window.location.reload());
         onAuthStateChanged(auth, u => { window.user = u; document.getElementById('login-overlay').classList.toggle('hidden', !!u); if (u) initSync(); });
 
-        // SYNC
         const initSync = () => {
-            onSnapshot(query(collection(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'history'), orderBy('timestamp', 'desc')), snap => { 
-                allLogs = snap.docs.map(d => ({ id: d.id, ...d.data() })); 
+            onSnapshot(query(collection(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'history'), orderBy('timestamp', 'desc')), snap => {
+                allLogs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 renderDashboard(); updateExerciseSelect(); 
             });
-            onSnapshot(collection(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'custom_ex'), snap => { 
-                customExercises = snap.docs.map(d => ({ id: d.id, name: d.data().name })); 
+            onSnapshot(collection(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'custom_ex'), snap => {
+                customExercises = snap.docs.map(d => ({ id: d.id, name: d.data().name }));
                 if(!document.getElementById('universal-picker').classList.contains('hidden')) renderPickerList();
             });
-            onSnapshot(query(collection(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'blocks'), orderBy('createdAt', 'desc')), snap => { 
-                savedBlocks = snap.docs.map(d => ({ id: d.id, ...d.data() })); 
+            onSnapshot(query(collection(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'blocks'), orderBy('createdAt', 'desc')), snap => {
+                savedBlocks = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 renderTrainSelector(); renderPlannerSavedList(); 
             });
         };
@@ -288,13 +287,21 @@
             allLogs.forEach(l => { days.add(l.date); l.sets?.forEach(set => { v += (set.weight * set.reps); }); });
             document.getElementById('stat-volume').textContent = (v / 1000).toFixed(1) + "t";
             document.getElementById('streak-count').textContent = `🔥 ${days.size}`;
-            document.getElementById('workout-history').innerHTML = allLogs.slice(0, 5).map(l => `
-                <div class="premium-card p-3 rounded-xl flex justify-between items-center group">
+            
+            // MEJORA VISUAL DEL HISTORIAL RECIENTE
+            document.getElementById('workout-history').innerHTML = allLogs.slice(0, 8).map(l => `
+                <div class="premium-card p-4 rounded-2xl flex justify-between items-center group border-l-4 border-l-indigo-500/50">
                     <div class="truncate pr-2 w-full">
-                        <p class="text-[10px] font-black text-indigo-400 uppercase truncate">${escapeHTML(l.exercise)}</p>
-                        <p class="text-[9px] text-slate-500 font-bold">${l.date} • <span class="text-slate-300">${l.sets.length} sets</span></p>
+                        <div class="flex items-center gap-2 mb-1">
+                            <p class="text-[11px] font-black text-white uppercase truncate">${escapeHTML(l.exercise)}</p>
+                            <span class="text-[8px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded font-bold">${l.date.split('-').reverse().slice(0,2).join('/')}</span>
+                        </div>
+                        <div class="flex gap-2">
+                             ${l.sets.slice(0,3).map(s => `<span class="text-[9px] font-bold text-slate-500">${s.weight}kg <span class="text-indigo-400">x${s.reps}</span></span>`).join('')}
+                             ${l.sets.length > 3 ? `<span class="text-[9px] font-bold text-slate-600">+${l.sets.length-3}</span>` : ''}
+                        </div>
                     </div>
-                    <button onclick="window.deleteHistory('${l.id}')" class="flex-shrink-0 text-rose-500/30 hover:text-rose-500 p-2">✕</button>
+                    <button onclick="window.deleteHistory('${l.id}')" class="flex-shrink-0 text-rose-500/20 hover:text-rose-500 p-2 transition-colors text-lg">✕</button>
                 </div>`).join('');
             if(allLogs.length > 0) window.updateProgressChart();
         };
@@ -306,8 +313,8 @@
             const data = filtered.map(l => Math.round(l.sets.reduce((max, s) => { const rm = s.weight * (1 + s.reps/30); return rm > max ? rm : max; }, 0)));
             if (myChart) myChart.destroy();
             const ctx = document.getElementById('progressChart').getContext('2d');
-            const grad = ctx.createLinearGradient(0,0,0,300); grad.addColorStop(0, '#6366f1'); grad.addColorStop(1, 'rgba(99,102,241,0)');
-            myChart = new Chart(ctx, { type: 'line', data: { labels, datasets: [{ data, borderColor: '#818cf8', borderWidth: 3, pointRadius: 3, tension: 0.3, fill: true, backgroundColor: grad }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: false }, scales: { x: { display: false }, y: { display: false } } } });
+            const grad = ctx.createLinearGradient(0,0,0,200); grad.addColorStop(0, 'rgba(99,102,241,0.4)'); grad.addColorStop(1, 'rgba(99,102,241,0)');
+            myChart = new Chart(ctx, { type: 'line', data: { labels, datasets: [{ data, borderColor: '#818cf8', borderWidth: 3, pointRadius: 4, pointBackgroundColor: '#818cf8', tension: 0.4, fill: true, backgroundColor: grad }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: false }, scales: { x: { display: false }, y: { display: false } } } });
         };
         
         const updateExerciseSelect = () => { 
@@ -334,10 +341,9 @@
             
             const action = document.getElementById('picker-action-bar');
             const planner = document.getElementById('picker-planner-bar');
-
-            if(context === 'planner') { action.classList.add('hidden'); planner.classList.remove('hidden'); document.getElementById('routine-name-input').value = ""; } 
+            if(context === 'planner') { action.classList.add('hidden'); planner.classList.remove('hidden'); } 
             else { action.classList.remove('hidden'); planner.classList.add('hidden'); document.getElementById('picker-confirm-btn').onclick = context === 'add_to_active' ? window.confirmAddToActive : window.startFreeSessionFromPicker; }
-            renderPickerList(); updatePickerUI();
+            renderPickerList();
         };
 
         window.closeUniversalPicker = () => { document.getElementById('universal-picker').classList.add('hidden'); document.body.style.overflow = ''; };
@@ -350,30 +356,24 @@
 
         const createPickerItem = (name, isCustom, id = null) => {
             const div = document.createElement('div'); const isSel = pickerSelection.has(name);
-            div.className = `p-3 rounded-lg flex justify-between items-center mb-1 border ${isSel ? 'bg-indigo-600/20 border-indigo-500' : 'bg-slate-900 border-transparent active:bg-slate-800'}`;
-            div.onclick = () => { if(pickerSelection.has(name)) pickerSelection.delete(name); else pickerSelection.add(name); renderPickerList(document.getElementById('picker-search').value); updatePickerUI(); };
-            div.innerHTML = `<span class="text-xs font-bold ${isSel ? 'text-indigo-300' : 'text-slate-300'}">${escapeHTML(name)}</span><div class="flex items-center gap-2">${isCustom ? `<button onclick="event.stopPropagation(); window.deleteCustomEx('${id}')" class="text-rose-500/50 p-1">✕</button>` : ''}<div class="w-4 h-4 rounded-full border ${isSel ? 'bg-indigo-500 border-indigo-500' : 'border-slate-600'}"></div></div>`;
+            div.className = `p-4 rounded-2xl flex justify-between items-center mb-2 border transition-all ${isSel ? 'bg-indigo-600/20 border-indigo-500' : 'bg-slate-900 border-white/5 active:bg-slate-800'}`;
+            div.onclick = () => { if(pickerSelection.has(name)) pickerSelection.delete(name); else pickerSelection.add(name); renderPickerList(document.getElementById('picker-search').value); document.getElementById('picker-count').textContent = pickerSelection.size; };
+            div.innerHTML = `<span class="text-xs font-bold ${isSel ? 'text-indigo-300' : 'text-slate-300'}">${escapeHTML(name)}</span><div class="flex items-center gap-3">${isCustom ? `<button onclick="event.stopPropagation(); window.deleteCustomEx('${id}')" class="text-rose-500/50 p-1">✕</button>` : ''}<div class="w-5 h-5 rounded-full border-2 ${isSel ? 'bg-indigo-500 border-indigo-400 shadow-[0_0_10px_rgba(99,102,241,0.5)]' : 'border-slate-700'}"></div></div>`;
             return div;
         };
 
-        const updatePickerUI = () => {
-            document.getElementById('picker-count').textContent = pickerSelection.size;
-            if(pickerContext === 'planner') { document.getElementById('planner-preview').innerHTML = Array.from(pickerSelection).map(n => `<span class="text-[8px] bg-indigo-900/50 text-indigo-300 px-2 py-0.5 rounded border border-indigo-500/20">${escapeHTML(n)}</span>`).join(''); }
-        };
-
-        window.clearPickerSelection = () => { pickerSelection.clear(); renderPickerList(); updatePickerUI(); };
         window.startFreeSessionFromPicker = () => { if(pickerSelection.size > 0) { window.loadAndStart(Array.from(pickerSelection).map(n => ({ name: n, sets: 3 })), "Sesión Libre"); window.closeUniversalPicker(); } };
         window.confirmAddToActive = () => { if(window.activeSession) { pickerSelection.forEach(name => window.activeSession.push({ name, actual: [{weight:"", reps: "", done: false}] })); window.renderActiveSession(); window.closeUniversalPicker(); } };
-        
+
         // ENTRENAMIENTO
         const renderTrainSelector = () => {
             document.getElementById('train-routines-list').innerHTML = savedBlocks.map(b => `
-                <div class="premium-card p-4 rounded-2xl relative transition-transform active:scale-[0.98]">
+                <div class="premium-card p-5 rounded-3xl relative transition-transform active:scale-[0.98] border-l-4 border-l-indigo-600">
                     <div onclick='window.loadAndStart(${JSON.stringify(b.exercises)}, "${escapeHTML(b.name)}")' class="cursor-pointer pr-6">
                         <h3 class="text-base font-black uppercase italic text-white truncate">${escapeHTML(b.name)}</h3>
-                        <p class="text-slate-500 text-[10px] uppercase tracking-tighter">${b.exercises.length} ejercicios</p>
+                        <p class="text-slate-500 text-[10px] uppercase tracking-tighter">${b.exercises.length} ejercicios planificados</p>
                     </div>
-                    <button onclick="window.deleteRoutineBlock('${b.id}')" class="absolute top-1/2 -translate-y-1/2 right-2 text-rose-500/30 hover:text-rose-500 p-2">✕</button>
+                    <button onclick="window.deleteRoutineBlock('${b.id}')" class="absolute top-1/2 -translate-y-1/2 right-4 text-rose-500/30 hover:text-rose-500 p-2">✕</button>
                 </div>`).join('');
         };
 
@@ -384,28 +384,45 @@
             window.scrollTo({top: 0, behavior: 'smooth'}); window.renderActiveSession();
         };
 
+        // MEJORA VISUAL DE LA SECCIÓN DE PESOS Y REPETICIONES
         window.renderActiveSession = () => {
             document.getElementById('active-session-container').innerHTML = window.activeSession.map((ex, exIdx) => `
-                <div class="glass p-4 rounded-3xl space-y-3 animate-up w-full border border-white/5">
-                    <div class="flex justify-between items-center">
-                        <h4 class="font-black text-indigo-400 uppercase text-xs italic tracking-wide truncate max-w-[60%]">${escapeHTML(ex.name)}</h4>
+                <div class="glass p-5 rounded-[2rem] space-y-4 animate-up w-full border border-white/5 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-indigo-500/40"></div>
+                    <div class="flex justify-between items-center mb-2">
+                        <h4 class="font-black text-white uppercase text-sm italic tracking-wide truncate max-w-[65%]">${escapeHTML(ex.name)}</h4>
                         <div class="flex gap-2">
-                            <button onclick="window.removeExercise(${exIdx})" class="text-[9px] font-bold text-rose-500/50 p-2 uppercase tracking-tighter">Quitar</button>
-                            <button onclick="window.addSetToActiveExercise(${exIdx})" class="text-[9px] font-black bg-indigo-500/10 text-indigo-300 px-3 py-1.5 rounded-full">+ SET</button>
+                            <button onclick="window.removeExercise(${exIdx})" class="text-[8px] font-bold text-rose-500/40 hover:text-rose-500 uppercase tracking-tighter">Quitar</button>
+                            <button onclick="window.addSetToActiveExercise(${exIdx})" class="text-[10px] font-black bg-indigo-500/20 text-indigo-300 px-4 py-1.5 rounded-full border border-indigo-500/20 active:scale-95 transition-all">Siguiente Serie</button>
                         </div>
                     </div>
-                    <div class="space-y-2">
+                    
+                    <div class="space-y-3">
+                        <div class="grid grid-cols-[40px_1fr_1fr] gap-2 px-1 text-[8px] font-black text-slate-500 uppercase tracking-widest">
+                            <div class="text-center">Set</div>
+                            <div class="text-center">Carga (kg)</div>
+                            <div class="text-center">Reps</div>
+                        </div>
                         ${ex.actual.map((s, sIdx) => `
-                            <div class="flex items-center gap-2 w-full">
-                                <button onclick="window.toggleSet(${exIdx}, ${sIdx})" class="flex-shrink-0 w-10 h-10 rounded-xl font-black text-xs transition-all ${s.done ? 'bg-emerald-500 text-white shadow-lg' : 'bg-slate-800 text-slate-500'}">${s.done ? '✓' : sIdx+1}</button>
+                            <div class="set-row flex items-center gap-3 w-full">
+                                <button onclick="window.toggleSet(${exIdx}, ${sIdx})" 
+                                    class="flex-shrink-0 w-10 h-10 rounded-[12px] font-black text-xs transition-all duration-300 flex items-center justify-center 
+                                    ${s.done ? 'bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.4)]' : 'bg-slate-800 text-slate-500 border border-white/5'}">
+                                    ${s.done ? '✓' : sIdx+1}
+                                </button>
+                                
                                 <div class="flex-1 grid grid-cols-2 gap-2">
-                                    <div class="relative bg-slate-900 rounded-xl overflow-hidden">
-                                        <input type="number" placeholder="-" value="${s.weight}" oninput="window.updateSet(${exIdx}, ${sIdx}, 'weight', this.value)" class="w-full bg-transparent p-2.5 text-center font-bold text-base text-white outline-none">
-                                        <span class="absolute right-1 top-1/2 -translate-y-1/2 text-[8px] font-bold text-slate-600 pointer-events-none">KG</span>
+                                    <div class="relative input-display rounded-xl overflow-hidden group">
+                                        <input type="number" placeholder="0" value="${s.weight}" 
+                                            oninput="window.updateSet(${exIdx}, ${sIdx}, 'weight', this.value)" 
+                                            class="w-full bg-transparent p-3 text-center font-bold text-base text-white outline-none focus:bg-slate-900/50 transition-colors">
+                                        <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[7px] font-black text-indigo-500/50 pointer-events-none group-focus-within:text-indigo-400">KG</span>
                                     </div>
-                                    <div class="relative bg-slate-900 rounded-xl overflow-hidden">
-                                        <input type="number" placeholder="-" value="${s.reps}" oninput="window.updateSet(${exIdx}, ${sIdx}, 'reps', this.value)" class="w-full bg-transparent p-2.5 text-center font-bold text-base text-white outline-none">
-                                        <span class="absolute right-1 top-1/2 -translate-y-1/2 text-[8px] font-bold text-slate-600 pointer-events-none">RPS</span>
+                                    <div class="relative input-display rounded-xl overflow-hidden group">
+                                        <input type="number" placeholder="0" value="${s.reps}" 
+                                            oninput="window.updateSet(${exIdx}, ${sIdx}, 'reps', this.value)" 
+                                            class="w-full bg-transparent p-3 text-center font-bold text-base text-white outline-none focus:bg-slate-900/50 transition-colors">
+                                        <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[7px] font-black text-indigo-500/50 pointer-events-none group-focus-within:text-indigo-400">RPS</span>
                                     </div>
                                 </div>
                             </div>`).join('')}
@@ -413,48 +430,54 @@
                 </div>`).join('');
         };
 
-        window.addSetToActiveExercise = (exIdx) => { const prev = window.activeSession[exIdx].actual[window.activeSession[exIdx].actual.length-1]; window.activeSession[exIdx].actual.push({weight: prev?prev.weight:"", reps: prev?prev.reps:"", done: false}); window.renderActiveSession(); };
+        window.addSetToActiveExercise = (exIdx) => { 
+            const sets = window.activeSession[exIdx].actual;
+            const lastSet = sets[sets.length-1];
+            window.activeSession[exIdx].actual.push({weight: lastSet ? lastSet.weight : "", reps: lastSet ? lastSet.reps : "", done: false}); 
+            window.renderActiveSession(); 
+        };
         window.toggleSet = (exIdx, sIdx) => { window.activeSession[exIdx].actual[sIdx].done = !window.activeSession[exIdx].actual[sIdx].done; window.renderActiveSession(); };
         window.updateSet = (exIdx, sIdx, k, v) => { window.activeSession[exIdx].actual[sIdx][k] = v; };
-        window.removeExercise = (ei) => { if(confirm("¿Quitar?")) { window.activeSession.splice(ei, 1); window.renderActiveSession(); } };
+        window.removeExercise = (ei) => { if(confirm("¿Eliminar ejercicio de la sesión?")) { window.activeSession.splice(ei, 1); window.renderActiveSession(); } };
 
         window.saveFullSession = async () => {
             if(!window.activeSession || window.activeSession.length === 0) return;
             const validData = window.activeSession.map(ex => ({ exercise: ex.name, sets: ex.actual.filter(s => s.done && s.weight && s.reps).map(s => ({ weight: parseFloat(s.weight), reps: parseInt(s.reps) })), date: document.getElementById('workout-date').value })).filter(e => e.sets.length > 0);
-            if(validData.length === 0) return window.showToast("Completa series", "error");
-            try { for(const e of validData) await addDoc(collection(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'history'), { ...e, timestamp: serverTimestamp() }); window.showToast("GUARDADO"); window.cancelSession(); } catch(e) { window.showToast("Error", "error"); }
+            if(validData.length === 0) return window.showToast("Marca al menos una serie completa", "error");
+            try { for(const e of validData) await addDoc(collection(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'history'), { ...e, timestamp: serverTimestamp() }); window.showToast("SESIÓN GUARDADA"); window.cancelSession(true); } catch(e) { window.showToast("Error al guardar", "error"); }
         };
 
         // CUSTOM & RUTINAS
         window.toggleCustomInput = () => document.getElementById('custom-ex-input').classList.toggle('hidden');
-        window.addCustomExercise = async () => { 
-            const name = document.getElementById('new-ex-name').value.trim(); 
-            if(name) { await addDoc(collection(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'custom_ex'), { name }); document.getElementById('new-ex-name').value = ""; window.toggleCustomInput(); window.showToast("Creado"); } 
+        window.addCustomExercise = async () => {
+            const name = document.getElementById('new-ex-name').value.trim();
+            if(name) { await addDoc(collection(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'custom_ex'), { name }); document.getElementById('new-ex-name').value = ""; window.toggleCustomInput(); window.showToast("Ejercicio Creado"); }
         };
-        window.saveRoutineBlock = async () => { 
-            const name = document.getElementById('routine-name-input').value.trim(); 
-            if(!name || pickerSelection.size === 0) return window.showToast("Faltan datos", "error"); 
-            await addDoc(collection(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'blocks'), { name, exercises: Array.from(pickerSelection).map(n=>({name:n, sets:3})), createdAt: serverTimestamp() }); 
-            window.closeUniversalPicker(); window.showToast("Guardada"); window.switchTab('train'); 
+        window.saveRoutineBlock = async () => {
+            const name = document.getElementById('routine-name-input').value.trim();
+            if(!name || pickerSelection.size === 0) return window.showToast("Falta nombre o ejercicios", "error");
+            await addDoc(collection(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'blocks'), { name, exercises: Array.from(pickerSelection).map(n=>({name:n, sets:3})), createdAt: serverTimestamp() });
+            window.closeUniversalPicker(); window.showToast("Rutina Guardada"); window.switchTab('train');
         };
 
-        const renderPlannerSavedList = () => { document.getElementById('planner-saved-list').innerHTML = savedBlocks.map(b => `<div class="bg-slate-900/50 p-3 rounded-xl flex justify-between items-center border border-white/5"><span class="text-xs font-bold text-slate-300 truncate uppercase tracking-wider">${escapeHTML(b.name)}</span><button onclick="window.deleteRoutineBlock('${b.id}')" class="text-rose-500/50 p-1">✕</button></div>`).join(''); };
+        const renderPlannerSavedList = () => { document.getElementById('planner-saved-list').innerHTML = savedBlocks.map(b => `<div class="bg-slate-900/50 p-4 rounded-2xl flex justify-between items-center border border-white/5"><span class="text-[10px] font-black text-slate-400 truncate uppercase tracking-widest">${escapeHTML(b.name)}</span><button onclick="window.deleteRoutineBlock('${b.id}')" class="text-rose-500/50 p-1">✕</button></div>`).join(''); };
 
         // UTILS
-        window.cancelSession = () => { if(confirm("¿Cancelar?")) { window.activeSession = null; document.getElementById('routine-selector').classList.remove('hidden'); document.getElementById('active-session-ui').classList.add('hidden'); } };
-        window.deleteHistory = async (id) => { if(confirm("¿Borrar?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'history', id)); };
-        window.deleteRoutineBlock = async (id) => { if(confirm("¿Borrar?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'blocks', id)); };
-        window.deleteCustomEx = async (id) => { if(confirm("¿Borrar?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'custom_ex', id)); };
+        window.cancelSession = (silent = false) => { if(silent || confirm("¿Cancelar entrenamiento actual?")) { window.activeSession = null; document.getElementById('routine-selector').classList.remove('hidden'); document.getElementById('active-session-ui').classList.add('hidden'); } };
+        window.deleteHistory = async (id) => { if(confirm("¿Eliminar este registro?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'history', id)); };
+        window.deleteRoutineBlock = async (id) => { if(confirm("¿Eliminar esta rutina?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'blocks', id)); };
+        window.deleteCustomEx = async (id) => { if(confirm("¿Eliminar ejercicio personalizado?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'custom_ex', id)); };
 
-        window.showToast = (m, type="success") => { 
-            const t = document.getElementById('toast'); const msg = document.getElementById('toast-msg'); msg.textContent = m; 
-            t.firstElementChild.className = `w-2 h-2 rounded-full block ${type==='error'?'bg-rose-500':'bg-emerald-500'}`; 
-            t.classList.remove('opacity-0', 'translate-y-4'); setTimeout(() => t.classList.add('opacity-0', 'translate-y-4'), 2500); 
+        window.showToast = (m, type="success") => {
+            const t = document.getElementById('toast'); const msg = document.getElementById('toast-msg'); msg.textContent = m;
+            t.firstElementChild.className = `w-2 h-2 rounded-full block ${type==='error'?'bg-rose-500 shadow-[0_0_8px_#f43f5e]':'bg-emerald-500 shadow-[0_0_8px_#10b981]'}`;
+            t.classList.remove('opacity-0'); t.classList.add('opacity-100');
+            setTimeout(() => { t.classList.remove('opacity-100'); t.classList.add('opacity-0'); }, 2500);
         };
 
-        window.onload = () => { 
-            document.getElementById('workout-date').value = new Date().toISOString().split('T')[0]; 
-            document.getElementById('picker-search').oninput = e => renderPickerList(e.target.value); 
+        window.onload = () => {
+            document.getElementById('workout-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('picker-search').oninput = e => renderPickerList(e.target.value);
         };
     </script>
 </body>
