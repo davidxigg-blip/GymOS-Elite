@@ -41,11 +41,9 @@
         
         input:focus { border-color: var(--brand) !important; outline: none; box-shadow: 0 0 15px rgba(99, 102, 241, 0.2); }
         
-        /* Estilo de los inputs de peso/reps */
         .input-display {
             background: rgba(2, 6, 23, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
         }
 
         .set-row {
@@ -55,7 +53,6 @@
         }
         .set-row:last-child { border-bottom: none; }
 
-        /* ZONAS SEGURAS */
         .safe-pb { padding-bottom: calc(100px + env(safe-area-inset-bottom)); }
         .safe-pt { padding-top: max(1.2rem, calc(0.5rem + env(safe-area-inset-top))); }
         
@@ -121,12 +118,6 @@
                     <h3 id="streak-count" class="text-xl font-black tracking-tight">🔥 0</h3>
                 </div>
             </div>
-            
-            <div class="flex items-center gap-3 px-1">
-                <div class="h-px bg-slate-800 flex-1"></div>
-                <span class="text-[8px] font-bold text-slate-600 uppercase tracking-widest">Actividad Reciente</span>
-                <div class="h-px bg-slate-800 flex-1"></div>
-            </div>
             <div id="workout-history" class="grid gap-3 mt-4"></div>
         </section>
 
@@ -157,7 +148,7 @@
 
                 <div id="active-session-container" class="space-y-5 w-full"></div>
                 
-                <button onclick="window.saveFullSession()" class="w-full py-5 bg-emerald-600 text-white font-black rounded-3xl shadow-xl uppercase tracking-widest text-sm active:scale-95 transition mt-8 mb-12 border-t border-emerald-400/30">
+                <button onclick="window.saveFullSession()" class="w-full py-5 bg-emerald-600 text-white font-black rounded-3xl shadow-xl uppercase tracking-widest text-sm active:scale-95 transition mt-8 mb-12">
                     Finalizar Entrenamiento
                 </button>
             </div>
@@ -196,7 +187,7 @@
             <button onclick="window.saveRoutineBlock()" class="w-full py-4 bg-emerald-600 text-white font-black rounded-2xl shadow-lg uppercase tracking-widest text-sm">GUARDAR RUTINA</button>
         </div>
         <div id="picker-action-bar" class="p-4 pb-[calc(25px+env(safe-area-inset-bottom))] bg-slate-900 border-t border-white/5 hidden">
-            <button id="picker-confirm-btn" class="w-full py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-lg uppercase tracking-widest text-sm">CONFIRMAR (<span id="picker-count">0</span>)</button>
+            <button id="picker-confirm-btn" class="w-full py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-lg uppercase tracking-widest text-sm">CONFIRMAR</button>
         </div>
     </div>
 
@@ -287,21 +278,13 @@
             allLogs.forEach(l => { days.add(l.date); l.sets?.forEach(set => { v += (set.weight * set.reps); }); });
             document.getElementById('stat-volume').textContent = (v / 1000).toFixed(1) + "t";
             document.getElementById('streak-count').textContent = `🔥 ${days.size}`;
-            
-            // MEJORA VISUAL DEL HISTORIAL RECIENTE
-            document.getElementById('workout-history').innerHTML = allLogs.slice(0, 8).map(l => `
-                <div class="premium-card p-4 rounded-2xl flex justify-between items-center group border-l-4 border-l-indigo-500/50">
+            document.getElementById('workout-history').innerHTML = allLogs.slice(0, 5).map(l => `
+                <div class="premium-card p-3 rounded-xl flex justify-between items-center group">
                     <div class="truncate pr-2 w-full">
-                        <div class="flex items-center gap-2 mb-1">
-                            <p class="text-[11px] font-black text-white uppercase truncate">${escapeHTML(l.exercise)}</p>
-                            <span class="text-[8px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded font-bold">${l.date.split('-').reverse().slice(0,2).join('/')}</span>
-                        </div>
-                        <div class="flex gap-2">
-                             ${l.sets.slice(0,3).map(s => `<span class="text-[9px] font-bold text-slate-500">${s.weight}kg <span class="text-indigo-400">x${s.reps}</span></span>`).join('')}
-                             ${l.sets.length > 3 ? `<span class="text-[9px] font-bold text-slate-600">+${l.sets.length-3}</span>` : ''}
-                        </div>
+                        <p class="text-[10px] font-black text-indigo-400 uppercase truncate">${escapeHTML(l.exercise)}</p>
+                        <p class="text-[9px] text-slate-500 font-bold">${l.date} • <span class="text-slate-300">${l.sets.length} sets</span></p>
                     </div>
-                    <button onclick="window.deleteHistory('${l.id}')" class="flex-shrink-0 text-rose-500/20 hover:text-rose-500 p-2 transition-colors text-lg">✕</button>
+                    <button onclick="window.deleteHistory('${l.id}')" class="flex-shrink-0 text-rose-500/30 hover:text-rose-500 p-2">✕</button>
                 </div>`).join('');
             if(allLogs.length > 0) window.updateProgressChart();
         };
@@ -313,8 +296,8 @@
             const data = filtered.map(l => Math.round(l.sets.reduce((max, s) => { const rm = s.weight * (1 + s.reps/30); return rm > max ? rm : max; }, 0)));
             if (myChart) myChart.destroy();
             const ctx = document.getElementById('progressChart').getContext('2d');
-            const grad = ctx.createLinearGradient(0,0,0,200); grad.addColorStop(0, 'rgba(99,102,241,0.4)'); grad.addColorStop(1, 'rgba(99,102,241,0)');
-            myChart = new Chart(ctx, { type: 'line', data: { labels, datasets: [{ data, borderColor: '#818cf8', borderWidth: 3, pointRadius: 4, pointBackgroundColor: '#818cf8', tension: 0.4, fill: true, backgroundColor: grad }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: false }, scales: { x: { display: false }, y: { display: false } } } });
+            const grad = ctx.createLinearGradient(0,0,0,300); grad.addColorStop(0, '#6366f1'); grad.addColorStop(1, 'rgba(99,102,241,0)');
+            myChart = new Chart(ctx, { type: 'line', data: { labels, datasets: [{ data, borderColor: '#818cf8', borderWidth: 3, pointRadius: 3, tension: 0.3, fill: true, backgroundColor: grad }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: false }, scales: { x: { display: false }, y: { display: false } } } });
         };
         
         const updateExerciseSelect = () => { 
@@ -333,12 +316,10 @@
             }); 
         };
 
-        // PICKER
         window.openUniversalPicker = (context) => {
             pickerContext = context; pickerSelection.clear();
             const picker = document.getElementById('universal-picker'); 
             picker.classList.remove('hidden'); document.body.style.overflow = 'hidden';
-            
             const action = document.getElementById('picker-action-bar');
             const planner = document.getElementById('picker-planner-bar');
             if(context === 'planner') { action.classList.add('hidden'); planner.classList.remove('hidden'); } 
@@ -356,24 +337,23 @@
 
         const createPickerItem = (name, isCustom, id = null) => {
             const div = document.createElement('div'); const isSel = pickerSelection.has(name);
-            div.className = `p-4 rounded-2xl flex justify-between items-center mb-2 border transition-all ${isSel ? 'bg-indigo-600/20 border-indigo-500' : 'bg-slate-900 border-white/5 active:bg-slate-800'}`;
-            div.onclick = () => { if(pickerSelection.has(name)) pickerSelection.delete(name); else pickerSelection.add(name); renderPickerList(document.getElementById('picker-search').value); document.getElementById('picker-count').textContent = pickerSelection.size; };
-            div.innerHTML = `<span class="text-xs font-bold ${isSel ? 'text-indigo-300' : 'text-slate-300'}">${escapeHTML(name)}</span><div class="flex items-center gap-3">${isCustom ? `<button onclick="event.stopPropagation(); window.deleteCustomEx('${id}')" class="text-rose-500/50 p-1">✕</button>` : ''}<div class="w-5 h-5 rounded-full border-2 ${isSel ? 'bg-indigo-500 border-indigo-400 shadow-[0_0_10px_rgba(99,102,241,0.5)]' : 'border-slate-700'}"></div></div>`;
+            div.className = `p-3 rounded-lg flex justify-between items-center mb-1 border ${isSel ? 'bg-indigo-600/20 border-indigo-500' : 'bg-slate-900 border-transparent active:bg-slate-800'}`;
+            div.onclick = () => { if(pickerSelection.has(name)) pickerSelection.delete(name); else pickerSelection.add(name); renderPickerList(document.getElementById('picker-search').value); };
+            div.innerHTML = `<span class="text-xs font-bold ${isSel ? 'text-indigo-300' : 'text-slate-300'}">${escapeHTML(name)}</span><div class="flex items-center gap-2">${isCustom ? `<button onclick="event.stopPropagation(); window.deleteCustomEx('${id}')" class="text-rose-500/50 p-1">✕</button>` : ''}<div class="w-4 h-4 rounded-full border ${isSel ? 'bg-indigo-500 border-indigo-500' : 'border-slate-600'}"></div></div>`;
             return div;
         };
 
         window.startFreeSessionFromPicker = () => { if(pickerSelection.size > 0) { window.loadAndStart(Array.from(pickerSelection).map(n => ({ name: n, sets: 3 })), "Sesión Libre"); window.closeUniversalPicker(); } };
         window.confirmAddToActive = () => { if(window.activeSession) { pickerSelection.forEach(name => window.activeSession.push({ name, actual: [{weight:"", reps: "", done: false}] })); window.renderActiveSession(); window.closeUniversalPicker(); } };
 
-        // ENTRENAMIENTO
         const renderTrainSelector = () => {
             document.getElementById('train-routines-list').innerHTML = savedBlocks.map(b => `
-                <div class="premium-card p-5 rounded-3xl relative transition-transform active:scale-[0.98] border-l-4 border-l-indigo-600">
+                <div class="premium-card p-4 rounded-2xl relative transition-transform active:scale-[0.98]">
                     <div onclick='window.loadAndStart(${JSON.stringify(b.exercises)}, "${escapeHTML(b.name)}")' class="cursor-pointer pr-6">
                         <h3 class="text-base font-black uppercase italic text-white truncate">${escapeHTML(b.name)}</h3>
-                        <p class="text-slate-500 text-[10px] uppercase tracking-tighter">${b.exercises.length} ejercicios planificados</p>
+                        <p class="text-slate-500 text-[10px] uppercase tracking-tighter">${b.exercises.length} ejercicios</p>
                     </div>
-                    <button onclick="window.deleteRoutineBlock('${b.id}')" class="absolute top-1/2 -translate-y-1/2 right-4 text-rose-500/30 hover:text-rose-500 p-2">✕</button>
+                    <button onclick="window.deleteRoutineBlock('${b.id}')" class="absolute top-1/2 -translate-y-1/2 right-2 text-rose-500/30 hover:text-rose-500 p-2">✕</button>
                 </div>`).join('');
         };
 
@@ -384,23 +364,37 @@
             window.scrollTo({top: 0, behavior: 'smooth'}); window.renderActiveSession();
         };
 
-        // MEJORA VISUAL DE LA SECCIÓN DE PESOS Y REPETICIONES
+        // --- ACTUALIZACIÓN AQUÍ: MOSTRAR DATOS DE SESIÓN ANTERIOR ---
         window.renderActiveSession = () => {
-            document.getElementById('active-session-container').innerHTML = window.activeSession.map((ex, exIdx) => `
+            document.getElementById('active-session-container').innerHTML = window.activeSession.map((ex, exIdx) => {
+                // Buscar el log más reciente de este ejercicio
+                const prevLog = allLogs.find(l => l.exercise === ex.name);
+                const prevDisplay = prevLog 
+                    ? prevLog.sets.map(s => `${s.weight}x${s.reps}`).join(' • ') 
+                    : 'Sin historial';
+
+                return `
                 <div class="glass p-5 rounded-[2rem] space-y-4 animate-up w-full border border-white/5 relative overflow-hidden">
                     <div class="absolute top-0 left-0 w-1 h-full bg-indigo-500/40"></div>
-                    <div class="flex justify-between items-center mb-2">
-                        <h4 class="font-black text-white uppercase text-sm italic tracking-wide truncate max-w-[65%]">${escapeHTML(ex.name)}</h4>
-                        <div class="flex gap-2">
-                            <button onclick="window.removeExercise(${exIdx})" class="text-[8px] font-bold text-rose-500/40 hover:text-rose-500 uppercase tracking-tighter">Quitar</button>
-                            <button onclick="window.addSetToActiveExercise(${exIdx})" class="text-[10px] font-black bg-indigo-500/20 text-indigo-300 px-4 py-1.5 rounded-full border border-indigo-500/20 active:scale-95 transition-all">Siguiente Serie</button>
+                    <div class="flex flex-col gap-1">
+                        <div class="flex justify-between items-center">
+                            <h4 class="font-black text-white uppercase text-sm italic tracking-wide truncate max-w-[65%]">${escapeHTML(ex.name)}</h4>
+                            <div class="flex gap-2">
+                                <button onclick="window.removeExercise(${exIdx})" class="text-[8px] font-bold text-rose-500/40 hover:text-rose-500 uppercase tracking-tighter">Quitar</button>
+                                <button onclick="window.addSetToActiveExercise(${exIdx})" class="text-[10px] font-black bg-indigo-500/20 text-indigo-300 px-4 py-1.5 rounded-full border border-indigo-500/20 active:scale-95 transition-all">+ SET</button>
+                            </div>
+                        </div>
+                        <!-- Referencia Sesión Anterior -->
+                        <div class="flex items-center gap-2">
+                             <span class="text-[8px] font-black text-indigo-400/80 uppercase tracking-widest bg-indigo-500/10 px-2 py-0.5 rounded">Previo</span>
+                             <span class="text-[10px] font-bold text-slate-500 truncate">${prevDisplay}</span>
                         </div>
                     </div>
                     
                     <div class="space-y-3">
-                        <div class="grid grid-cols-[40px_1fr_1fr] gap-2 px-1 text-[8px] font-black text-slate-500 uppercase tracking-widest">
+                        <div class="grid grid-cols-[40px_1fr_1fr] gap-2 px-1 text-[8px] font-black text-slate-600 uppercase tracking-widest">
                             <div class="text-center">Set</div>
-                            <div class="text-center">Carga (kg)</div>
+                            <div class="text-center">Peso</div>
                             <div class="text-center">Reps</div>
                         </div>
                         ${ex.actual.map((s, sIdx) => `
@@ -416,61 +410,59 @@
                                         <input type="number" placeholder="0" value="${s.weight}" 
                                             oninput="window.updateSet(${exIdx}, ${sIdx}, 'weight', this.value)" 
                                             class="w-full bg-transparent p-3 text-center font-bold text-base text-white outline-none focus:bg-slate-900/50 transition-colors">
-                                        <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[7px] font-black text-indigo-500/50 pointer-events-none group-focus-within:text-indigo-400">KG</span>
+                                        <span class="absolute right-2 top-1/2 -translate-y-1/2 text-[7px] font-black text-slate-600 pointer-events-none group-focus-within:text-indigo-400">KG</span>
                                     </div>
                                     <div class="relative input-display rounded-xl overflow-hidden group">
                                         <input type="number" placeholder="0" value="${s.reps}" 
                                             oninput="window.updateSet(${exIdx}, ${sIdx}, 'reps', this.value)" 
                                             class="w-full bg-transparent p-3 text-center font-bold text-base text-white outline-none focus:bg-slate-900/50 transition-colors">
-                                        <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[7px] font-black text-indigo-500/50 pointer-events-none group-focus-within:text-indigo-400">RPS</span>
+                                        <span class="absolute right-2 top-1/2 -translate-y-1/2 text-[7px] font-black text-slate-600 pointer-events-none group-focus-within:text-indigo-400">RPS</span>
                                     </div>
                                 </div>
                             </div>`).join('')}
                     </div>
-                </div>`).join('');
+                </div>`;
+            }).join('');
         };
 
         window.addSetToActiveExercise = (exIdx) => { 
-            const sets = window.activeSession[exIdx].actual;
-            const lastSet = sets[sets.length-1];
+            const lastSet = window.activeSession[exIdx].actual[window.activeSession[exIdx].actual.length-1];
             window.activeSession[exIdx].actual.push({weight: lastSet ? lastSet.weight : "", reps: lastSet ? lastSet.reps : "", done: false}); 
             window.renderActiveSession(); 
         };
         window.toggleSet = (exIdx, sIdx) => { window.activeSession[exIdx].actual[sIdx].done = !window.activeSession[exIdx].actual[sIdx].done; window.renderActiveSession(); };
         window.updateSet = (exIdx, sIdx, k, v) => { window.activeSession[exIdx].actual[sIdx][k] = v; };
-        window.removeExercise = (ei) => { if(confirm("¿Eliminar ejercicio de la sesión?")) { window.activeSession.splice(ei, 1); window.renderActiveSession(); } };
+        window.removeExercise = (ei) => { if(confirm("¿Quitar?")) { window.activeSession.splice(ei, 1); window.renderActiveSession(); } };
 
         window.saveFullSession = async () => {
             if(!window.activeSession || window.activeSession.length === 0) return;
             const validData = window.activeSession.map(ex => ({ exercise: ex.name, sets: ex.actual.filter(s => s.done && s.weight && s.reps).map(s => ({ weight: parseFloat(s.weight), reps: parseInt(s.reps) })), date: document.getElementById('workout-date').value })).filter(e => e.sets.length > 0);
-            if(validData.length === 0) return window.showToast("Marca al menos una serie completa", "error");
-            try { for(const e of validData) await addDoc(collection(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'history'), { ...e, timestamp: serverTimestamp() }); window.showToast("SESIÓN GUARDADA"); window.cancelSession(true); } catch(e) { window.showToast("Error al guardar", "error"); }
+            if(validData.length === 0) return window.showToast("Completa series", "error");
+            try { for(const e of validData) await addDoc(collection(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'history'), { ...e, timestamp: serverTimestamp() }); window.showToast("GUARDADO"); window.cancelSession(true); } catch(e) { window.showToast("Error", "error"); }
         };
 
-        // CUSTOM & RUTINAS
         window.toggleCustomInput = () => document.getElementById('custom-ex-input').classList.toggle('hidden');
         window.addCustomExercise = async () => {
             const name = document.getElementById('new-ex-name').value.trim();
-            if(name) { await addDoc(collection(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'custom_ex'), { name }); document.getElementById('new-ex-name').value = ""; window.toggleCustomInput(); window.showToast("Ejercicio Creado"); }
+            if(name) { await addDoc(collection(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'custom_ex'), { name }); document.getElementById('new-ex-name').value = ""; window.toggleCustomInput(); window.showToast("Creado"); }
         };
         window.saveRoutineBlock = async () => {
             const name = document.getElementById('routine-name-input').value.trim();
-            if(!name || pickerSelection.size === 0) return window.showToast("Falta nombre o ejercicios", "error");
+            if(!name || pickerSelection.size === 0) return window.showToast("Faltan datos", "error");
             await addDoc(collection(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'blocks'), { name, exercises: Array.from(pickerSelection).map(n=>({name:n, sets:3})), createdAt: serverTimestamp() });
-            window.closeUniversalPicker(); window.showToast("Rutina Guardada"); window.switchTab('train');
+            window.closeUniversalPicker(); window.showToast("Guardada"); window.switchTab('train');
         };
 
-        const renderPlannerSavedList = () => { document.getElementById('planner-saved-list').innerHTML = savedBlocks.map(b => `<div class="bg-slate-900/50 p-4 rounded-2xl flex justify-between items-center border border-white/5"><span class="text-[10px] font-black text-slate-400 truncate uppercase tracking-widest">${escapeHTML(b.name)}</span><button onclick="window.deleteRoutineBlock('${b.id}')" class="text-rose-500/50 p-1">✕</button></div>`).join(''); };
+        const renderPlannerSavedList = () => { document.getElementById('planner-saved-list').innerHTML = savedBlocks.map(b => `<div class="bg-slate-900/50 p-3 rounded-xl flex justify-between items-center border border-white/5"><span class="text-xs font-bold text-slate-300 truncate uppercase tracking-wider">${escapeHTML(b.name)}</span><button onclick="window.deleteRoutineBlock('${b.id}')" class="text-rose-500/50 p-1">✕</button></div>`).join(''); };
 
-        // UTILS
-        window.cancelSession = (silent = false) => { if(silent || confirm("¿Cancelar entrenamiento actual?")) { window.activeSession = null; document.getElementById('routine-selector').classList.remove('hidden'); document.getElementById('active-session-ui').classList.add('hidden'); } };
-        window.deleteHistory = async (id) => { if(confirm("¿Eliminar este registro?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'history', id)); };
-        window.deleteRoutineBlock = async (id) => { if(confirm("¿Eliminar esta rutina?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'blocks', id)); };
-        window.deleteCustomEx = async (id) => { if(confirm("¿Eliminar ejercicio personalizado?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'custom_ex', id)); };
+        window.cancelSession = (silent = false) => { if(silent || confirm("¿Cancelar?")) { window.activeSession = null; document.getElementById('routine-selector').classList.remove('hidden'); document.getElementById('active-session-ui').classList.add('hidden'); } };
+        window.deleteHistory = async (id) => { if(confirm("¿Borrar?")) await deleteDoc(doc(doc(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'history', id))); };
+        window.deleteRoutineBlock = async (id) => { if(confirm("¿Borrar?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'blocks', id)); };
+        window.deleteCustomEx = async (id) => { if(confirm("¿Borrar?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'custom_ex', id)); };
 
         window.showToast = (m, type="success") => {
             const t = document.getElementById('toast'); const msg = document.getElementById('toast-msg'); msg.textContent = m;
-            t.firstElementChild.className = `w-2 h-2 rounded-full block ${type==='error'?'bg-rose-500 shadow-[0_0_8px_#f43f5e]':'bg-emerald-500 shadow-[0_0_8px_#10b981]'}`;
+            t.firstElementChild.className = `w-2 h-2 rounded-full block ${type==='error'?'bg-rose-500':'bg-emerald-500'}`;
             t.classList.remove('opacity-0'); t.classList.add('opacity-100');
             setTimeout(() => { t.classList.remove('opacity-100'); t.classList.add('opacity-0'); }, 2500);
         };
