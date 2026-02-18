@@ -7,126 +7,464 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <meta name="apple-mobile-web-app-title" content="GymOS Elite">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#020617">
+    <meta name="theme-color" content="#050508">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2964/2964514.png">
 
     <style>
-        :root { --brand: #6366f1; --bg: #020617; }
-        * { -webkit-tap-highlight-color: transparent; scrollbar-width: none; touch-action: manipulation; }
+        :root {
+            --brand: #00ffc8;
+            --brand-secondary: #7c3aed;
+            --bg: #050508;
+            --bg-secondary: #0a0a12;
+            --card: rgba(15, 15, 25, 0.85);
+            --card-hover: rgba(20, 20, 35, 0.95);
+            --border: rgba(255, 255, 255, 0.06);
+            --border-accent: rgba(0, 255, 200, 0.15);
+            --text: #f0f0f5;
+            --text-muted: #6b6b80;
+            --success: #00ffc8;
+            --danger: #ff4757;
+            --warning: #ffa502;
+        }
+        
+        * { 
+            -webkit-tap-highlight-color: transparent; 
+            scrollbar-width: none; 
+            touch-action: manipulation; 
+            box-sizing: border-box;
+        }
         *::-webkit-scrollbar { display: none; }
-        html { background-color: #020617; height: 100%; }
+        
+        html { 
+            background-color: var(--bg); 
+            height: 100%; 
+            overflow-x: hidden;
+        }
         
         body { 
-            background: var(--bg); 
-            background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #020617 100%);
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            color: #f8fafc; 
+            font-family: 'Inter', system-ui, sans-serif; 
+            color: var(--text); 
             overflow-x: hidden;
             width: 100vw;
             overscroll-behavior-y: none;
             min-height: 100dvh;
+            position: relative;
         }
 
-        .glass { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        .premium-card { background: linear-gradient(145deg, rgba(30, 41, 59, 0.4), rgba(15, 23, 42, 0.7)); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .nav-tab.active { color: #818cf8; }
-        
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .animate-up { animation: slideUp 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
-        
-        input:focus { border-color: var(--brand) !important; outline: none; box-shadow: 0 0 15px rgba(99, 102, 241, 0.2); }
-        
+        /* Atmospheric Background */
+        .bg-atmosphere {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background: 
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(124, 58, 237, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 80% 60%, rgba(0, 255, 200, 0.08) 0%, transparent 40%),
+                radial-gradient(ellipse 50% 30% at 20% 80%, rgba(124, 58, 237, 0.1) 0%, transparent 40%),
+                var(--bg);
+        }
+
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 50px 50px;
+            mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black, transparent);
+        }
+
+        .blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            animation: blobFloat 20s ease-in-out infinite;
+            pointer-events: none;
+            z-index: -1;
+        }
+        .blob-1 { width: 400px; height: 400px; background: rgba(124, 58, 237, 0.3); top: -100px; left: -100px; animation-delay: 0s; }
+        .blob-2 { width: 300px; height: 300px; background: rgba(0, 255, 200, 0.2); bottom: 20%; right: -50px; animation-delay: -5s; }
+        .blob-3 { width: 250px; height: 250px; background: rgba(124, 58, 237, 0.2); bottom: -50px; left: 20%; animation-delay: -10s; }
+
+        @keyframes blobFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -30px) scale(1.05); }
+            50% { transform: translate(-20px, 20px) scale(0.95); }
+            75% { transform: translate(20px, 30px) scale(1.02); }
+        }
+
+        /* Typography */
+        .font-display { font-family: 'Space Grotesk', sans-serif; }
+
+        /* Glass Card System */
+        .glass {
+            background: var(--card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass:hover {
+            border-color: var(--border-accent);
+            box-shadow: 0 0 30px rgba(0, 255, 200, 0.05);
+        }
+
+        .glass-strong {
+            background: rgba(10, 10, 18, 0.95);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid var(--border);
+        }
+
+        .premium-card {
+            background: linear-gradient(145deg, rgba(20, 20, 35, 0.6), rgba(10, 10, 18, 0.8));
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+        .premium-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(0, 255, 200, 0.03) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        /* Navigation */
+        .nav-tab {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .nav-tab.active { color: var(--brand); }
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            background: var(--brand);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--brand);
+        }
+
+        /* Animations */
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes scaleIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 200, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(0, 255, 200, 0.5); }
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        @keyframes countUp {
+            from { transform: translateY(10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .animate-up { animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        .animate-fade { animation: fadeIn 0.4s ease forwards; }
+        .animate-scale { animation: scaleIn 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+
+        .stagger-1 { animation-delay: 0.1s; opacity: 0; }
+        .stagger-2 { animation-delay: 0.2s; opacity: 0; }
+        .stagger-3 { animation-delay: 0.3s; opacity: 0; }
+        .stagger-4 { animation-delay: 0.4s; opacity: 0; }
+
+        /* Button Styles */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--brand) 0%, #00d4a8 100%);
+            color: #050508;
+            font-weight: 700;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%);
+            transform: translateX(-100%);
+            transition: transform 0.5s ease;
+        }
+        .btn-primary:hover::before {
+            transform: translateX(100%);
+        }
+        .btn-primary:active {
+            transform: scale(0.98);
+            box-shadow: 0 0 30px rgba(0, 255, 200, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(124, 58, 237, 0.2);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            color: #a78bfa;
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background: rgba(124, 58, 237, 0.3);
+            border-color: rgba(124, 58, 237, 0.5);
+        }
+
+        .btn-danger {
+            background: rgba(255, 71, 87, 0.15);
+            border: 1px solid rgba(255, 71, 87, 0.2);
+            color: var(--danger);
+            transition: all 0.2s ease;
+        }
+        .btn-danger:hover {
+            background: rgba(255, 71, 87, 0.25);
+        }
+
+        /* Input Styles */
+        .input-field {
+            background: rgba(5, 5, 8, 0.8);
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+        .input-field:focus {
+            border-color: var(--brand);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 255, 200, 0.1), 0 0 20px rgba(0, 255, 200, 0.1);
+        }
+
         .input-display {
-            background: rgba(2, 6, 23, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(5, 5, 8, 0.6);
+            border: 1px solid var(--border);
+            transition: all 0.2s ease;
+        }
+        .input-display:focus-within {
+            border-color: var(--brand);
+            box-shadow: 0 0 15px rgba(0, 255, 200, 0.1);
         }
 
+        /* Set Row */
         .set-row {
             transition: all 0.2s ease;
             border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-            padding-bottom: 8px;
+            padding-bottom: 10px;
         }
-        .set-row:last-child { border-bottom: none; }
+        .set-row:last-child { border-bottom: none; padding-bottom: 0; }
 
+        /* Progress Ring */
+        .progress-ring {
+            position: relative;
+        }
+        .progress-ring circle {
+            transition: stroke-dashoffset 0.5s ease;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        /* Stat Card Animation */
+        .stat-value {
+            animation: countUp 0.6s ease-out forwards;
+        }
+
+        /* Timer */
+        .timer-display {
+            font-family: 'Space Grotesk', monospace;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.05em;
+        }
+
+        /* Safe Areas */
         .safe-pb { padding-bottom: calc(100px + env(safe-area-inset-bottom)); }
         .safe-pt { padding-top: max(1.2rem, calc(0.5rem + env(safe-area-inset-top))); }
         
+        /* Training Header */
         .training-header-sticky {
             position: sticky;
             top: calc(4.1rem + env(safe-area-inset-top));
             z-index: 40;
             margin-bottom: 1.5rem;
         }
+
+        /* Toast */
+        .toast-enter {
+            animation: slideUp 0.3s ease forwards, fadeIn 0.3s ease forwards;
+        }
+
+        /* Chart Container */
+        .chart-glow {
+            position: relative;
+        }
+        .chart-glow::after {
+            content: '';
+            position: absolute;
+            inset: 20%;
+            background: radial-gradient(ellipse, rgba(0, 255, 200, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Exercise Card Accent */
+        .exercise-card {
+            position: relative;
+            overflow: hidden;
+        }
+        .exercise-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--brand) 0%, var(--brand-secondary) 100%);
+            opacity: 0.8;
+        }
+
+        /* Completed Set */
+        .set-completed {
+            background: linear-gradient(135deg, rgba(0, 255, 200, 0.15) 0%, rgba(0, 255, 200, 0.05) 100%);
+            border-color: rgba(0, 255, 200, 0.3);
+        }
+
+        /* History Item */
+        .history-item {
+            transition: all 0.2s ease;
+        }
+        .history-item:hover {
+            transform: translateX(4px);
+            border-color: rgba(0, 255, 200, 0.1);
+        }
+
+        /* Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            .blob { animation: none; opacity: 0.2; }
+        }
     </style>
 </head>
-<body class="safe-pb selection:bg-indigo-500 selection:text-white">
+<body class="safe-pb selection:bg-emerald-500/30 selection:text-white">
+
+    <!-- Atmospheric Background -->
+    <div class="bg-atmosphere"></div>
+    <div class="bg-grid"></div>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
 
     <!-- LOGIN -->
-    <div id="login-overlay" class="fixed inset-0 z-[2000] bg-slate-950 flex items-center justify-center px-6">
-        <div class="w-full max-w-sm text-center animate-up">
-            <div class="w-20 h-20 mx-auto mb-6 bg-indigo-600/20 rounded-[2rem] flex items-center justify-center border border-indigo-500/30">
-                <svg viewBox="0 0 24 24" class="w-10 h-10 text-indigo-500 fill-current"><path d="M20.57 14.86L22 13.43L20.57 12L17 15.57L8.43 7L12 3.43L10.57 2L9.14 3.43L7.71 2L5.57 4.14L4.14 2.71L2.71 4.14L4.14 5.57L2 7.71L3.43 9.14L2 10.57L3.43 12L7 8.43L15.57 17L12 20.57L13.43 22L14.86 20.57L16.29 22L18.43 19.86L19.86 21.29L21.29 19.86L19.86 18.43L22 16.29L20.57 14.86Z"/></svg>
-            </div>
-            <h1 class="text-4xl font-black tracking-tighter italic mb-2 text-white">GYMOS <span class="text-indigo-500">PRO</span></h1>
-            <p class="text-slate-400 text-xs font-bold mb-8 uppercase tracking-widest">Training System 2026</p>
-            <div class="space-y-4">
-                <input type="email" id="login-email" placeholder="Email" class="w-full bg-slate-900 border border-white/5 px-6 py-4 rounded-2xl outline-none text-white focus:border-indigo-500 text-base appearance-none">
-                <input type="password" id="login-pass" placeholder="Password" class="w-full bg-slate-900 border border-white/5 px-6 py-4 rounded-2xl outline-none text-white focus:border-indigo-500 text-base appearance-none">
-                <div class="grid grid-cols-2 gap-4 pt-2">
-                    <button onclick="window.ejecutarLogin('signin')" class="py-4 bg-indigo-600 text-white font-bold rounded-2xl shadow-lg active:scale-95 transition">ENTRAR</button>
-                    <button onclick="window.ejecutarLogin('signup')" class="py-4 bg-slate-800 text-white font-bold rounded-2xl active:scale-95 transition">REGISTRAR</button>
+    <div id="login-overlay" class="fixed inset-0 z-[2000] flex items-center justify-center px-6" style="background: linear-gradient(180deg, #050508 0%, #0a0a12 100%);">
+        <div class="w-full max-w-sm text-center">
+            <div class="animate-up" style="animation-delay: 0.1s; opacity: 0;">
+                <div class="w-24 h-24 mx-auto mb-8 relative">
+                    <div class="absolute inset-0 bg-gradient-to-br from-emerald-400 to-violet-600 rounded-3xl rotate-6 opacity-50 blur-xl"></div>
+                    <div class="relative w-full h-full bg-gradient-to-br from-emerald-400/10 to-violet-600/10 rounded-3xl flex items-center justify-center border border-emerald-500/20 backdrop-blur-sm">
+                        <svg viewBox="0 0 24 24" class="w-12 h-12 text-emerald-400 fill-current"><path d="M20.57 14.86L22 13.43L20.57 12L17 15.57L8.43 7L12 3.43L10.57 2L9.14 3.43L7.71 2L5.57 4.14L4.14 2.71L2.71 4.14L4.14 5.57L2 7.71L3.43 9.14L2 10.57L3.43 12L7 8.43L15.57 17L12 20.57L13.43 22L14.86 20.57L16.29 22L18.43 19.86L19.86 21.29L21.29 19.86L19.86 18.43L22 16.29L20.57 14.86Z"/></svg>
+                    </div>
                 </div>
-                <p id="login-error" class="text-rose-500 text-[10px] font-bold uppercase mt-2 hidden"></p>
+            </div>
+            
+            <div class="animate-up" style="animation-delay: 0.2s; opacity: 0;">
+                <h1 class="font-display text-5xl font-bold tracking-tight mb-2">GYMOS</h1>
+                <p class="text-emerald-400 text-sm font-semibold tracking-widest mb-10">ELITE TRAINING SYSTEM</p>
+            </div>
+            
+            <div class="space-y-4 animate-up" style="animation-delay: 0.3s; opacity: 0;">
+                <input type="email" id="login-email" placeholder="Email" class="input-field w-full px-5 py-4 rounded-2xl text-white text-base placeholder-slate-500">
+                <input type="password" id="login-pass" placeholder="Password" class="input-field w-full px-5 py-4 rounded-2xl text-white text-base placeholder-slate-500">
+                <div class="grid grid-cols-2 gap-3 pt-3">
+                    <button onclick="window.ejecutarLogin('signin')" class="btn-primary py-4 rounded-2xl text-sm font-bold tracking-wide">ENTRAR</button>
+                    <button onclick="window.ejecutarLogin('signup')" class="btn-secondary py-4 rounded-2xl text-sm font-bold tracking-wide">REGISTRAR</button>
+                </div>
+                <p id="login-error" class="text-rose-400 text-xs font-semibold mt-3 hidden"></p>
             </div>
         </div>
     </div>
 
     <!-- MAIN HEADER -->
-    <header class="px-5 pb-3 flex justify-between items-center sticky top-0 z-[110] bg-[#020617]/90 backdrop-blur-md border-b border-white/5 safe-pt">
-        <div class="flex items-center gap-2">
-            <svg viewBox="0 0 24 24" class="w-6 h-6 text-indigo-500 fill-current"><path d="M20.57 14.86L22 13.43L20.57 12L17 15.57L8.43 7L12 3.43L10.57 2L9.14 3.43L7.71 2L5.57 4.14L4.14 2.71L2.71 4.14L4.14 5.57L2 7.71L3.43 9.14L2 10.57L3.43 12L7 8.43L15.57 17L12 20.57L13.43 22L14.86 20.57L16.29 22L18.43 19.86L19.86 21.29L21.29 19.86L19.86 18.43L22 16.29L20.57 14.86Z"/></svg>
-            <h2 class="text-xl font-black tracking-tighter italic">GymOS <span class="text-indigo-500">Elite</span></h2>
+    <header class="px-5 pb-4 flex justify-between items-center sticky top-0 z-[110] glass-strong safe-pt">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400/20 to-violet-600/20 flex items-center justify-center border border-emerald-500/20">
+                <svg viewBox="0 0 24 24" class="w-5 h-5 text-emerald-400 fill-current"><path d="M20.57 14.86L22 13.43L20.57 12L17 15.57L8.43 7L12 3.43L10.57 2L9.14 3.43L7.71 2L5.57 4.14L4.14 2.71L2.71 4.14L4.14 5.57L2 7.71L3.43 9.14L2 10.57L3.43 12L7 8.43L15.57 17L12 20.57L13.43 22L14.86 20.57L16.29 22L18.43 19.86L19.86 21.29L21.29 19.86L19.86 18.43L22 16.29L20.57 14.86Z"/></svg>
+            </div>
+            <div>
+                <h2 class="font-display text-lg font-bold tracking-tight">GymOS</h2>
+                <p class="text-[10px] text-emerald-400 font-semibold tracking-wider">ELITE</p>
+            </div>
         </div>
-        <button onclick="window.cerrarSesion()" class="text-[10px] font-bold bg-slate-800/50 px-3 py-1.5 rounded-full border border-white/10 active:bg-slate-700 transition-colors">SALIR</button>
+        <button onclick="window.cerrarSesion()" class="text-[10px] font-bold bg-slate-800/80 px-4 py-2 rounded-full border border-white/5 hover:border-rose-500/30 hover:text-rose-400 transition-all">SALIR</button>
     </header>
 
-    <main class="px-4 w-full max-w-lg mx-auto min-h-screen pt-4">
+    <main class="px-4 w-full max-w-lg mx-auto min-h-screen pt-2">
         
         <!-- DASHBOARD -->
-        <section id="section-dashboard" class="space-y-6 animate-up">
-            <div class="glass p-5 rounded-[2rem]">
+        <section id="section-dashboard" class="space-y-6">
+            <!-- Progress Chart -->
+            <div class="glass p-6 rounded-3xl animate-up stagger-1">
                 <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-[10px] font-black uppercase tracking-widest text-indigo-400">Progreso (1RM est.)</h3>
-                    <select id="chart-exercise-select" onchange="window.updateProgressChart()" class="bg-slate-900 text-[10px] font-bold p-2 px-3 rounded-lg outline-none border border-white/5 focus:border-indigo-500 max-w-[140px] truncate"></select>
+                    <div>
+                        <h3 class="text-[11px] font-bold uppercase tracking-widest text-emerald-400 mb-1">Progreso 1RM</h3>
+                        <p class="text-[10px] text-slate-500">Estimacion basada en series</p>
+                    </div>
+                    <select id="chart-exercise-select" onchange="window.updateProgressChart()" class="input-field text-[11px] font-semibold p-2 px-3 rounded-xl max-w-[130px] truncate cursor-pointer"></select>
                 </div>
-                <div class="h-[180px] w-full relative">
+                <div class="chart-glow h-[200px] w-full relative">
                     <canvas id="progressChart"></canvas>
                 </div>
             </div>
-            <div class="grid grid-cols-2 gap-3">
-                <div class="premium-card p-4 rounded-[1.5rem] flex flex-col items-center justify-center text-center">
-                    <p class="text-[9px] font-bold text-slate-500 uppercase mb-1">Volumen Histórico</p>
-                    <h3 id="stat-volume" class="text-xl font-black tracking-tight">0 kg</h3>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-2 gap-4">
+                <div class="premium-card p-5 rounded-2xl animate-up stagger-2">
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                        </div>
+                        <p class="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Volumen Total</p>
+                    </div>
+                    <h3 id="stat-volume" class="stat-value font-display text-3xl font-bold tracking-tight">0<span class="text-base text-slate-500 ml-1">t</span></h3>
                 </div>
-                <div class="premium-card p-4 rounded-[1.5rem] flex flex-col items-center justify-center text-center">
-                    <p class="text-[9px] font-bold text-slate-500 uppercase mb-1">Días Entrenados</p>
-                    <h3 id="streak-count" class="text-xl font-black tracking-tight">🔥 0</h3>
+                <div class="premium-card p-5 rounded-2xl animate-up stagger-3">
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="w-8 h-8 rounded-lg bg-violet-500/10 flex items-center justify-center">
+                            <svg class="w-4 h-4 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"/></svg>
+                        </div>
+                        <p class="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Entrenamientos</p>
+                    </div>
+                    <h3 id="streak-count" class="stat-value font-display text-3xl font-bold tracking-tight">0</h3>
                 </div>
             </div>
-            <div id="workout-history" class="grid gap-3 mt-4"></div>
+
+            <!-- History -->
+            <div class="animate-up stagger-4">
+                <h3 class="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-4 px-1">Historial Reciente</h3>
+                <div id="workout-history" class="grid gap-3"></div>
+            </div>
         </section>
 
         <!-- SECCIÓN: ENTRENAR -->
         <section id="section-train" class="hidden space-y-4 animate-up w-full">
             <div id="routine-selector" class="space-y-4">
-                <button onclick="window.openUniversalPicker('session')" class="w-full py-4 border-2 border-dashed border-indigo-500/30 bg-indigo-500/5 rounded-2xl text-indigo-300 font-bold flex items-center justify-center gap-3 active:scale-95 transition-all">
-                    <span class="text-xl">+</span>
-                    <span class="text-xs uppercase tracking-widest">Crear Sesión Libre</span>
+                <button onclick="window.openUniversalPicker('session')" class="w-full py-5 border-2 border-dashed border-emerald-500/20 bg-emerald-500/5 rounded-2xl text-emerald-400 font-bold flex items-center justify-center gap-3 hover:border-emerald-500/40 hover:bg-emerald-500/10 transition-all active:scale-[0.98]">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    <span class="text-xs uppercase tracking-widest">Sesion Libre</span>
                 </button>
                 <div id="train-routines-list" class="grid gap-3"></div>
             </div>
@@ -134,21 +472,40 @@
             <!-- Interfaz Sesión Activa -->
             <div id="active-session-ui" class="hidden w-full relative">
                 <div class="training-header-sticky">
-                    <div class="glass p-4 rounded-3xl flex flex-col gap-3 shadow-2xl ring-1 ring-white/10">
+                    <div class="glass p-5 rounded-3xl flex flex-col gap-4 shadow-2xl ring-1 ring-white/5">
                         <div class="flex justify-between items-center">
-                            <h2 id="active-routine-name" class="font-black text-base text-white uppercase italic truncate">--</h2>
-                            <button onclick="window.cancelSession()" class="text-rose-500 bg-rose-500/10 p-2 px-3 rounded-lg text-[9px] font-black uppercase tracking-widest">Cancelar</button>
+                            <div>
+                                <h2 id="active-routine-name" class="font-display font-bold text-lg text-white uppercase tracking-tight">--</h2>
+                                <p id="active-session-status" class="text-[10px] text-emerald-400 font-semibold">En progreso</p>
+                            </div>
+                            <button onclick="window.cancelSession()" class="btn-danger px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider">Cancelar</button>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <input type="date" id="workout-date" class="bg-slate-900 border border-white/5 rounded-xl px-3 py-2 text-slate-300 font-bold text-xs flex-1">
-                            <button onclick="window.openUniversalPicker('add_to_active')" class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg">+ Ejercicio</button>
+                        <div class="flex items-center gap-3">
+                            <input type="date" id="workout-date" class="input-field rounded-xl px-3 py-2.5 text-slate-300 font-semibold text-xs flex-1">
+                            <button onclick="window.openUniversalPicker('add_to_active')" class="btn-secondary px-4 py-2.5 rounded-xl text-xs font-bold">+ Ejercicio</button>
+                        </div>
+                        
+                        <!-- Timer -->
+                        <div id="rest-timer" class="hidden bg-gradient-to-r from-violet-500/10 to-emerald-500/10 rounded-2xl p-4 border border-violet-500/20">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-[9px] font-bold text-violet-400 uppercase tracking-widest mb-1">Descanso</p>
+                                    <p id="timer-display" class="timer-display text-3xl font-bold text-white">0:00</p>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button onclick="window.setTimer(60)" class="bg-violet-500/20 text-violet-300 px-3 py-1.5 rounded-lg text-[10px] font-bold">1:00</button>
+                                    <button onclick="window.setTimer(90)" class="bg-violet-500/20 text-violet-300 px-3 py-1.5 rounded-lg text-[10px] font-bold">1:30</button>
+                                    <button onclick="window.setTimer(180)" class="bg-violet-500/20 text-violet-300 px-3 py-1.5 rounded-lg text-[10px] font-bold">3:00</button>
+                                    <button onclick="window.stopTimer()" class="bg-rose-500/20 text-rose-300 px-3 py-1.5 rounded-lg text-[10px] font-bold">Stop</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div id="active-session-container" class="space-y-5 w-full"></div>
                 
-                <button onclick="window.saveFullSession()" class="w-full py-5 bg-emerald-600 text-white font-black rounded-3xl shadow-xl uppercase tracking-widest text-sm active:scale-95 transition mt-8 mb-12">
+                <button onclick="window.saveFullSession()" class="w-full py-5 btn-primary rounded-3xl uppercase tracking-widest text-sm mt-8 mb-12">
                     Finalizar Entrenamiento
                 </button>
             </div>
@@ -156,59 +513,63 @@
 
         <!-- SECCIÓN: RUTINAS -->
         <section id="section-routines" class="hidden space-y-6 animate-up pb-10">
-            <div class="glass p-8 rounded-[2rem] text-center space-y-4">
-                <div class="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center mx-auto text-indigo-400">
-                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+            <div class="glass p-8 rounded-3xl text-center space-y-5">
+                <div class="w-16 h-16 bg-gradient-to-br from-violet-500/20 to-emerald-500/10 rounded-2xl flex items-center justify-center mx-auto border border-violet-500/20">
+                    <svg class="w-8 h-8 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
                 </div>
-                <h3 class="text-xl font-black italic">PLANIFICADOR</h3>
-                <button onclick="window.openUniversalPicker('planner')" class="w-full py-4 bg-indigo-600 text-white font-bold rounded-2xl shadow-lg uppercase text-xs tracking-widest">Crear Nueva Rutina</button>
+                <div>
+                    <h3 class="font-display text-2xl font-bold tracking-tight mb-2">Planificador</h3>
+                    <p class="text-slate-500 text-sm">Crea y gestiona tus rutinas personalizadas</p>
+                </div>
+                <button onclick="window.openUniversalPicker('planner')" class="w-full py-4 btn-primary rounded-2xl text-sm font-bold uppercase tracking-wider">Crear Nueva Rutina</button>
             </div>
-            <div id="planner-saved-list" class="grid gap-2"></div>
+            <div id="planner-saved-list" class="grid gap-3"></div>
         </section>
     </main>
 
     <!-- SELECTOR UNIVERSAL -->
-    <div id="universal-picker" class="fixed inset-0 z-[3000] bg-slate-950 flex flex-col hidden">
-        <div class="p-4 flex items-center justify-between bg-slate-900/90 backdrop-blur-xl border-b border-white/5 sticky top-0 z-20 safe-pt">
-            <h3 class="text-base font-black italic text-white">SELECCIONAR</h3>
-            <button onclick="window.closeUniversalPicker()" class="text-slate-400 bg-slate-800/50 px-3 py-1 rounded-full text-xs font-bold">CERRAR</button>
+    <div id="universal-picker" class="fixed inset-0 z-[3000] flex flex-col hidden" style="background: linear-gradient(180deg, #050508 0%, #0a0a12 100%);">
+        <div class="p-4 flex items-center justify-between glass-strong border-b border-white/5 sticky top-0 z-20 safe-pt">
+            <h3 class="font-display text-base font-bold text-white">SELECCIONAR</h3>
+            <button onclick="window.closeUniversalPicker()" class="text-slate-400 bg-slate-800/80 px-4 py-1.5 rounded-full text-xs font-bold hover:bg-slate-700 transition-colors">CERRAR</button>
         </div>
-        <div class="p-4 space-y-4 bg-slate-950">
-            <input type="text" id="picker-search" placeholder="Buscar ejercicio..." class="w-full bg-slate-900 p-3 rounded-xl text-base outline-none border border-white/5 text-white appearance-none">
-            <div id="custom-ex-input" class="hidden p-4 bg-indigo-900/20 rounded-2xl border border-indigo-500/30 space-y-3">
-                <input type="text" id="new-ex-name" placeholder="Nombre Ej. Prensa" class="w-full bg-slate-950 p-3 rounded-xl text-base outline-none text-white border border-white/5">
-                <button onclick="window.addCustomExercise()" class="w-full bg-indigo-600 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-white">Guardar</button>
+        <div class="p-4 space-y-4">
+            <input type="text" id="picker-search" placeholder="Buscar ejercicio..." class="input-field w-full p-4 rounded-2xl text-base text-white placeholder-slate-500">
+            <div id="custom-ex-input" class="hidden p-4 bg-gradient-to-r from-emerald-500/10 to-violet-500/10 rounded-2xl border border-emerald-500/20 space-y-3">
+                <input type="text" id="new-ex-name" placeholder="Nombre del ejercicio..." class="input-field w-full p-3 rounded-xl text-base text-white placeholder-slate-500">
+                <button onclick="window.addCustomExercise()" class="w-full btn-primary py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest">Guardar Ejercicio</button>
             </div>
-            <button onclick="window.toggleCustomInput()" class="w-full py-2 text-[10px] font-bold text-indigo-400 uppercase tracking-widest">+ Crear Ejercicio Personalizado</button>
+            <button onclick="window.toggleCustomInput()" class="w-full py-3 text-[11px] font-bold text-emerald-400 uppercase tracking-widest hover:text-emerald-300 transition-colors">+ Crear Ejercicio Personalizado</button>
         </div>
         <div class="flex-1 overflow-y-auto p-4 space-y-2" id="picker-list"></div>
-        <div id="picker-planner-bar" class="p-4 pb-[calc(25px+env(safe-area-inset-bottom))] bg-slate-900 border-t border-white/5 hidden space-y-3">
-            <input type="text" id="routine-name-input" placeholder="Nombre de la rutina..." class="w-full bg-slate-950 p-3 rounded-xl outline-none font-bold border border-white/5 text-white text-base">
-            <button onclick="window.saveRoutineBlock()" class="w-full py-4 bg-emerald-600 text-white font-black rounded-2xl shadow-lg uppercase tracking-widest text-sm">GUARDAR RUTINA</button>
+        <div id="picker-planner-bar" class="p-4 pb-[calc(25px+env(safe-area-inset-bottom))] glass-strong border-t border-white/5 hidden space-y-3">
+            <input type="text" id="routine-name-input" placeholder="Nombre de la rutina..." class="input-field w-full p-4 rounded-2xl font-semibold text-base text-white placeholder-slate-500">
+            <button onclick="window.saveRoutineBlock()" class="w-full py-4 btn-primary rounded-2xl text-sm font-bold uppercase tracking-widest">GUARDAR RUTINA</button>
         </div>
-        <div id="picker-action-bar" class="p-4 pb-[calc(25px+env(safe-area-inset-bottom))] bg-slate-900 border-t border-white/5 hidden">
-            <button id="picker-confirm-btn" class="w-full py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-lg uppercase tracking-widest text-sm">CONFIRMAR</button>
+        <div id="picker-action-bar" class="p-4 pb-[calc(25px+env(safe-area-inset-bottom))] glass-strong border-t border-white/5 hidden">
+            <button id="picker-confirm-btn" class="w-full py-4 btn-primary rounded-2xl text-sm font-bold uppercase tracking-widest">CONFIRMAR</button>
         </div>
     </div>
 
     <!-- TABS -->
-    <nav class="fixed bottom-6 left-4 right-4 h-[70px] glass rounded-[2rem] z-[1000] flex justify-around items-center px-2 shadow-2xl">
-        <button onclick="window.switchTab('dashboard')" id="tab-dashboard" class="nav-tab active flex flex-col items-center gap-1 w-16">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+    <nav class="fixed bottom-6 left-4 right-4 h-[72px] glass-strong rounded-3xl z-[1000] flex justify-around items-center px-4 shadow-2xl">
+        <button onclick="window.switchTab('dashboard')" id="tab-dashboard" class="nav-tab active flex flex-col items-center gap-1.5 w-16 py-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>
             <span class="text-[9px] font-bold uppercase tracking-wide">Panel</span>
         </button>
-        <button onclick="window.switchTab('train')" id="tab-train" class="nav-tab flex flex-col items-center gap-1 text-slate-500 w-16">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M20.57 14.86L22 13.43L20.57 12L17 15.57L8.43 7L12 3.43L10.57 2L9.14 3.43L7.71 2L5.57 4.14L4.14 2.71L2.71 4.14L4.14 5.57L2 7.71L3.43 9.14L2 10.57L3.43 12L7 8.43L15.57 17L12 20.57L13.43 22L14.86 20.57L16.29 22L18.43 19.86L19.86 21.29L21.29 19.86L19.86 18.43L22 16.29L20.57 14.86Z"/></svg>
+        <button onclick="window.switchTab('train')" id="tab-train" class="nav-tab flex flex-col items-center gap-1.5 text-slate-500 w-16 py-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
             <span class="text-[9px] font-bold uppercase tracking-wide">Entrenar</span>
         </button>
-        <button onclick="window.switchTab('routines')" id="tab-routines" class="nav-tab flex flex-col items-center gap-1 text-slate-500 w-16">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        <button onclick="window.switchTab('routines')" id="tab-routines" class="nav-tab flex flex-col items-center gap-1.5 text-slate-500 w-16 py-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
             <span class="text-[9px] font-bold uppercase tracking-wide">Rutinas</span>
         </button>
     </nav>
 
-    <div id="toast" class="fixed top-4 left-1/2 -translate-x-1/2 glass px-6 py-3 rounded-full opacity-0 transition-all duration-300 z-[9999] font-black text-[10px] uppercase text-white pointer-events-none shadow-2xl flex items-center gap-2">
-        <span class="w-2 h-2 rounded-full bg-emerald-500 block"></span>
+    <!-- Toast -->
+    <div id="toast" class="fixed top-4 left-1/2 -translate-x-1/2 glass-strong px-6 py-3 rounded-full opacity-0 pointer-events-none z-[9999] font-bold text-[11px] uppercase tracking-wide text-white shadow-2xl flex items-center gap-3 border border-white/10">
+        <span id="toast-indicator" class="w-2 h-2 rounded-full bg-emerald-400 block"></span>
         <span id="toast-msg">MENSAJE</span>
     </div>
 
@@ -230,22 +591,30 @@
         const fbApp = initializeApp(firebaseConfig);
         const auth = getAuth(fbApp);
         const db = getFirestore(fbApp);
-        const DB_KEY = 'gym-pro-v2026-master';
+        const DB_KEY = 'gym-pro-v2026-elite';
 
         const GLOBAL_LIBRARY = {
-            "Pectoral": ["Press Banca", "Press Inclinado", "Aperturas", "Fondos", "Cruce Poleas"],
-            "Espalda": ["Dominadas", "Jalón Pecho", "Remo Barra", "Remo Gironda", "Pull Over"],
-            "Pierna": ["Sentadilla", "Prensa 45", "Peso Muerto", "Ext. Cuádriceps", "Curl Femoral", "Zancadas"],
-            "Hombro": ["Press Militar", "Elev. Laterales", "Pájaros", "Face Pull"],
-            "Brazos": ["Curl Barra", "Curl Martillo", "Press Francés", "Ext. Tríceps"]
+            "Pecho": ["Press Banca", "Press Inclinado", "Aperturas", "Fondos", "Cruce Poleas", "Press Declinado"],
+            "Espalda": ["Dominadas", "Jalón Pecho", "Remo Barra", "Remo Gironda", "Pull Over", "Remo unilateral"],
+            "Pierna": ["Sentadilla", "Prensa 45", "Peso Muerto", "Ext. Cuádriceps", "Curl Femoral", "Zancadas", "Elevación de gemelos"],
+            "Hombro": ["Press Militar", "Elev. Laterales", "Pájaros", "Face Pull", "Press Arnold"],
+            "Brazos": ["Curl Barra", "Curl Martillo", "Press Francés", "Ext. Tríceps", "Curl Bíceps", "Curl Concentrado"]
         };
 
         window.user = null;
         window.activeSession = null;
-        let customExercises = [], savedBlocks = [], allLogs = [], myChart = null, pickerContext = null, pickerSelection = new Set();
+        let customExercises = [];
+        let savedBlocks = [];
+        let allLogs = [];
+        let myChart = null;
+        let pickerContext = null;
+        let pickerSelection = new Set();
+        let timerInterval = null;
+        let timerSeconds = 0;
         
         const escapeHTML = (s) => String(s || "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
 
+        // Auth Functions
         window.ejecutarLogin = async (mode) => {
             const email = document.getElementById('login-email').value.trim();
             const pass = document.getElementById('login-pass').value.trim();
@@ -253,15 +622,26 @@
             try { 
                 if (mode === 'signin') await signInWithEmailAndPassword(auth, email, pass);
                 else await createUserWithEmailAndPassword(auth, email, pass);
-            } catch (err) { alert("Error: " + err.code); }
+            } catch (err) { 
+                const errorEl = document.getElementById('login-error');
+                errorEl.textContent = err.code === 'auth/invalid-credential' ? 'Credenciales incorrectas' : err.message;
+                errorEl.classList.remove('hidden');
+            }
         };
+        
         window.cerrarSesion = () => signOut(auth).then(() => window.location.reload());
-        onAuthStateChanged(auth, u => { window.user = u; document.getElementById('login-overlay').classList.toggle('hidden', !!u); if (u) initSync(); });
+        
+        onAuthStateChanged(auth, u => { 
+            window.user = u; 
+            document.getElementById('login-overlay').classList.toggle('hidden', !!u); 
+            if (u) initSync(); 
+        });
 
         const initSync = () => {
             onSnapshot(query(collection(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'history'), orderBy('timestamp', 'desc')), snap => {
                 allLogs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                renderDashboard(); updateExerciseSelect(); 
+                renderDashboard(); 
+                updateExerciseSelect();
             });
             onSnapshot(collection(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'custom_ex'), snap => {
                 customExercises = snap.docs.map(d => ({ id: d.id, name: d.data().name }));
@@ -269,140 +649,371 @@
             });
             onSnapshot(query(collection(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'blocks'), orderBy('createdAt', 'desc')), snap => {
                 savedBlocks = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                renderTrainSelector(); renderPlannerSavedList(); 
+                renderTrainSelector(); 
+                renderPlannerSavedList(); 
             });
         };
 
         const renderDashboard = () => {
-            let v = 0; const days = new Set(); 
-            allLogs.forEach(l => { days.add(l.date); l.sets?.forEach(set => { v += (set.weight * set.reps); }); });
-            document.getElementById('stat-volume').textContent = (v / 1000).toFixed(1) + "t";
-            document.getElementById('streak-count').textContent = `🔥 ${days.size}`;
-            document.getElementById('workout-history').innerHTML = allLogs.slice(0, 5).map(l => `
-                <div class="premium-card p-3 rounded-xl flex justify-between items-center group">
-                    <div class="truncate pr-2 w-full">
-                        <p class="text-[10px] font-black text-indigo-400 uppercase truncate">${escapeHTML(l.exercise)}</p>
-                        <p class="text-[9px] text-slate-500 font-bold">${l.date} • <span class="text-slate-300">${l.sets.length} sets</span></p>
-                    </div>
-                    <button onclick="window.deleteHistory('${l.id}')" class="flex-shrink-0 text-rose-500/30 hover:text-rose-500 p-2">✕</button>
-                </div>`).join('');
+            let volume = 0; 
+            const days = new Set(); 
+            allLogs.forEach(l => { 
+                days.add(l.date); 
+                l.sets?.forEach(set => { 
+                    volume += (set.weight * set.reps); 
+                }); 
+            });
+            
+            // Animate volume counter
+            const volumeEl = document.getElementById('stat-volume');
+            const displayVolume = (volume / 1000).toFixed(1);
+            volumeEl.innerHTML = `${displayVolume}<span class="text-base text-slate-500 ml-1">t</span>`;
+            
+            document.getElementById('streak-count').textContent = days.size;
+            
+            // Render history
+            const historyEl = document.getElementById('workout-history');
+            if (allLogs.length === 0) {
+                historyEl.innerHTML = `
+                    <div class="premium-card p-6 rounded-2xl text-center">
+                        <svg class="w-10 h-10 mx-auto mb-3 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                        <p class="text-slate-500 text-sm font-medium">Sin entrenamientos registrados</p>
+                        <p class="text-slate-600 text-xs mt-1">Comienza tu primera sesion</p>
+                    </div>`;
+            } else {
+                historyEl.innerHTML = allLogs.slice(0, 5).map((l, i) => `
+                    <div class="history-item premium-card p-4 rounded-2xl flex justify-between items-center group animate-up" style="animation-delay: ${0.1 + i * 0.05}s; opacity: 0;">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/10 to-violet-500/10 flex items-center justify-center border border-emerald-500/10">
+                                <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            </div>
+                            <div class="truncate">
+                                <p class="text-xs font-bold text-white uppercase tracking-wide truncate">${escapeHTML(l.exercise)}</p>
+                                <p class="text-[10px] text-slate-500 font-medium">${l.date} · <span class="text-emerald-400">${l.sets.length} series</span></p>
+                            </div>
+                        </div>
+                        <button onclick="window.deleteHistory('${l.id}')" class="text-slate-600 hover:text-rose-400 p-2 transition-colors opacity-0 group-hover:opacity-100">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
+                    </div>`).join('');
+            }
+            
             if(allLogs.length > 0) window.updateProgressChart();
         };
 
         window.updateProgressChart = () => {
-            const exName = document.getElementById('chart-exercise-select').value; if (!exName || !allLogs.length) return;
+            const exName = document.getElementById('chart-exercise-select').value; 
+            if (!exName || !allLogs.length) return;
+            
             const filtered = allLogs.filter(l => l.exercise === exName).sort((a,b) => new Date(a.date) - new Date(b.date));
-            const labels = filtered.map(l => { const d = new Date(l.date); return `${d.getDate()}/${d.getMonth()+1}`; });
-            const data = filtered.map(l => Math.round(l.sets.reduce((max, s) => { const rm = s.weight * (1 + s.reps/30); return rm > max ? rm : max; }, 0)));
+            const labels = filtered.map(l => { 
+                const d = new Date(l.date); 
+                return `${d.getDate()}/${d.getMonth()+1}`; 
+            });
+            const data = filtered.map(l => Math.round(l.sets.reduce((max, s) => { 
+                const rm = s.weight * (1 + s.reps/30); 
+                return rm > max ? rm : max; 
+            }, 0)));
+            
             if (myChart) myChart.destroy();
+            
             const ctx = document.getElementById('progressChart').getContext('2d');
-            const grad = ctx.createLinearGradient(0,0,0,300); grad.addColorStop(0, '#6366f1'); grad.addColorStop(1, 'rgba(99,102,241,0)');
-            myChart = new Chart(ctx, { type: 'line', data: { labels, datasets: [{ data, borderColor: '#818cf8', borderWidth: 3, pointRadius: 3, tension: 0.3, fill: true, backgroundColor: grad }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: false }, scales: { x: { display: false }, y: { display: false } } } });
+            const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+            gradient.addColorStop(0, 'rgba(0, 255, 200, 0.3)');
+            gradient.addColorStop(1, 'rgba(0, 255, 200, 0)');
+            
+            myChart = new Chart(ctx, { 
+                type: 'line', 
+                data: { 
+                    labels, 
+                    datasets: [{ 
+                        data, 
+                        borderColor: '#00ffc8', 
+                        borderWidth: 3, 
+                        pointRadius: 5,
+                        pointBackgroundColor: '#00ffc8',
+                        pointBorderColor: '#050508',
+                        pointBorderWidth: 2,
+                        pointHoverRadius: 8,
+                        tension: 0.4, 
+                        fill: true, 
+                        backgroundColor: gradient 
+                    }] 
+                }, 
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: false,
+                        tooltip: {
+                            backgroundColor: 'rgba(10, 10, 18, 0.95)',
+                            titleColor: '#00ffc8',
+                            bodyColor: '#fff',
+                            borderColor: 'rgba(0, 255, 200, 0.2)',
+                            borderWidth: 1,
+                            padding: 12,
+                            cornerRadius: 12,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.parsed.y} kg (1RM est.)`;
+                                }
+                            }
+                        }
+                    }, 
+                    scales: { 
+                        x: { 
+                            display: true,
+                            grid: { display: false },
+                            ticks: { 
+                                color: '#6b6b80', 
+                                font: { size: 10, weight: '600' },
+                                maxRotation: 0
+                            },
+                            border: { display: false }
+                        }, 
+                        y: { 
+                            display: true,
+                            grid: { 
+                                color: 'rgba(255, 255, 255, 0.03)',
+                                drawBorder: false
+                            },
+                            ticks: { 
+                                color: '#6b6b80', 
+                                font: { size: 10, weight: '600' },
+                                callback: function(value) { return value + ' kg'; }
+                            },
+                            border: { display: false }
+                        } 
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                } 
+            });
         };
         
         const updateExerciseSelect = () => { 
-            const sel = document.getElementById('chart-exercise-select'); const val = sel.value; const exs = [...new Set(allLogs.map(l => l.exercise))]; 
+            const sel = document.getElementById('chart-exercise-select'); 
+            const val = sel.value; 
+            const exs = [...new Set(allLogs.map(l => l.exercise))]; 
             sel.innerHTML = exs.map(e => `<option value="${e}" ${e===val?'selected':''}>${e}</option>`).join(''); 
-            if(!val && exs.length) { sel.value = exs[0]; window.updateProgressChart(); } 
+            if(!val && exs.length) { 
+                sel.value = exs[0]; 
+                window.updateProgressChart(); 
+            } else if (exs.length === 0) {
+                sel.innerHTML = '<option value="">Sin datos</option>';
+            }
         };
 
         window.switchTab = (t) => { 
             ['dashboard', 'train', 'routines'].forEach(s => { 
                 const el = document.getElementById(`section-${s}`); 
-                if(s === t) { el.classList.remove('hidden'); el.classList.remove('animate-up'); void el.offsetWidth; el.classList.add('animate-up'); } 
-                else el.classList.add('hidden');
+                if(s === t) { 
+                    el.classList.remove('hidden'); 
+                    el.classList.remove('animate-up');
+                    el.querySelectorAll('.animate-up').forEach(child => {
+                        child.classList.remove('animate-up');
+                        void child.offsetWidth;
+                        child.classList.add('animate-up');
+                    });
+                    void el.offsetWidth; 
+                    el.classList.add('animate-up'); 
+                } else {
+                    el.classList.add('hidden');
+                }
                 const btn = document.getElementById(`tab-${s}`); 
-                btn.classList.toggle('active', s === t); btn.classList.toggle('text-slate-500', s !== t); 
+                btn.classList.toggle('active', s === t); 
+                btn.classList.toggle('text-slate-500', s !== t); 
             }); 
         };
 
+        // Picker Functions
         window.openUniversalPicker = (context) => {
-            pickerContext = context; pickerSelection.clear();
+            pickerContext = context; 
+            pickerSelection.clear();
             const picker = document.getElementById('universal-picker'); 
-            picker.classList.remove('hidden'); document.body.style.overflow = 'hidden';
+            picker.classList.remove('hidden'); 
+            document.body.style.overflow = 'hidden';
+            
             const action = document.getElementById('picker-action-bar');
             const planner = document.getElementById('picker-planner-bar');
-            if(context === 'planner') { action.classList.add('hidden'); planner.classList.remove('hidden'); } 
-            else { action.classList.remove('hidden'); planner.classList.add('hidden'); document.getElementById('picker-confirm-btn').onclick = context === 'add_to_active' ? window.confirmAddToActive : window.startFreeSessionFromPicker; }
+            
+            if(context === 'planner') { 
+                action.classList.add('hidden'); 
+                planner.classList.remove('hidden'); 
+            } else { 
+                action.classList.remove('hidden'); 
+                planner.classList.add('hidden'); 
+                document.getElementById('picker-confirm-btn').onclick = context === 'add_to_active' ? window.confirmAddToActive : window.startFreeSessionFromPicker; 
+            }
             renderPickerList();
         };
 
-        window.closeUniversalPicker = () => { document.getElementById('universal-picker').classList.add('hidden'); document.body.style.overflow = ''; };
+        window.closeUniversalPicker = () => { 
+            document.getElementById('universal-picker').classList.add('hidden'); 
+            document.body.style.overflow = ''; 
+        };
         
         const renderPickerList = (f = "") => {
-            const list = document.getElementById('picker-list'); list.innerHTML = ""; const fLower = f.toLowerCase();
-            customExercises.filter(e => e.name.toLowerCase().includes(fLower)).forEach(ex => list.appendChild(createPickerItem(ex.name, true, ex.id)));
-            Object.entries(GLOBAL_LIBRARY).forEach(([cat, exercises]) => { exercises.filter(e => e.toLowerCase().includes(fLower)).forEach(name => list.appendChild(createPickerItem(name, false))); });
+            const list = document.getElementById('picker-list'); 
+            list.innerHTML = ""; 
+            const fLower = f.toLowerCase();
+            
+            // Custom exercises first
+            const customFiltered = customExercises.filter(e => e.name.toLowerCase().includes(fLower));
+            if (customFiltered.length > 0) {
+                const customHeader = document.createElement('div');
+                customHeader.className = 'text-[9px] font-bold text-violet-400 uppercase tracking-widest px-1 mb-2';
+                customHeader.textContent = 'Personalizados';
+                list.appendChild(customHeader);
+                customFiltered.forEach(ex => list.appendChild(createPickerItem(ex.name, true, ex.id)));
+            }
+            
+            // Global library
+            Object.entries(GLOBAL_LIBRARY).forEach(([cat, exercises]) => {
+                const filtered = exercises.filter(e => e.toLowerCase().includes(fLower));
+                if (filtered.length > 0) {
+                    const catHeader = document.createElement('div');
+                    catHeader.className = 'text-[9px] font-bold text-emerald-400/70 uppercase tracking-widest px-1 mb-2 mt-4';
+                    catHeader.textContent = cat;
+                    list.appendChild(catHeader);
+                    filtered.forEach(name => list.appendChild(createPickerItem(name, false)));
+                }
+            });
         };
 
         const createPickerItem = (name, isCustom, id = null) => {
-            const div = document.createElement('div'); const isSel = pickerSelection.has(name);
-            div.className = `p-3 rounded-lg flex justify-between items-center mb-1 border ${isSel ? 'bg-indigo-600/20 border-indigo-500' : 'bg-slate-900 border-transparent active:bg-slate-800'}`;
-            div.onclick = () => { if(pickerSelection.has(name)) pickerSelection.delete(name); else pickerSelection.add(name); renderPickerList(document.getElementById('picker-search').value); };
-            div.innerHTML = `<span class="text-xs font-bold ${isSel ? 'text-indigo-300' : 'text-slate-300'}">${escapeHTML(name)}</span><div class="flex items-center gap-2">${isCustom ? `<button onclick="event.stopPropagation(); window.deleteCustomEx('${id}')" class="text-rose-500/50 p-1">✕</button>` : ''}<div class="w-4 h-4 rounded-full border ${isSel ? 'bg-indigo-500 border-indigo-500' : 'border-slate-600'}"></div></div>`;
+            const div = document.createElement('div'); 
+            const isSel = pickerSelection.has(name);
+            div.className = `p-4 rounded-2xl flex justify-between items-center mb-2 transition-all duration-200 ${isSel ? 'bg-gradient-to-r from-emerald-500/20 to-violet-500/10 border border-emerald-500/30' : 'bg-slate-900/50 border border-transparent hover:bg-slate-800/50'}`;
+            div.onclick = () => { 
+                if(pickerSelection.has(name)) pickerSelection.delete(name); 
+                else pickerSelection.add(name); 
+                renderPickerList(document.getElementById('picker-search').value); 
+            };
+            
+            div.innerHTML = `
+                <span class="text-sm font-semibold ${isSel ? 'text-emerald-300' : 'text-slate-300'}">${escapeHTML(name)}</span>
+                <div class="flex items-center gap-3">
+                    ${isCustom ? `<button onclick="event.stopPropagation(); window.deleteCustomEx('${id}')" class="text-rose-400/50 hover:text-rose-400 p-1 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>` : ''}
+                    <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${isSel ? 'bg-emerald-500 border-emerald-500' : 'border-slate-600'}">
+                        ${isSel ? '<svg class="w-3 h-3 text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>' : ''}
+                    </div>
+                </div>`;
             return div;
         };
 
-        window.startFreeSessionFromPicker = () => { if(pickerSelection.size > 0) { window.loadAndStart(Array.from(pickerSelection).map(n => ({ name: n, sets: 3 })), "Sesión Libre"); window.closeUniversalPicker(); } };
-        window.confirmAddToActive = () => { if(window.activeSession) { pickerSelection.forEach(name => window.activeSession.push({ name, actual: [{weight:"", reps: "", done: false}] })); window.renderActiveSession(); window.closeUniversalPicker(); } };
+        window.startFreeSessionFromPicker = () => { 
+            if(pickerSelection.size > 0) { 
+                window.loadAndStart(Array.from(pickerSelection).map(n => ({ name: n, sets: 3 })), "Sesion Libre"); 
+                window.closeUniversalPicker(); 
+            } 
+        };
+        
+        window.confirmAddToActive = () => { 
+            if(window.activeSession) { 
+                pickerSelection.forEach(name => window.activeSession.push({ name, actual: [{weight:"", reps: "", done: false}] })); 
+                window.renderActiveSession(); 
+                window.closeUniversalPicker(); 
+            } 
+        };
 
         const renderTrainSelector = () => {
-            document.getElementById('train-routines-list').innerHTML = savedBlocks.map(b => `
-                <div class="premium-card p-4 rounded-2xl relative transition-transform active:scale-[0.98]">
-                    <div onclick='window.loadAndStart(${JSON.stringify(b.exercises)}, "${escapeHTML(b.name)}")' class="cursor-pointer pr-6">
-                        <h3 class="text-base font-black uppercase italic text-white truncate">${escapeHTML(b.name)}</h3>
-                        <p class="text-slate-500 text-[10px] uppercase tracking-tighter">${b.exercises.length} ejercicios</p>
+            const listEl = document.getElementById('train-routines-list');
+            if (savedBlocks.length === 0) {
+                listEl.innerHTML = `
+                    <div class="premium-card p-6 rounded-2xl text-center">
+                        <p class="text-slate-500 text-sm font-medium">No tienes rutinas guardadas</p>
+                        <p class="text-slate-600 text-xs mt-1">Crea una en la pestana Rutinas</p>
+                    </div>`;
+                return;
+            }
+            
+            listEl.innerHTML = savedBlocks.map((b, i) => `
+                <div class="premium-card p-5 rounded-2xl relative transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] cursor-pointer group animate-up" style="animation-delay: ${0.1 + i * 0.05}s; opacity: 0;" onclick='window.loadAndStart(${JSON.stringify(b.exercises)}, "${escapeHTML(b.name)}")'>
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500/20 to-emerald-500/10 flex items-center justify-center border border-violet-500/20">
+                            <span class="font-display font-bold text-lg text-violet-300">${b.name.charAt(0)}</span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h3 class="text-sm font-bold uppercase tracking-wide text-white truncate">${escapeHTML(b.name)}</h3>
+                            <p class="text-slate-500 text-[11px] font-medium">${b.exercises.length} ejercicios</p>
+                        </div>
+                        <button onclick="event.stopPropagation(); window.deleteRoutineBlock('${b.id}')" class="text-slate-600 hover:text-rose-400 p-2 transition-colors opacity-0 group-hover:opacity-100">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
                     </div>
-                    <button onclick="window.deleteRoutineBlock('${b.id}')" class="absolute top-1/2 -translate-y-1/2 right-2 text-rose-500/30 hover:text-rose-500 p-2">✕</button>
                 </div>`).join('');
         };
 
         window.loadAndStart = (exs, name) => {
-            window.activeSession = exs.map(e => ({ name: e.name, actual: Array.from({length: 3}, () => ({weight:"", reps: "", done: false})) }));
+            window.activeSession = exs.map(e => ({ 
+                name: e.name, 
+                actual: Array.from({length: 3}, () => ({weight:"", reps: "", done: false})) 
+            }));
             document.getElementById('active-routine-name').textContent = name;
-            document.getElementById('routine-selector').classList.add('hidden'); document.getElementById('active-session-ui').classList.remove('hidden');
-            window.scrollTo({top: 0, behavior: 'smooth'}); window.renderActiveSession();
+            document.getElementById('routine-selector').classList.add('hidden'); 
+            document.getElementById('active-session-ui').classList.remove('hidden');
+            window.scrollTo({top: 0, behavior: 'smooth'}); 
+            window.renderActiveSession();
         };
 
-        // --- ACTUALIZACIÓN AQUÍ: MOSTRAR DATOS DE SESIÓN ANTERIOR ---
         window.renderActiveSession = () => {
-            document.getElementById('active-session-container').innerHTML = window.activeSession.map((ex, exIdx) => {
-                // Buscar el log más reciente de este ejercicio
+            const container = document.getElementById('active-session-container');
+            
+            if (window.activeSession.length === 0) {
+                container.innerHTML = `
+                    <div class="premium-card p-8 rounded-3xl text-center">
+                        <svg class="w-12 h-12 mx-auto mb-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                        <p class="text-slate-500 font-medium">Sin ejercicios</p>
+                        <p class="text-slate-600 text-sm mt-1">Agrega ejercicios para comenzar</p>
+                    </div>`;
+                return;
+            }
+            
+            container.innerHTML = window.activeSession.map((ex, exIdx) => {
                 const prevLog = allLogs.find(l => l.exercise === ex.name);
                 const prevDisplay = prevLog 
-                    ? prevLog.sets.map(s => `${s.weight}x${s.reps}`).join(' • ') 
+                    ? prevLog.sets.slice(0, 4).map(s => `${s.weight}x${s.reps}`).join(' · ') 
                     : 'Sin historial';
+                const completedSets = ex.actual.filter(s => s.done).length;
+                const totalSets = ex.actual.length;
 
                 return `
-                <div class="glass p-5 rounded-[2rem] space-y-4 animate-up w-full border border-white/5 relative overflow-hidden">
-                    <div class="absolute top-0 left-0 w-1 h-full bg-indigo-500/40"></div>
-                    <div class="flex flex-col gap-1">
-                        <div class="flex justify-between items-center">
-                            <h4 class="font-black text-white uppercase text-sm italic tracking-wide truncate max-w-[65%]">${escapeHTML(ex.name)}</h4>
+                <div class="exercise-card glass p-5 rounded-3xl space-y-4 animate-up w-full" style="animation-delay: ${exIdx * 0.05}s; opacity: 0;">
+                    <div class="flex flex-col gap-2">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1 min-w-0">
+                                <h4 class="font-display font-bold text-white uppercase text-sm tracking-wide truncate">${escapeHTML(ex.name)}</h4>
+                                <p class="text-[10px] text-slate-500 font-medium">${completedSets}/${totalSets} series completadas</p>
+                            </div>
                             <div class="flex gap-2">
-                                <button onclick="window.removeExercise(${exIdx})" class="text-[8px] font-bold text-rose-500/40 hover:text-rose-500 uppercase tracking-tighter">Quitar</button>
-                                <button onclick="window.addSetToActiveExercise(${exIdx})" class="text-[10px] font-black bg-indigo-500/20 text-indigo-300 px-4 py-1.5 rounded-full border border-indigo-500/20 active:scale-95 transition-all">+ SET</button>
+                                <button onclick="window.removeExercise(${exIdx})" class="btn-danger px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-wide">Quitar</button>
+                                <button onclick="window.addSetToActiveExercise(${exIdx})" class="btn-secondary px-3 py-1.5 rounded-lg text-[10px] font-bold">+ Serie</button>
                             </div>
                         </div>
-                        <!-- Referencia Sesión Anterior -->
-                        <div class="flex items-center gap-2">
-                             <span class="text-[8px] font-black text-indigo-400/80 uppercase tracking-widest bg-indigo-500/10 px-2 py-0.5 rounded">Previo</span>
-                             <span class="text-[10px] font-bold text-slate-500 truncate">${prevDisplay}</span>
+                        <div class="flex items-center gap-2 p-2 rounded-lg bg-slate-900/50">
+                            <span class="text-[8px] font-bold text-violet-400 uppercase tracking-widest bg-violet-500/10 px-2 py-1 rounded">Previo</span>
+                            <span class="text-[10px] font-medium text-slate-400 truncate">${prevDisplay}</span>
                         </div>
                     </div>
                     
-                    <div class="space-y-3">
-                        <div class="grid grid-cols-[40px_1fr_1fr] gap-2 px-1 text-[8px] font-black text-slate-600 uppercase tracking-widest">
-                            <div class="text-center">Set</div>
+                    <div class="space-y-2">
+                        <div class="grid grid-cols-[40px_1fr_1fr] gap-2 px-1 text-[9px] font-bold text-slate-600 uppercase tracking-widest">
+                            <div class="text-center">Serie</div>
                             <div class="text-center">Peso</div>
                             <div class="text-center">Reps</div>
                         </div>
                         ${ex.actual.map((s, sIdx) => `
                             <div class="set-row flex items-center gap-3 w-full">
                                 <button onclick="window.toggleSet(${exIdx}, ${sIdx})" 
-                                    class="flex-shrink-0 w-10 h-10 rounded-[12px] font-black text-xs transition-all duration-300 flex items-center justify-center 
-                                    ${s.done ? 'bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.4)]' : 'bg-slate-800 text-slate-500 border border-white/5'}">
-                                    ${s.done ? '✓' : sIdx+1}
+                                    class="flex-shrink-0 w-10 h-10 rounded-xl font-bold text-xs transition-all duration-300 flex items-center justify-center 
+                                    ${s.done ? 'set-completed text-emerald-400 border border-emerald-500/30' : 'bg-slate-800/80 text-slate-500 border border-white/5 hover:border-emerald-500/20'}">
+                                    ${s.done ? '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>' : sIdx+1}
                                 </button>
                                 
                                 <div class="flex-1 grid grid-cols-2 gap-2">
@@ -410,13 +1021,13 @@
                                         <input type="number" placeholder="0" value="${s.weight}" 
                                             oninput="window.updateSet(${exIdx}, ${sIdx}, 'weight', this.value)" 
                                             class="w-full bg-transparent p-3 text-center font-bold text-base text-white outline-none focus:bg-slate-900/50 transition-colors">
-                                        <span class="absolute right-2 top-1/2 -translate-y-1/2 text-[7px] font-black text-slate-600 pointer-events-none group-focus-within:text-indigo-400">KG</span>
+                                        <span class="absolute right-2 top-1/2 -translate-y-1/2 text-[8px] font-bold text-slate-600 pointer-events-none group-focus-within:text-emerald-400 transition-colors">KG</span>
                                     </div>
                                     <div class="relative input-display rounded-xl overflow-hidden group">
                                         <input type="number" placeholder="0" value="${s.reps}" 
                                             oninput="window.updateSet(${exIdx}, ${sIdx}, 'reps', this.value)" 
                                             class="w-full bg-transparent p-3 text-center font-bold text-base text-white outline-none focus:bg-slate-900/50 transition-colors">
-                                        <span class="absolute right-2 top-1/2 -translate-y-1/2 text-[7px] font-black text-slate-600 pointer-events-none group-focus-within:text-indigo-400">RPS</span>
+                                        <span class="absolute right-2 top-1/2 -translate-y-1/2 text-[8px] font-bold text-slate-600 pointer-events-none group-focus-within:text-emerald-400 transition-colors">REPS</span>
                                     </div>
                                 </div>
                             </div>`).join('')}
@@ -427,49 +1038,204 @@
 
         window.addSetToActiveExercise = (exIdx) => { 
             const lastSet = window.activeSession[exIdx].actual[window.activeSession[exIdx].actual.length-1];
-            window.activeSession[exIdx].actual.push({weight: lastSet ? lastSet.weight : "", reps: lastSet ? lastSet.reps : "", done: false}); 
+            window.activeSession[exIdx].actual.push({weight: lastSet?.weight || "", reps: lastSet?.reps || "", done: false}); 
             window.renderActiveSession(); 
         };
-        window.toggleSet = (exIdx, sIdx) => { window.activeSession[exIdx].actual[sIdx].done = !window.activeSession[exIdx].actual[sIdx].done; window.renderActiveSession(); };
-        window.updateSet = (exIdx, sIdx, k, v) => { window.activeSession[exIdx].actual[sIdx][k] = v; };
-        window.removeExercise = (ei) => { if(confirm("¿Quitar?")) { window.activeSession.splice(ei, 1); window.renderActiveSession(); } };
+        
+        window.toggleSet = (exIdx, sIdx) => { 
+            const set = window.activeSession[exIdx].actual[sIdx];
+            set.done = !set.done;
+            
+            // Start timer when completing a set
+            if (set.done && set.weight && set.reps) {
+                window.setTimer(90); // Default 90s rest timer
+            }
+            
+            window.renderActiveSession(); 
+        };
+        
+        window.updateSet = (exIdx, sIdx, k, v) => { 
+            window.activeSession[exIdx].actual[sIdx][k] = v; 
+        };
+        
+        window.removeExercise = (ei) => { 
+            if(confirm("¿Quitar este ejercicio?")) { 
+                window.activeSession.splice(ei, 1); 
+                window.renderActiveSession(); 
+            } 
+        };
+
+        // Timer Functions
+        window.setTimer = (seconds) => {
+            timerSeconds = seconds;
+            document.getElementById('rest-timer').classList.remove('hidden');
+            window.updateTimerDisplay();
+            
+            if (timerInterval) clearInterval(timerInterval);
+            
+            timerInterval = setInterval(() => {
+                timerSeconds--;
+                window.updateTimerDisplay();
+                
+                if (timerSeconds <= 0) {
+                    window.stopTimer();
+                    // Visual feedback
+                    window.showToast("Descanso completado", "success");
+                    // Try to vibrate
+                    if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+                }
+            }, 1000);
+        };
+        
+        window.updateTimerDisplay = () => {
+            const mins = Math.floor(timerSeconds / 60);
+            const secs = timerSeconds % 60;
+            document.getElementById('timer-display').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+        };
+        
+        window.stopTimer = () => {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            document.getElementById('rest-timer').classList.add('hidden');
+        };
 
         window.saveFullSession = async () => {
             if(!window.activeSession || window.activeSession.length === 0) return;
-            const validData = window.activeSession.map(ex => ({ exercise: ex.name, sets: ex.actual.filter(s => s.done && s.weight && s.reps).map(s => ({ weight: parseFloat(s.weight), reps: parseInt(s.reps) })), date: document.getElementById('workout-date').value })).filter(e => e.sets.length > 0);
-            if(validData.length === 0) return window.showToast("Completa series", "error");
-            try { for(const e of validData) await addDoc(collection(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'history'), { ...e, timestamp: serverTimestamp() }); window.showToast("GUARDADO"); window.cancelSession(true); } catch(e) { window.showToast("Error", "error"); }
+            
+            const validData = window.activeSession.map(ex => ({ 
+                exercise: ex.name, 
+                sets: ex.actual.filter(s => s.done && s.weight && s.reps).map(s => ({ 
+                    weight: parseFloat(s.weight), 
+                    reps: parseInt(s.reps) 
+                })), 
+                date: document.getElementById('workout-date').value 
+            })).filter(e => e.sets.length > 0);
+            
+            if(validData.length === 0) return window.showToast("Completa al menos una serie", "error");
+            
+            try { 
+                for(const e of validData) {
+                    await addDoc(collection(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'history'), { 
+                        ...e, 
+                        timestamp: serverTimestamp() 
+                    }); 
+                }
+                window.showToast("Entrenamiento guardado"); 
+                window.stopTimer();
+                window.cancelSession(true); 
+            } catch(e) { 
+                window.showToast("Error al guardar", "error"); 
+            }
         };
 
         window.toggleCustomInput = () => document.getElementById('custom-ex-input').classList.toggle('hidden');
+        
         window.addCustomExercise = async () => {
             const name = document.getElementById('new-ex-name').value.trim();
-            if(name) { await addDoc(collection(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'custom_ex'), { name }); document.getElementById('new-ex-name').value = ""; window.toggleCustomInput(); window.showToast("Creado"); }
+            if(name) { 
+                await addDoc(collection(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'custom_ex'), { name }); 
+                document.getElementById('new-ex-name').value = ""; 
+                window.toggleCustomInput(); 
+                window.showToast("Ejercicio creado"); 
+            }
         };
+        
         window.saveRoutineBlock = async () => {
             const name = document.getElementById('routine-name-input').value.trim();
-            if(!name || pickerSelection.size === 0) return window.showToast("Faltan datos", "error");
-            await addDoc(collection(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'blocks'), { name, exercises: Array.from(pickerSelection).map(n=>({name:n, sets:3})), createdAt: serverTimestamp() });
-            window.closeUniversalPicker(); window.showToast("Guardada"); window.switchTab('train');
+            if(!name || pickerSelection.size === 0) return window.showToast("Completa todos los campos", "error");
+            
+            await addDoc(collection(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'blocks'), { 
+                name, 
+                exercises: Array.from(pickerSelection).map(n=>({name:n, sets:3})), 
+                createdAt: serverTimestamp() 
+            });
+            
+            document.getElementById('routine-name-input').value = "";
+            window.closeUniversalPicker(); 
+            window.showToast("Rutina guardada"); 
+            window.switchTab('train');
         };
 
-        const renderPlannerSavedList = () => { document.getElementById('planner-saved-list').innerHTML = savedBlocks.map(b => `<div class="bg-slate-900/50 p-3 rounded-xl flex justify-between items-center border border-white/5"><span class="text-xs font-bold text-slate-300 truncate uppercase tracking-wider">${escapeHTML(b.name)}</span><button onclick="window.deleteRoutineBlock('${b.id}')" class="text-rose-500/50 p-1">✕</button></div>`).join(''); };
+        const renderPlannerSavedList = () => { 
+            const listEl = document.getElementById('planner-saved-list');
+            if (savedBlocks.length === 0) {
+                listEl.innerHTML = '';
+                return;
+            }
+            
+            listEl.innerHTML = savedBlocks.map((b, i) => `
+                <div class="premium-card p-4 rounded-2xl flex justify-between items-center group animate-up" style="animation-delay: ${0.1 + i * 0.05}s; opacity: 0;">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-violet-500/10 flex items-center justify-center">
+                            <svg class="w-4 h-4 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                        </div>
+                        <div>
+                            <span class="text-xs font-bold text-slate-200 uppercase tracking-wide">${escapeHTML(b.name)}</span>
+                            <p class="text-[10px] text-slate-500">${b.exercises.length} ejercicios</p>
+                        </div>
+                    </div>
+                    <button onclick="window.deleteRoutineBlock('${b.id}')" class="text-slate-600 hover:text-rose-400 p-2 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                </div>`
+            ).join(''); 
+        };
 
-        window.cancelSession = (silent = false) => { if(silent || confirm("¿Cancelar?")) { window.activeSession = null; document.getElementById('routine-selector').classList.remove('hidden'); document.getElementById('active-session-ui').classList.add('hidden'); } };
-        window.deleteHistory = async (id) => { if(confirm("¿Borrar?")) await deleteDoc(doc(doc(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'history', id))); };
-        window.deleteRoutineBlock = async (id) => { if(confirm("¿Borrar?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'blocks', id)); };
-        window.deleteCustomEx = async (id) => { if(confirm("¿Borrar?")) await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'custom_ex', id)); };
+        window.cancelSession = (silent = false) => { 
+            if(silent || confirm("¿Cancelar la sesion actual?")) { 
+                window.stopTimer();
+                window.activeSession = null; 
+                document.getElementById('routine-selector').classList.remove('hidden'); 
+                document.getElementById('active-session-ui').classList.add('hidden'); 
+            } 
+        };
+        
+        window.deleteHistory = async (id) => { 
+            if(confirm("¿Eliminar este registro?")) {
+                await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'history', id));
+            }
+        };
+        
+        window.deleteRoutineBlock = async (id) => { 
+            if(confirm("¿Eliminar esta rutina?")) {
+                await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'blocks', id));
+            }
+        };
+        
+        window.deleteCustomEx = async (id) => { 
+            if(confirm("¿Eliminar este ejercicio personalizado?")) {
+                await deleteDoc(doc(db, 'artifacts', DB_KEY, 'users', window.user.uid, 'custom_ex', id));
+            }
+        };
 
         window.showToast = (m, type="success") => {
-            const t = document.getElementById('toast'); const msg = document.getElementById('toast-msg'); msg.textContent = m;
-            t.firstElementChild.className = `w-2 h-2 rounded-full block ${type==='error'?'bg-rose-500':'bg-emerald-500'}`;
-            t.classList.remove('opacity-0'); t.classList.add('opacity-100');
-            setTimeout(() => { t.classList.remove('opacity-100'); t.classList.add('opacity-0'); }, 2500);
+            const t = document.getElementById('toast'); 
+            const msg = document.getElementById('toast-msg'); 
+            const indicator = document.getElementById('toast-indicator');
+            
+            msg.textContent = m;
+            indicator.className = `w-2 h-2 rounded-full block ${type==='error'?'bg-rose-400':'bg-emerald-400'}`;
+            
+            t.classList.remove('opacity-0', 'pointer-events-none'); 
+            t.classList.add('opacity-100', 'toast-enter');
+            
+            setTimeout(() => { 
+                t.classList.remove('opacity-100', 'toast-enter'); 
+                t.classList.add('opacity-0', 'pointer-events-none'); 
+            }, 3000);
         };
 
+        // Init
         window.onload = () => {
             document.getElementById('workout-date').value = new Date().toISOString().split('T')[0];
             document.getElementById('picker-search').oninput = e => renderPickerList(e.target.value);
+            
+            // Keyboard support for login
+            document.getElementById('login-pass').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') window.ejecutarLogin('signin');
+            });
         };
     </script>
 </body>
